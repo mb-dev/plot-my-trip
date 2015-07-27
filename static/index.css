@@ -1,0 +1,58 @@
+#container {
+  display: flex;
+  flex-direction: row;
+}
+
+a.fa-remove {
+    color: #c9302c;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+#days {
+  width: 200px;
+  flex: 0 0 329px;
+  margin-right: 20px;
+}
+
+#days .day h2 span {
+  float: right;
+}
+
+#days .day .change-day {
+  float: right;
+  display:  none;
+  a {
+    margin: 0 3px;
+  }
+}
+
+#days .day .change-day.active h2 {
+  color: #6666CC;
+  text-decoration: underline;
+}
+#days .day .change-day {
+  display:  block;
+}
+#map-area {
+  flex: 1;
+}
+#map-canvas {
+  height: 600px;
+  flex: 1;
+}
+
+.points {
+  list-style: none;
+  padding-left: 0;
+}
+
+.points .point a {
+  margin: 0 5px;
+}
+
+.points .point a:hover {
+  display: inline-block;
+}

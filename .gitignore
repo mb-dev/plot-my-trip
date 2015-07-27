@@ -22,3 +22,10 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+server
+
+node_modules
+config/oauth.go
+static/index.js
+static/vendor.bundle.js
