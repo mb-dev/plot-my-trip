@@ -1,11 +1,15 @@
-package db;
+package db
 
-func GetAllTrips(userId mgo.ObjectId) {
-	mgo.Trips.FindById(userId)
-}
+import "gopkg.in/mgo.v2/bson"
 
-func GetTripById(tripId mgo.ObjectId) {
+func GetAllTrips(userId bson.ObjectId) {
 
 }
 
-func CreateTrip()
+func GetTripById(tripId bson.ObjectId) {
+
+}
+
+func CreateTrip() {
+
+}

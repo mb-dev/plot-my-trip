@@ -1,27 +1,25 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/julienschmidt/httprouter"
 	"github.com/mb-dev/plot-my-trip/api"
 )
 
-func registerAPIService() {
-	http.HandleFunc("/api", api.Handler)
-	http.HandleFunc("/auth/google", api.AuthGoogleHandler)
-}
-
-func registerStaticFiles() {
-	dir := http.FileServer(http.Dir("static/"))
-	http.Handle("/css/", dir)
-	http.Handle("/js/", dir)
-	http.Handle("/html/", dir)
-	http.Handle("/", dir)
+func serverIndex(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	http.ServeFile(w, r, "static/index.html")
 }
 
 func main() {
-	registerStaticFiles()
-	registerAPIService()
+	router := httprouter.New()
+	router.NotFound = http.FileServer(http.Dir("static"))
 
-	http.ListenAndServe(":4000", nil)
+	router.GET("/auth/google/callback", serverIndex)
+
+	api.RegisterAPIService(router)
+
+	fmt.Println("Starting server on port 4000...")
+	http.ListenAndServe(":4000", router)
 }

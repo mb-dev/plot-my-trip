@@ -26,6 +26,6 @@ _testmain.go
 server
 
 node_modules
-config/oauth.go
+api/config/oauth.go
 static/index.js
 static/vendor.bundle.js

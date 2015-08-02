@@ -1,10 +1,13 @@
-package auth
+package google
 
 import (
+	"fmt"
+	"log"
 	"net/url"
 
-	"github.com/mb-dev/plot-my-trip/config"
+	"github.com/mb-dev/plot-my-trip/api/config"
 	"golang.org/x/oauth2"
+	"google.golang.org/api/plus/v1"
 )
 
 const (
@@ -27,9 +30,9 @@ var Endpoint = oauth2.Endpoint{
 	TokenURL: TokenURL,
 }
 
-var Config = Oauth2Config()
+var Config = oauth2Config()
 
-func Oauth2Config() *oauth2.Config {
+func oauth2Config() *oauth2.Config {
 	return &oauth2.Config{
 		ClientID:     config.OauthGoogleClientID,
 		ClientSecret: config.OauthGoogleClientSecret,
@@ -42,4 +45,17 @@ func Oauth2Config() *oauth2.Config {
 		},
 		Endpoint: Endpoint,
 	}
+}
+
+func HandleCallback(code string) {
+	token, err := Config.Exchange(oauth2.NoContext, code)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	client := Config.Client(oauth2.NoContext, token)
+
+	svc, err := plus.New(client)
+	person, err := svc.People.Get("me").Do()
+	fmt.Println(person.Emails[0].Value)
 }
