@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { Router, Route, Link } from 'react-router';
 
 import dispather  from './dispatcher/dispatcher.js'
 import OptionList from './components/option_list/option_list.jsx'

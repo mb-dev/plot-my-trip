@@ -1,7 +1,6 @@
 package google
 
 import (
-	"fmt"
 	"log"
 	"net/url"
 
@@ -37,13 +36,17 @@ var Endpoint = oauth2.Endpoint{
 	TokenURL: TokenURL,
 }
 
-var Config = oauth2Config()
+var GoogleOauthConfig *oauth2.Config
 
-func oauth2Config() *oauth2.Config {
+func Initialize() {
+	GoogleOauthConfig = getConfiguration()
+}
+
+func getConfiguration() *oauth2.Config {
 	return &oauth2.Config{
-		ClientID:     config.OauthGoogleClientID,
-		ClientSecret: config.OauthGoogleClientSecret,
-		RedirectURL:  config.OauthGoogleRedirectURL,
+		ClientID:     config.Config.OauthGoogleClientID,
+		ClientSecret: config.Config.OauthGoogleClientSecret,
+		RedirectURL:  config.Config.OauthGoogleRedirectURL,
 		Scopes: []string{
 			"email",
 			"profile",
@@ -57,14 +60,13 @@ func oauth2Config() *oauth2.Config {
 func GetUserFromCode(state string, code string) (GoogleUser, error) {
 	user := GoogleUser{}
 
-	token, err := Config.Exchange(oauth2.NoContext, code)
-	fmt.Println("refresh token " + token.RefreshToken)
+	token, err := GoogleOauthConfig.Exchange(oauth2.NoContext, code)
 	if err != nil {
 		log.Println(err)
 		return user, err
 	}
 
-	client := Config.Client(oauth2.NoContext, token)
+	client := GoogleOauthConfig.Client(oauth2.NoContext, token)
 
 	svc, err := plus.New(client)
 	if err != nil {

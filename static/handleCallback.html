@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  </head>
+  <body>
+    <script>
+      var urlParts = location.href.split('?');
+      var queryParts = urlParts[1].split('&');
+      var state = null;
+      var code = null;
+      for(var i = 0; i < queryParts.length; ++i) {
+        paramParts = queryParts[i].split('=');
+        if(paramParts[0] == 'state') {
+          state = paramParts[1];
+        } else if (paramParts[0] == 'code') {
+          code = paramParts[1];
+        }
+      }
+      if(state && code) {
+        $.post('/api/auth/tokenize', JSON.stringify({state, code}), function(data, textStatus) {
+          console.log(data);
+        });
+      }
+    </script>
+  </body>
+</html>

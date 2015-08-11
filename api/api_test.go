@@ -5,9 +5,11 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Server", func() {
-	It("Should return hello", func() {
-		result := "world"
-		Expect(result).To(Equal("world"))
+var _ = Describe("API Server", func() {
+	Describe("/auth/google", func() {
+		It("Should return a token", func() {
+			result := "world"
+			Expect(result).To(Equal("world"))
+		})
 	})
 })

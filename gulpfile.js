@@ -8,20 +8,34 @@ var webpackConfig = require("./webpack.config.js");
 gulp.task("test", shell.task(['go test ./...']));
 
 server = null;
-gulp.task("server", function() {
-	if (server) {
-		server.kill();
+gulp.task("server", function(done) {
+	spawn = function() {
+		server = child.spawn('go', ['run', 'server.go']);
+		server.stdout.on('data', function(data) {
+			var lines = data.toString().split('\n')
+			for (var l in lines)
+				if (lines[l].length)
+					gutil.log(lines[l]);
+		});
+		server.stderr.on('data', function(data) {
+			process.stdout.write(data.toString());
+		});
+		server.on('close', function() {
+			server = null;
+		});
 	}
-	server = child.spawn('go', ['run', 'server.go']);
-	server.stdout.on('data', function(data) {
-    var lines = data.toString().split('\n')
-    for (var l in lines)
-      if (lines[l].length)
-        gutil.log(lines[l]);
-  });
-	server.stderr.on('data', function(data) {
-    process.stdout.write(data.toString());
-  });
+	if (server) {
+		server.on('close', function() {
+			process.stdout.write("server closed...\n");
+			spawn();
+			done();
+		});
+		server.kill();
+		child.exec('killall server');
+	} else {
+		spawn();
+		done();
+	}
 });
 
 gulp.task("dev", ["server", "webpack"], function() {
