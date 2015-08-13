@@ -11,6 +11,8 @@ type configuration struct {
 	APIRoot    string `default:"/api"`
 	APIVersion string `default:"v1"`
 
+	DatabaseName string `default:"plot-my-trip"`
+
 	OauthURL                string
 	OauthGoogleClientID     string `envconfig:"google_client_id"`
 	OauthGoogleClientSecret string `envconfig:"google_client_secret"`

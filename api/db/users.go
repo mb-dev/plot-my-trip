@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/mb-dev/plot-my-trip/api/config"
 	"github.com/mb-dev/plot-my-trip/api/lib/auth/google"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -14,16 +15,37 @@ type User struct {
 	RefreshToken string `bson:"refresh_token"`
 }
 
-func FindAndUpdateOrCreateUser(userDetails google.GoogleUser) (User, error) {
+func FindUserById(id string) (User, error) {
 	user := User{}
-	usersCollection := Db.Session.DB("plot-my-trip").C("users")
+	usersCollection := Db.Session.DB(config.Config.DatabaseName).C("users")
+	err := usersCollection.FindId(id).One(&user)
+	return user, err
+}
 
-	err := usersCollection.Find(bson.M{"email": userDetails.Email}).One(&user)
+func FindUserByEmail(email string) (User, error) {
+	user := User{}
+	usersCollection := Db.Session.DB(config.Config.DatabaseName).C("users")
+	err := usersCollection.Find(bson.M{"email": email}).One(&user)
+	return user, err
+}
+
+func InsertUser(user User) error {
+	usersCollection := Db.Session.DB(config.Config.DatabaseName).C("users")
+	return usersCollection.Insert(user)
+}
+
+func UpdateUser(user User) error {
+	usersCollection := Db.Session.DB(config.Config.DatabaseName).C("users")
+	return usersCollection.Update(bson.M{"_id": user.Id}, user)
+}
+
+func FindAndUpdateOrCreateUser(userDetails google.GoogleUser) (User, error) {
+	user, err := FindUserByEmail(userDetails.Email)
 	if err == nil {
 		// user is found
 		user.AccessToken = userDetails.AccessToken
 		user.RefreshToken = userDetails.RefreshToken
-		if err := usersCollection.Update(bson.M{"_id": user.Id}, user); err != nil {
+		if err := UpdateUser(user); err != nil {
 			return user, err
 		}
 	} else {
@@ -33,7 +55,7 @@ func FindAndUpdateOrCreateUser(userDetails google.GoogleUser) (User, error) {
 		user.Email = userDetails.Email
 		user.AccessToken = userDetails.AccessToken
 		user.RefreshToken = userDetails.RefreshToken
-		if err := usersCollection.Insert(user); err != nil {
+		if err := InsertUser(user); err != nil {
 			return user, err
 		}
 	}

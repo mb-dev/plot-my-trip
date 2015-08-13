@@ -1,4 +1,7 @@
 import React, { PropTypes } from 'react';
+import dispatcher from '../../dispatcher/dispatcher'
+import ActionType from '../../trips/action_types'
+import tripsStore from '../../trips/trips_store'
 
 class MousetrapMixin {
   constructor() {
@@ -32,7 +35,7 @@ class MousetrapMixin {
 class OptionList extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {count: props.initialCount};
+    this.state = {locations: []};
     this.mouseTrap = new MousetrapMixin();
   }
   onKeyUp(e) {
@@ -41,24 +44,34 @@ class OptionList extends React.Component {
   onKeyDown(e) {
     this.setState({selectedIndex: this.state.selectedIndex + 1});
   }
+  addPlace() {
+    dispatcher.dispatch({actionType: ActionType.ADD_LOCATION});
+  }
+  onTripsStoreChange() {
+    this.setState({locations: tripsStore.getLocations()});
+  }
   componentDidMount() {
     this.mouseTrap.bindShortcut('up', this.onKeyUp);
     this.mouseTrap.bindShortcut('down', this.onKeyDown);
+    tripsStore.addChangeListener(this.onTripsStoreChange.bind(this));
   }
   componentWillUnmount() {
     this.mouseTrap.unbindAllShortcuts();
+    tripsStore.removeChangeListener(this.onTripsStoreChange.bind(this));
   }
   render() {
-    var options = [{id: 1, title: 'Option 1'}, {id: 2, title: 'Option 2'}];
     var selectedIndex = this.state.selectedIndex;
-    var optionNodes = options.map(function(option, index) {
+    var optionNodes = this.state.locations.map(function(option, index) {
       var className = index == selectedIndex ? 'selected' : '';
-      return (<li key={option.id} className={className}>{option.title}</li>);
+      return (<li className={className}>{option.name}</li>);
     });
     return (
-      <ul onClick={this.handleClick}>
-        {optionNodes}
-      </ul>
+      <div>
+        <a href="#" onClick={this.addPlace}>Add</a>
+        <ul>
+          {optionNodes}
+        </ul>
+      </div>
     );
   }
 }

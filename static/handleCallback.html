@@ -2,6 +2,7 @@
 <html>
   <head>
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Cookies.js/1.2.1/cookies.min.js"></script>
   </head>
   <body>
     <script>
@@ -19,7 +20,8 @@
       }
       if(state && code) {
         $.post('/api/auth/tokenize', JSON.stringify({state, code}), function(data, textStatus) {
-          console.log(data);
+          Cookies.set('token', data);
+          window.location.href = '/'
         });
       }
     </script>
