@@ -3,7 +3,14 @@ language: go
 go:
   - 1.4
 
+services:
+  - mongodb
+
+cache:
+  directories:
+    - node_modules
+
 before_script:
   - npm install
-  
+
 script: gulp test
