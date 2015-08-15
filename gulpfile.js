@@ -1,11 +1,25 @@
-var child 				= require('child_process')
-var gulp          = require("gulp")
-var gutil				  = require('gulp-util')
-var shell 			  = require("gulp-shell")
-var webpack 		  = require("webpack")
+const DEBUG = process.env.NODE_ENV === 'debug';
+const CI = process.env.CI === 'true';
+
+var child 				= require('child_process');
+var gulp          = require("gulp");
+var gutil				  = require('gulp-util');
+var shell 			  = require("gulp-shell");
+var webpack 		  = require("webpack");
+var mocha					= require('gulp-spawn-mocha');
 var webpackConfig = require("./webpack.config.js");
 
-gulp.task("test", shell.task(['go test ./...']));
+gulp.task("mocha", function() {
+	return gulp.src(['client/**/*.test.js'], {read: false})
+		.pipe(mocha({
+			compilers: 'js:babel/register',
+      R: 'spec'
+    }));
+});
+
+gulp.task("gotest", shell.task(['go test ./...']));
+
+gulp.task("test", ['gotest', 'mocha']);
 
 server = null;
 gulp.task("server", function(done) {

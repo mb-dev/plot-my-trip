@@ -1,25 +1,32 @@
 import React, { PropTypes } from 'react';
-import Cookies from 'cookies-js'
 
 import GoogleMapsService from '../../libraries/google_maps/google_maps.js'
 import dispatcher from '../../dispatcher/dispatcher.js'
 import ActionType from '../../trips/action_types'
 
+require('./map_area.less');
+
 var googleMapsService = new GoogleMapsService();
 
 function placeToLocation(place) {
-  var country = '';
+  let country = '';
+  let city = '';
 
-  for (var component of place.address_components) {
+  place.address_components.forEach(function(component, index) {
     if(component.types.indexOf('country') >= 0) {
       country = component.long_name;
+    } else if(index > 0 && component.types.indexOf('locality') >= 0) {
+      city = component.long_name;
     }
-  }
+  });
 
   return {
+    types: place.types,
+    place_id: place.place_id,
     name: place.name,
     location: {lat: place.geometry.location.lat(), lng: place.geometry.location.lng()},
-    country: country
+    country: country,
+    city: city
   };
 }
 
@@ -29,7 +36,8 @@ export default class MapArea extends React.Component {
     googleMapsService.createAutoComplete(this.refs.autoComplete.getDOMNode());
     googleMapsService.addHandler('onPlaceChanged', function(place) {
       googleMapsService.findPlace(place);
-      dispatcher.dispatch({actionType: ActionType.PLACE_CHANGED, location: placeToLocation(place)});
+      let googleData = placeToLocation(place);
+      dispatcher.dispatch({actionType: ActionType.PLACE_CHANGED, googleData: googleData});
     });
   }
   onSubmit(e) {

@@ -73,7 +73,7 @@ func RequireBearerMiddleware(handle context.HandlerWithContext) httprouter.Handl
 		}
 		user, err := db.FindUserById(userId)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
+			http.Error(w, "User with id: "+userId+" "+err.Error(), http.StatusUnauthorized)
 			return
 		}
 		handle(w, r, ps, context.CreateContext(user))

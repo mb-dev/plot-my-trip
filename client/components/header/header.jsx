@@ -1,13 +1,33 @@
 import React, { PropTypes } from 'react';
 
+import userStore  from '../../users/users_store'
+
 export default class Header extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {currentUser: null};
+  }
   handleLogin() {
     // get Google Auth URL
     $.get('/api/auth/google', function(result) {
       window.location.href = result;
     })
   }
+  onUsersStoreChange() {
+    this.setState({currentUser: userStore.getCurrentUser()});
+  }
+  componentDidMount() {
+    userStore.addChangeListener(this.onUsersStoreChange.bind(this));
+  }
   render() {
+    var userSection;
+    if (this.state.currentUser) {
+      userSection = <div className="navbar-text">Welcome {this.state.currentUser.name}</div>;
+    } else {
+      userSection = <a className="btn" onClick={this.handleLogin}>
+        <i className="fa fa-google"></i> Login using Google
+      </a>;
+    }
     return (
       <nav className="navbar navbar-default">
         <div className="container-fluid">
@@ -18,30 +38,15 @@ export default class Header extends React.Component {
               <span className="icon-bar"></span>
               <span className="icon-bar"></span>
             </button>
-            <a className="navbar-brand" href="#">Plot My Trip 1</a>
+            <a className="navbar-brand" href="#">Plot My Trip</a>
           </div>
-          <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <div className="collapse navbar-collapse">
             <ul className="nav navbar-nav">
-              <li className="active"><a href="#">Link <span className="sr-only">(current)</span></a></li>
-              <li><a href="#">Link</a></li>
-              <li className="dropdown">
-                <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span className="caret"></span></a>
-                <ul className="dropdown-menu">
-                  <li><a href="#">Action</a></li>
-                  <li><a href="#">Another action</a></li>
-                  <li><a href="#">Something else here</a></li>
-                  <li role="separator" className="divider"></li>
-                  <li><a href="#">Separated link</a></li>
-                  <li role="separator" className="divider"></li>
-                  <li><a href="#">One more separated link</a></li>
-                </ul>
-              </li>
+              <li className="active"><a href="#">Home <span className="sr-only">(current)</span></a></li>
             </ul>
             <ul className="nav navbar-nav navbar-right">
               <li>
-                <a className="btn" onClick={this.handleLogin}>
-                  <i className="fa fa-google"></i> Login using Google
-                </a>
+                {userSection}
               </li>
             </ul>
           </div>

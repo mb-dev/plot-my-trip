@@ -18,7 +18,7 @@ type User struct {
 func FindUserById(id string) (User, error) {
 	user := User{}
 	usersCollection := Db.Session.DB(config.Config.DatabaseName).C("users")
-	err := usersCollection.FindId(id).One(&user)
+	err := usersCollection.FindId(bson.ObjectIdHex(id)).One(&user)
 	return user, err
 }
 

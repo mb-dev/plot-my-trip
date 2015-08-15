@@ -1,42 +1,21 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
 import dispatcher from '../../dispatcher/dispatcher'
 import ActionType from '../../trips/action_types'
 import tripsStore from '../../trips/trips_store'
+import MousetrapMixin from '../../libraries/mousetrap_mixin/mousetrap_mixin'
 
-class MousetrapMixin {
-  constructor() {
-    this.mousetrapBindings = [];
-  }
-  bindShortcut(key, callback) {
-      Mousetrap.bind(key, callback);
+import Group from '../group/group'
 
-      this.mousetrapBindings.push(key);
-  }
-  unbindShortcut(key) {
-      var index = this.mousetrapBindings.indexOf(key);
-
-      if (index > -1) {
-          this.mousetrapBindings.splice(index, 1);
-      }
-
-      Mousetrap.unbind(binding);
-  }
-  unbindAllShortcuts() {
-      if (this.mousetrapBindings.length < 1) {
-          return;
-      }
-
-      this.mousetrapBindings.forEach(function (binding) {
-          Mousetrap.unbind(binding);
-      });
-  }
-}
+require('./option_list.less');
 
 class OptionList extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {locations: []};
+    this.state = {locations: [], groups: []};
     this.mouseTrap = new MousetrapMixin();
+
+    this.addPlace = this.addPlace.bind(this);
+    this.addGroup = this.addGroup.bind(this);
   }
   onKeyUp(e) {
     this.setState({selectedIndex: this.state.selectedIndex - 1});
@@ -47,29 +26,40 @@ class OptionList extends React.Component {
   addPlace() {
     dispatcher.dispatch({actionType: ActionType.ADD_LOCATION});
   }
+  addGroup() {
+    let groupName = React.findDOMNode(this.refs.groupNameInput).value;
+    dispatcher.dispatch({actionType: ActionType.ADD_GROUP, groupName: groupName});
+  }
   onTripsStoreChange() {
-    this.setState({locations: tripsStore.getLocations()});
+    this.setState({locations: tripsStore.getLocations(), groups: tripsStore.getGroups()});
   }
   componentDidMount() {
-    this.mouseTrap.bindShortcut('up', this.onKeyUp);
-    this.mouseTrap.bindShortcut('down', this.onKeyDown);
     tripsStore.addChangeListener(this.onTripsStoreChange.bind(this));
   }
   componentWillUnmount() {
-    this.mouseTrap.unbindAllShortcuts();
     tripsStore.removeChangeListener(this.onTripsStoreChange.bind(this));
   }
   render() {
     var selectedIndex = this.state.selectedIndex;
-    var optionNodes = this.state.locations.map(function(option, index) {
+    var locationNodes = this.state.locations.map(function(location, index) {
       var className = index == selectedIndex ? 'selected' : '';
-      return (<li className={className}>{option.name}</li>);
+      return (<li className={className}>{location.name}</li>);
+    });
+    var groupNodes = this.state.groups.map(function(group, index) {
+      var className = '';
+      return (<Group group={group} />);
     });
     return (
-      <div>
+      <div id="days">
+        <h2>Groups:</h2>
+        <div className="form-inline">
+          <input ref="groupNameInput" type="text" className="form-control"></input><button className="btn btn-default" onClick={this.addGroup}>Add</button>
+        </div>
+        {groupNodes}
+        <h2>Scrape Book:</h2>
         <a href="#" onClick={this.addPlace}>Add</a>
         <ul>
-          {optionNodes}
+          {locationNodes}
         </ul>
       </div>
     );

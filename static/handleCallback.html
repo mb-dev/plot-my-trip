@@ -21,7 +21,7 @@
       if(state && code) {
         $.post('/api/auth/tokenize', JSON.stringify({state, code}), function(data, textStatus) {
           Cookies.set('token', data);
-          window.location.href = '/'
+          window.location.href = '/';
         });
       }
     </script>
