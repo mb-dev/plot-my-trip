@@ -33,6 +33,22 @@ describe('TripsStore', function() {
       this.location = trip.getLocationById(this.location.id);
       expect(this.location.groupId).to.equal(group.id);
     });
+    it('adding location to a group twice should not add multiple times', function() {
+      let group = trip.addGroup('Sydney Day 1');
+      expect(group.id).to.equal(2);
+      trip.addLocationToGroup(group.id, this.location.id);
+      trip.addLocationToGroup(group.id, this.location.id);
+      expect(group.locations).to.deep.equal([this.location.id])
+    });
+    it('adding location to two groups should keep last', function() {
+      let group1 = trip.addGroup('Sydney Day 1');
+      let group2 = trip.addGroup('Sydney Day 2');
+      trip.addLocationToGroup(group1.id, this.location.id);
+      trip.addLocationToGroup(group2.id, this.location.id);
+      expect(group1.locations).to.deep.equal([]);
+      expect(group2.locations).to.deep.equal([this.location.id]);
+      expect(this.location.groupId).to.equal(group2.id);
+    });
     it('should be able to move a location up in a group', function() {
       trip.setActivePlace(pocketBar);
       let location1 = this.location;

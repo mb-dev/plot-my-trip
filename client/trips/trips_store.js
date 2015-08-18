@@ -74,11 +74,20 @@ class Trip {
   addLocationToGroup(groupId, locationId) {
     let location = this.getLocationById(locationId);
     let group = this.getGroupById(groupId);
+    if (location.groupId == groupId) {
+      return;
+    }
+    if (location.groupId) {
+      this.removeLocationFromGroup(location.groupId, locationId)
+    }
     location.groupId = groupId;
     group.locations.push(locationId);
   }
-  removeLocationFromGroup() {
-
+  removeLocationFromGroup(groupId, locationId) {
+    let location = this.getLocationById(locationId);
+    let group = this.getGroupById(groupId);
+    location.groupId = null;
+    group.locations = _.without(group.locations, locationId);
   }
   moveLocationUp(groupId, locationId) {
     let group = this.getGroupById(groupId);
