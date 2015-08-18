@@ -32,10 +32,10 @@ class OptionList extends React.Component {
   }
   addGroup() {
     let groupName = React.findDOMNode(this.refs.groupNameInput).value;
-    dispatcher.dispatch({actionType: ActionType.ADD_GROUP, groupName: groupName});
+    dispatcher.dispatch({actionType: ActionType.GROUPS.ADD_GROUP, groupName: groupName});
   }
   onTripsStoreChange() {
-    this.setState({locations: tripsStore.currentTrip.getLocations(), groups: tripsStore.currentTrip.getGroups()});
+    this.setState({locations: tripsStore.currentTrip.getUnassignedLocations(), groups: tripsStore.currentTrip.getGroups()});
   }
   componentDidMount() {
     tripsStore.addChangeListener(this.onTripsStoreChange.bind(this));
@@ -47,11 +47,11 @@ class OptionList extends React.Component {
     var selectedIndex = this.state.selectedIndex;
     var locationNodes = this.state.locations.map(function(location, index) {
       var className = index == selectedIndex ? 'selected' : '';
-      return (<GroupMember location={location} />);
+      return (<GroupMember key={location.id} location={location} />);
     });
     var groupNodes = this.state.groups.map(function(group, index) {
       var className = '';
-      return (<Group group={group} />);
+      return (<Group key={group.id} group={group} />);
     });
     return (
       <div id="days">

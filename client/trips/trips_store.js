@@ -46,6 +46,9 @@ class Trip {
   getLocations() {
     return this.data.locations;
   }
+  getUnassignedLocations() {
+    return _.filter(this.data.locations, (location) => !location.groupId )
+  }
 
   getGroups() {
     return this.data.groups;
@@ -117,7 +120,7 @@ class TripsStore extends EventEmitter{
         xhr.setRequestHeader("Authorization", "Bearer " + bearerToken);
       },
       success: (data) => {
-        this.currentTrip.data = data;
+        this.currentTrip.data = data[0];
         this.emitChange();
       }
     });
@@ -161,8 +164,12 @@ class TripsStore extends EventEmitter{
         this.currentTrip.addActivePlaceToTrip();
         this.emitChange();
         break;
-      case ActionType.ADD_GROUP:
+      case ActionType.GROUPS.ADD_GROUP:
         this.currentTrip.addGroup(payload.groupName);
+        this.emitChange();
+        break;
+      case ActionType.GROUPS.ADD_PLACE_TO_GROUP:
+        this.currentTrip.addLocationToGroup(payload.groupId, payload.locationId);
         this.emitChange();
         break;
     }

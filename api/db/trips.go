@@ -2,6 +2,7 @@ package db
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/go-errors/errors"
 	"github.com/mb-dev/plot-my-trip/api/config"
@@ -18,8 +19,15 @@ type Trip struct {
 }
 
 func jsonToBsonStruct(body []byte, out interface{}) error {
-	var jsonMap map[string]interface{}
+	var jsonMap bson.M
 	json.Unmarshal(body, &jsonMap)
+	if _, ok := jsonMap["_id"]; ok {
+		jsonMap["_id"] = bson.ObjectIdHex(jsonMap["_id"].(string))
+	}
+	if _, ok := jsonMap["userId"]; ok {
+		jsonMap["userId"] = bson.ObjectIdHex(jsonMap["userId"].(string))
+	}
+	fmt.Printf("after json unmarshal %#v", jsonMap)
 	b, _ := bson.Marshal(&jsonMap)
 	return bson.Unmarshal(b, out)
 }
@@ -57,13 +65,19 @@ func GetTripByID(userID string) {
 // InsertTrip adds a trip
 func InsertTrip(trip Trip) error {
 	tripsCollection := Db.Session.DB(config.Config.DatabaseName).C(collectionName)
-	return tripsCollection.Insert(trip)
+	if err := tripsCollection.Insert(trip); err != nil {
+		return errors.Wrap(err, 0)
+	}
+	return nil
 }
 
 // UpdateTrip updates the trip
 func UpdateTrip(trip Trip) error {
 	tripsCollection := Db.Session.DB(config.Config.DatabaseName).C(collectionName)
-	return tripsCollection.Update(bson.M{"_id": trip.ID}, trip)
+	if err := tripsCollection.Update(bson.M{"_id": trip.ID}, trip); err != nil {
+		return errors.Wrap(err, 0)
+	}
+	return nil
 }
 
 // CreateTripFromBody inserts a trip from document body
@@ -86,6 +100,7 @@ func UpdateTripFromBody(userID string, tripBody []byte) *errors.Error {
 	if err := jsonToBsonStruct(tripBody, &trip); err != nil {
 		return errors.Wrap(err, 0)
 	}
+	fmt.Printf("after bson unmarshal %#v, %#v", trip, trip.ID)
 	if err := UpdateTrip(trip); err != nil {
 		return errors.Wrap(err, 0)
 	}

@@ -1,6 +1,8 @@
 var webpack = require('webpack');
 
 module.exports = {
+  devtool: 'source-map',
+
   context: __dirname + "/client",
   entry: {
     index: __dirname + "/client/index.jsx",
@@ -16,7 +18,7 @@ module.exports = {
 
   output: {
     filename: "index.js",
-    path: __dirname + "/static",
+    path: __dirname + "/static"
   },
   plugins: [
     new webpack.NoErrorsPlugin(),

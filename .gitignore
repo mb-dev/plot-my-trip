@@ -27,5 +27,7 @@ server
 
 node_modules
 static/index.js
+static/index.js.map
 static/vendor.bundle.js
+static/vendor.bundle.js.map
 coverage

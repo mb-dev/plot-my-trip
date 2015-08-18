@@ -4,7 +4,8 @@ import { DragSource } from 'react-dnd';
 const groupSource = {
   beginDrag(props) {
     return {
-      id: props.location.id
+      id: props.location.id,
+      groupId: props.location.groupId
     };
   }
 };
