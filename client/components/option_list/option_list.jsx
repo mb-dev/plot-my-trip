@@ -3,11 +3,15 @@ import dispatcher from '../../dispatcher/dispatcher'
 import ActionType from '../../trips/action_types'
 import tripsStore from '../../trips/trips_store'
 import MousetrapMixin from '../../libraries/mousetrap_mixin/mousetrap_mixin'
+import HTML5Backend from 'react-dnd/modules/backends/HTML5';
+import { DragDropContext } from 'react-dnd';
 
 import Group from '../group/group'
+import GroupMember from '../group/group_member'
 
 require('./option_list.less');
 
+@DragDropContext(HTML5Backend)
 class OptionList extends React.Component {
   constructor(props) {
     super(props);
@@ -31,7 +35,7 @@ class OptionList extends React.Component {
     dispatcher.dispatch({actionType: ActionType.ADD_GROUP, groupName: groupName});
   }
   onTripsStoreChange() {
-    this.setState({locations: tripsStore.getLocations(), groups: tripsStore.getGroups()});
+    this.setState({locations: tripsStore.currentTrip.getLocations(), groups: tripsStore.currentTrip.getGroups()});
   }
   componentDidMount() {
     tripsStore.addChangeListener(this.onTripsStoreChange.bind(this));
@@ -43,7 +47,7 @@ class OptionList extends React.Component {
     var selectedIndex = this.state.selectedIndex;
     var locationNodes = this.state.locations.map(function(location, index) {
       var className = index == selectedIndex ? 'selected' : '';
-      return (<li className={className}>{location.name}</li>);
+      return (<GroupMember location={location} />);
     });
     var groupNodes = this.state.groups.map(function(group, index) {
       var className = '';

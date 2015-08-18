@@ -33,5 +33,27 @@ describe('TripsStore', function() {
       this.location = trip.getLocationById(this.location.id);
       expect(this.location.groupId).to.equal(group.id);
     });
+    it('should be able to move a location up in a group', function() {
+      trip.setActivePlace(pocketBar);
+      let location1 = this.location;
+      let location2 = trip.addActivePlaceToTrip();
+      let group = trip.addGroup('Sydney Day 1');
+      trip.addLocationToGroup(group.id, location1.id);
+      trip.addLocationToGroup(group.id, location2.id);
+      expect(group.locations).to.deep.equal([location1.id, location2.id]);
+      trip.moveLocationUp(group.id, location2.id);
+      expect(group.locations).to.deep.equal([location2.id, location1.id]);
+    });
+    it('should be able to move a location down in a group', function() {
+      trip.setActivePlace(pocketBar);
+      let location1 = this.location;
+      let location2 = trip.addActivePlaceToTrip();
+      let group = trip.addGroup('Sydney Day 1');
+      trip.addLocationToGroup(group.id, location1.id);
+      trip.addLocationToGroup(group.id, location2.id);
+      expect(group.locations).to.deep.equal([location1.id, location2.id]);
+      trip.moveLocationDown(group.id, location1.id);
+      expect(group.locations).to.deep.equal([location2.id, location1.id]);
+    });
   });
 });

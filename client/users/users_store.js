@@ -1,6 +1,5 @@
 import {EventEmitter} from 'events'
-
-import Cookies from 'cookies-js'
+import storage from '../libraries/storage/storage'
 
 var CHANGE_EVENT = 'change';
 
@@ -9,9 +8,6 @@ class UserStore extends EventEmitter {
     super();
     this.currentUser = null;
   }
-  getBearerToken() {
-    return Cookies.get('token');
-  }
   getCurrentUser() {
     return this.currentUser;
   }
@@ -19,7 +15,7 @@ class UserStore extends EventEmitter {
     if (this.currentUser) {
       return;
     }
-    let bearerToken = this.getBearerToken();
+    let bearerToken = storage.getBearerToken();
     if (!bearerToken) {
       return;
     }

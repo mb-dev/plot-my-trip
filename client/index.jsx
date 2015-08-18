@@ -3,11 +3,12 @@ require('./index.less')
 import React, { PropTypes } from 'react';
 import { Router, Route, Link } from 'react-router';
 
-import dispather  from './dispatcher/dispatcher.js'
-import OptionList from './components/option_list/option_list.jsx'
-import MapArea    from './components/map_area/map_area.jsx'
-import Header     from './components/header/header.jsx'
-import userStore  from './users/users_store'
+import dispather   from './dispatcher/dispatcher.js'
+import OptionList  from './components/option_list/option_list.jsx'
+import MapArea     from './components/map_area/map_area.jsx'
+import Header      from './components/header/header.jsx'
+import userStore   from './users/users_store'
+import tripsStore  from './trips/trips_store'
 
 
 React.render(
@@ -24,3 +25,4 @@ React.render(
 );
 
 userStore.loadCurrentUser();
+tripsStore.load();

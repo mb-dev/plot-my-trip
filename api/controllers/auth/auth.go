@@ -10,7 +10,7 @@ import (
 )
 
 func authGoogleHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	url, err := auth.GetAuthUrl()
+	url, err := auth.GetAuthURL()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -18,14 +18,14 @@ func authGoogleHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 	w.Write([]byte(url))
 }
 
-type TokenizeRequest struct {
+type tokenizeRequest struct {
 	State string `json:"state"`
 	Code  string `json:"code"`
 }
 
 func tokenizeHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	decoder := json.NewDecoder(r.Body)
-	var body TokenizeRequest
+	var body tokenizeRequest
 	err := decoder.Decode(&body)
 	if err != nil {
 		http.Error(w, "invalid input", http.StatusBadRequest)
@@ -54,6 +54,7 @@ func getUserHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	w.Write(responseJSON)
 }
 
+// RegisterRoutes adds trip routers to the router
 func RegisterRoutes(router *httprouter.Router) {
 	router.GET("/api/auth/google", authGoogleHandler)
 	router.GET("/api/auth/get-user", auth.RequireBearerMiddleware(getUserHandler))

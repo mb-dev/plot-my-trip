@@ -13,12 +13,13 @@ import (
 	"github.com/mb-dev/plot-my-trip/api/lib/context"
 )
 
+// Initialize initializes the authentication options (right now only Google is supported)
 func Initialize() {
 	google.Initialize()
 }
 
 // GetAuthURL returns URL to authenticate with Google
-func GetAuthUrl() (string, error) {
+func GetAuthURL() (string, error) {
 	return google.GetAuthUrl()
 }
 
@@ -43,7 +44,7 @@ func TokenizeHandler(state string, code string) (string, error) {
 	log.Println("3")
 
 	token := jwt.New(jwt.SigningMethodHS256)
-	token.Claims["user"] = user.Id
+	token.Claims["user"] = user.ID
 	token.Claims["email"] = user.Email
 	tokenString, err = token.SignedString([]byte(config.Config.TokenPrivateKey))
 	if err != nil {
@@ -54,6 +55,7 @@ func TokenizeHandler(state string, code string) (string, error) {
 	return tokenString, nil
 }
 
+// RequireBearerMiddleware ensures that the Bearer token is valid and assigns the user to the current context
 func RequireBearerMiddleware(handle context.HandlerWithContext) httprouter.Handle {
 	innerFunc := func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		token, err := jwt.ParseFromRequest(r, func(token *jwt.Token) (interface{}, error) {
@@ -66,14 +68,14 @@ func RequireBearerMiddleware(handle context.HandlerWithContext) httprouter.Handl
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
-		userId, ok := token.Claims["user"].(string)
+		userID, ok := token.Claims["user"].(string)
 		if !ok {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
-		user, err := db.FindUserById(userId)
+		user, err := db.FindUserByID(userID)
 		if err != nil {
-			http.Error(w, "User with id: "+userId+" "+err.Error(), http.StatusUnauthorized)
+			http.Error(w, "User with id: "+userID+" "+err.Error(), http.StatusUnauthorized)
 			return
 		}
 		handle(w, r, ps, context.CreateContext(user))

@@ -1,7 +1,9 @@
 import _ from 'lodash'
 import {EventEmitter} from 'events'
+
 import dispatcher from '../dispatcher/dispatcher'
 import ActionType from './action_types'
+import storage from '../libraries/storage/storage'
 
 var CHANGE_EVENT = 'change';
 
@@ -54,7 +56,8 @@ class Trip {
   addGroup(groupName) {
     let group = {
       id: this.getNextId(),
-      name: groupName
+      name: groupName,
+      locations: []
     };
     this.data.groups.push(group);
     return group;
@@ -67,26 +70,81 @@ class Trip {
   }
   addLocationToGroup(groupId, locationId) {
     let location = this.getLocationById(locationId);
+    let group = this.getGroupById(groupId);
     location.groupId = groupId;
+    group.locations.push(locationId);
   }
   removeLocationFromGroup() {
 
   }
-  movePlaceUp() {
-
+  moveLocationUp(groupId, locationId) {
+    let group = this.getGroupById(groupId);
+    let currentIndex = group.locations.indexOf(locationId);
+    if (currentIndex < 0) {
+      return null;
+    }
+    group.locations.splice(currentIndex, 1);
+    group.locations.splice(currentIndex-1, 0, locationId);
   }
-  movePlaceDown() {
-
+  moveLocationDown(groupId, locationId) {
+    let group = this.getGroupById(groupId);
+    let currentIndex = group.locations.indexOf(locationId);
+    if (currentIndex < 0) {
+      return null;
+    }
+    group.locations.splice(currentIndex, 1);
+    group.locations.splice(currentIndex+1, 0, locationId);
   }
 }
 
 class TripsStore extends EventEmitter{
   constructor() {
     super();
-    this.currentTrip = new Trip()
+    this.currentTrip = new Trip();
+    this.saveSuccessfully = true;
   }
   emitChange() {
     this.emit(CHANGE_EVENT);
+  }
+  load() {
+    let bearerToken = storage.getBearerToken();
+    if (!bearerToken) {
+      return;
+    }
+    $.ajax({
+      url: '/api/trips',
+      beforeSend: (xhr) => {
+        xhr.setRequestHeader("Authorization", "Bearer " + bearerToken);
+      },
+      success: (data) => {
+        this.currentTrip.data = data;
+        this.emitChange();
+      }
+    });
+  }
+  save() {
+    this.saveSuccessfully = false;
+    let bearerToken = storage.getBearerToken();
+    if (!bearerToken) {
+      return;
+    }
+    $.ajax({
+      url: '/api/trips/update-trip',
+      data: JSON.stringify(this.currentTrip.data),
+      dataType: "json",
+      contentType: "application/json",
+      method: 'post',
+      beforeSend: (xhr) => {
+        xhr.setRequestHeader("Authorization", "Bearer " + bearerToken);
+      },
+      success: (data) => {
+        this.saveSuccessfully = true;
+        this.emitChange();
+      },
+      failure: (err) => {
+        console.log('save failed', err);
+      }
+    });
   }
   addChangeListener(callback) {
     this.on(CHANGE_EVENT, callback);

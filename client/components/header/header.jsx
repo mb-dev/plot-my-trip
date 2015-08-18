@@ -1,11 +1,15 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import classNames from 'classNames'
 
 import userStore  from '../../users/users_store'
+import tripsStore from '../../trips/trips_store'
 
 export default class Header extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {currentUser: null};
+    this.state = {currentUser: null, saveSuccessfully: true};
+    this.onUsersStoreChange = this.onUsersStoreChange.bind(this);
+    this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
   }
   handleLogin() {
     // get Google Auth URL
@@ -13,16 +17,32 @@ export default class Header extends React.Component {
       window.location.href = result;
     })
   }
+  onSaveTrip() {
+    tripsStore.save();
+  }
   onUsersStoreChange() {
     this.setState({currentUser: userStore.getCurrentUser()});
   }
+  onTripsStoreChange() {
+    this.setState({saveSuccessfully: tripsStore.saveSuccessfully});
+  }
   componentDidMount() {
-    userStore.addChangeListener(this.onUsersStoreChange.bind(this));
+    userStore.addChangeListener(this.onUsersStoreChange);
+    tripsStore.addChangeListener(this.onTripsStoreChange);
   }
   render() {
     var userSection;
+    const saveButtonClass = classNames({
+      'btn': true,
+      'btn-primary': this.state.saveSuccessfully,
+      'btn-danger': !this.state.saveSuccessfully
+    });
+
     if (this.state.currentUser) {
-      userSection = <div className="navbar-text">Welcome {this.state.currentUser.name}</div>;
+      userSection = <div className="navbar-text">
+        <span>Welcome {this.state.currentUser.name}</span>
+        <a href="#" onClick={this.onSaveTrip} className={saveButtonClass}>Save</a>
+      </div>;
     } else {
       userSection = <a className="btn" onClick={this.handleLogin}>
         <i className="fa fa-google"></i> Login using Google

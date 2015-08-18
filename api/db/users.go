@@ -6,8 +6,9 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// User represents a logged in user
 type User struct {
-	Id    bson.ObjectId `bson:"_id,omitempty"`
+	ID    bson.ObjectId `bson:"_id,omitempty"`
 	Name  string        `bson:"name"`
 	Email string        `bson:"email"`
 
@@ -15,13 +16,15 @@ type User struct {
 	RefreshToken string `bson:"refresh_token"`
 }
 
-func FindUserById(id string) (User, error) {
+// FindUserByID finds a user by it's ID
+func FindUserByID(ID string) (User, error) {
 	user := User{}
 	usersCollection := Db.Session.DB(config.Config.DatabaseName).C("users")
-	err := usersCollection.FindId(bson.ObjectIdHex(id)).One(&user)
+	err := usersCollection.FindId(bson.ObjectIdHex(ID)).One(&user)
 	return user, err
 }
 
+// FindUserByEmail finds a user by e-mail
 func FindUserByEmail(email string) (User, error) {
 	user := User{}
 	usersCollection := Db.Session.DB(config.Config.DatabaseName).C("users")
@@ -29,16 +32,19 @@ func FindUserByEmail(email string) (User, error) {
 	return user, err
 }
 
+// InsertUser adds a user to the system
 func InsertUser(user User) error {
 	usersCollection := Db.Session.DB(config.Config.DatabaseName).C("users")
 	return usersCollection.Insert(user)
 }
 
+// UpdateUser updates a user in the system
 func UpdateUser(user User) error {
 	usersCollection := Db.Session.DB(config.Config.DatabaseName).C("users")
-	return usersCollection.Update(bson.M{"_id": user.Id}, user)
+	return usersCollection.Update(bson.M{"_id": user.ID}, user)
 }
 
+// FindAndUpdateOrCreateUser performs an upsert to the user
 func FindAndUpdateOrCreateUser(userDetails google.GoogleUser) (User, error) {
 	user, err := FindUserByEmail(userDetails.Email)
 	if err == nil {
@@ -50,7 +56,7 @@ func FindAndUpdateOrCreateUser(userDetails google.GoogleUser) (User, error) {
 		}
 	} else {
 		// user not found
-		user.Id = bson.NewObjectId()
+		user.ID = bson.NewObjectId()
 		user.Name = userDetails.Name
 		user.Email = userDetails.Email
 		user.AccessToken = userDetails.AccessToken
