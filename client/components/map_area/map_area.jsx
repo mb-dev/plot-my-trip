@@ -21,19 +21,30 @@ function placeToLocation(place) {
     }
   });
 
-  return {
+  let location = place.geometry.location;
+
+  let data = {
     types: place.types,
     place_id: place.place_id,
     name: place.name,
-    position: {lat: place.geometry.location.lat(), lng: place.geometry.location.lng()},
+    position: {lat: location.lat(), lng: location.lng()},
     country: country,
     city: city
   };
+
+  if (place.geometry.viewport) {
+    let northeast = place.geometry.viewport.getNorthEast();
+    let southwest = place.geometry.viewport.getSouthWest();
+    data.viewport = {sw: {lat: southwest.lat(), lng: southwest.lng()}, ne: {lat: northeast.lat(), lng: northeast.lng()}};
+  }
+
+  return data;
 }
 
 export default class MapArea extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {locations: [], activeLocation: null, activeRegion: null};
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
   }
   componentDidMount() {
@@ -44,7 +55,6 @@ export default class MapArea extends React.Component {
       dispatcher.dispatch({actionType: ActionType.LOCATIONS.PLACE_CHANGED, googleData: googleData});
     });
     tripsStore.addChangeListener(this.onTripsStoreChange);
-    this.state = {locations: []};
   }
   componentWillUnmount() {
     tripsStore.removeChangeListener(this.onTripsStoreChange);
@@ -52,16 +62,24 @@ export default class MapArea extends React.Component {
   onTripsStoreChange() {
     let locations = tripsStore.currentTrip.getLocations();
     let activeLocation = tripsStore.currentTrip.getActiveLocation();
-    this.setState({locations: locations, activeLocation: activeLocation});
+    let activeRegion = tripsStore.currentTrip.getActiveRegion()
+
+    this.setState({locations: locations, activeLocation: activeLocation, activeRegion: activeRegion});
+
     let locationsForMap = locations.map(location => ({
       id: location.id,
       position: location.googleData.position,
       group: location.groupId
     }));
+
     if (activeLocation) {
       googleMapsService.findPlace(activeLocation.position);
     } else {
       googleMapsService.clearPlace();
+    }
+
+    if (activeRegion) {
+      googleMapsService.setCenterAndBounds(activeRegion.googleData.position, activeRegion.googleData.viewport);
     }
 
     googleMapsService.displayLocations(locationsForMap);

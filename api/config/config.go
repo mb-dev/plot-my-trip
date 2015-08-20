@@ -32,6 +32,8 @@ func LoadConfiguration() error {
 		return err
 	}
 	Config.OauthURL = Config.HostURL + Config.APIRoot + "/auth"
-	Config.OauthGoogleRedirectURL = Config.HttpUrl + "/webpack-dev-server/handleCallback.html"
+	//Config.OauthGoogleRedirectURL = Config.HttpUrl + "/webpack-dev-server/handleCallback.html"
+	Config.OauthGoogleRedirectURL = Config.HostURL + "/auth/google/callback"
+
 	return nil
 }

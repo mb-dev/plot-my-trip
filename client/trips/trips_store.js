@@ -18,8 +18,13 @@ class TripsStore extends EventEmitter{
   }
   load() {
     apiClient.getTrips((data) => {
-      this.currentTrip.data = data[0];
-      this.emitChange();
+      if(data.length > 0) {
+        this.currentTrip.data = data[0];
+        if (this.currentTrip.data.regions.length > 0) {
+          this.currentTrip.setActiveRegion(this.currentTrip.data.regions[0]);
+        }
+        this.emitChange();
+      }
     });
   }
   save() {
@@ -44,7 +49,10 @@ class TripsStore extends EventEmitter{
         this.emitChange();
         break;
       case ActionType.LOCATIONS.ADD_LOCATION:
-        this.currentTrip.addActivePlaceToTrip();
+        let location = this.currentTrip.addActivePlaceToTrip();
+        if (payload.regionId) {
+          this.currentTrip.addLocationToRegion(payload.regionId, location.id);
+        }
         this.emitChange();
         break;
       case ActionType.LOCATIONS.DELETE_LOCATION:
@@ -52,7 +60,7 @@ class TripsStore extends EventEmitter{
         this.emitChange();
         break;
       case ActionType.GROUPS.ADD_GROUP:
-        this.currentTrip.addGroup(payload.groupName);
+        this.currentTrip.addGroup(payload.regionId, payload.groupName);
         this.emitChange();
         break;
       case ActionType.GROUPS.DELETE_GROUP:
@@ -63,6 +71,22 @@ class TripsStore extends EventEmitter{
         this.currentTrip.addLocationToGroup(payload.groupId, payload.locationId);
         this.emitChange();
         break;
+      case ActionType.REGIONS.ADD_REGION:
+        let region = this.currentTrip.addActivePlaceAsRegion();
+        this.currentTrip.setActiveRegion(region);
+        this.emitChange();
+        break;
+      case ActionType.REGIONS.DELETE_REGION:
+        this.emitChange();
+        break;
+      case ActionType.REGIONS.SELECT_PREV_REGION:
+        this.emitChange();
+        break;
+      case ActionType.REGIONS.SELECT_NEXT_REGION:
+        this.emitChange();
+        break;
+
+
     }
   }
 }

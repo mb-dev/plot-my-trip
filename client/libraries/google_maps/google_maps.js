@@ -14,6 +14,8 @@ export default class GoogleMapsService {
     this.map = new google.maps.Map(mapDomNode, mapOptions);
     this.marker = new google.maps.Marker({draggable: true});
     this.markers = {};
+    this.currentCenter = null;
+    this.currentViewport = null;
   }
   createAutoComplete(inputDomNode) {
     this.autocomplete = new google.maps.places.Autocomplete(inputDomNode);
@@ -34,6 +36,18 @@ export default class GoogleMapsService {
     if (this.marker) {
       this.marker.setMap(null);
     }
+  }
+  setCenterAndBounds(center, viewport) {
+    if (_.isEqual(center, this.currentCenter) && _.isEqual(viewport, this.currentViewport)) {
+      return;
+    }
+    this.map.setCenter(new google.maps.LatLng(center.lat, center.lng));
+    this.map.fitBounds(new google.maps.LatLngBounds(
+      new google.maps.LatLng(viewport.sw.lat, viewport.sw.lng),
+      new google.maps.LatLng(viewport.ne.lat, viewport.ne.lng)
+    ));
+    this.currentCenter = center;
+    this.currentViewport = viewport;
   }
   addHandler(callback, handler) {
     this.handlers[callback] = handler;

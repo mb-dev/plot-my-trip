@@ -54,19 +54,17 @@ gulp.task("server", function(done) {
 	}
 });
 
-gulp.task("dev", ["server", "webpack-dev-server"], function() {
+gulp.task("dev", ["server", "webpack"], function() {
 	gulp.watch(["api/**/*.go", "server.go"], ["server"])
 });
 
-gulp.task("webpack", function(callback) {
+gulp.task("webpack", function() {
     // run webpack
     webpack(webpackConfig, function(err, stats) {
-        if(err) throw new gutil.PluginError("webpack", err);
-        gutil.log("[webpack]", stats.toString({
-            // output options
-        }));
-				notify('compile finished');
-        callback();
+      if(err) throw new gutil.PluginError("webpack", err);
+      gutil.log("[webpack]", stats.toString({
+          // output options
+      }));
     });
 });
 

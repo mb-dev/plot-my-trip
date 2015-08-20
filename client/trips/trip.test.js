@@ -13,20 +13,24 @@ describe('Trip', function() {
     trip.reset();
   });
   describe('location', function() {
+    beforeEach(function() {
+      trip.setActivePlace(sydney);
+      this.region = trip.addActivePlaceAsRegion();
+      expect(this.region).to.exist
+    });
     describe('addActivePlaceToTrip', function() {
       it('should be able to add a location', function() {
         trip.setActivePlace(sydneyOpera);
         trip.addActivePlaceToTrip();
         let locations = trip.getLocations();
         expect(locations.length).to.equal(1);
-        expect(locations[0].id).to.equal(1);
       });
     });
     describe('deleteLocation', function() {
       it('should be able to remove', function() {
         trip.setActivePlace(sydneyOpera);
         let location = trip.addActivePlaceToTrip();
-        let group = trip.addGroup('Sydney Day 1');
+        let group = trip.addGroup(this.region.id, 'Sydney Day 1');
         trip.addLocationToGroup(group.id, location.id);
         trip.deleteLocation(location.id);
         let locations = trip.getLocations();
@@ -39,25 +43,25 @@ describe('Trip', function() {
     beforeEach(function() {
       trip.setActivePlace(sydneyOpera);
       this.location = trip.addActivePlaceToTrip();
+      trip.setActivePlace(sydney);
+      this.region = trip.addActivePlaceAsRegion();
     });
     describe('addLocationToGroup', function() {
       it('should be able to add the location to a group', function() {
-        let group = trip.addGroup('Sydney Day 1');
-        expect(group.id).to.equal(2);
+        let group = trip.addGroup(this.region.id, 'Sydney Day 1');
         trip.addLocationToGroup(group.id, this.location.id);
         this.location = trip.getLocationById(this.location.id);
         expect(this.location.groupId).to.equal(group.id);
       });
       it('adding location to a group twice should not add multiple times', function() {
-        let group = trip.addGroup('Sydney Day 1');
-        expect(group.id).to.equal(2);
+        let group = trip.addGroup(this.region.id, 'Sydney Day 1');
         trip.addLocationToGroup(group.id, this.location.id);
         trip.addLocationToGroup(group.id, this.location.id);
         expect(group.locations).to.deep.equal([this.location.id])
       });
       it('adding location to two groups should keep last', function() {
-        let group1 = trip.addGroup('Sydney Day 1');
-        let group2 = trip.addGroup('Sydney Day 2');
+        let group1 = trip.addGroup(this.region.id, 'Sydney Day 1');
+        let group2 = trip.addGroup(this.region.id, 'Sydney Day 2');
         trip.addLocationToGroup(group1.id, this.location.id);
         trip.addLocationToGroup(group2.id, this.location.id);
         expect(group1.locations).to.deep.equal([]);
@@ -72,7 +76,7 @@ describe('Trip', function() {
         trip.setActivePlace(pocketBar);
         let location1 = this.location;
         let location2 = trip.addActivePlaceToTrip();
-        let group = trip.addGroup('Sydney Day 1');
+        let group = trip.addGroup(this.region.id, 'Sydney Day 1');
         trip.addLocationToGroup(group.id, location1.id);
         trip.addLocationToGroup(group.id, location2.id);
         expect(group.locations).to.deep.equal([location1.id, location2.id]);
@@ -85,12 +89,34 @@ describe('Trip', function() {
         trip.setActivePlace(pocketBar);
         let location1 = this.location;
         let location2 = trip.addActivePlaceToTrip();
-        let group = trip.addGroup('Sydney Day 1');
+        let group = trip.addGroup(this.region.id, 'Sydney Day 1');
         trip.addLocationToGroup(group.id, location1.id);
         trip.addLocationToGroup(group.id, location2.id);
         expect(group.locations).to.deep.equal([location1.id, location2.id]);
         trip.moveLocationDown(group.id, location1.id);
         expect(group.locations).to.deep.equal([location2.id, location1.id]);
+      });
+    });
+  });
+  describe('regions', function() {
+    beforeEach(function() {
+      trip.setActivePlace(sydneyOpera);
+      this.location = trip.addActivePlaceToTrip();
+    });
+    describe('addActivePlaceAsRegion', function() {
+      it('should add the region to the trip', function() {
+        trip.setActivePlace(sydney);
+        let region = trip.addActivePlaceAsRegion();
+        expect(trip.getRegions()[0].id).to.deep.equal(region.id);
+      });
+    });
+    describe('getRegionScrapeLocations', function() {
+      it('should return scrape locations', function() {
+        trip.setActivePlace(sydney);
+        let region = trip.addActivePlaceAsRegion();
+        trip.addLocationToRegion(region.id, this.location.id);
+        let locations = trip.getRegionScrapeLocations(region.id);
+        expect(locations[0].id).to.equal(this.location.id);
       });
     });
   });

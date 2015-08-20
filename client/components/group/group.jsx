@@ -63,11 +63,11 @@ export default class Group extends React.Component {
 
     return connectDropTarget(
       <div className={groupClassName}>
-        <h2>{this.props.group.name}</h2>
+        <h4>{this.props.group.name}</h4>
         <div className="group-controls">
           <a>Delete Group</a>
         </div>
-        <ul>
+        <ul className="group-members">
           {groupMembers}
         </ul>
       </div>

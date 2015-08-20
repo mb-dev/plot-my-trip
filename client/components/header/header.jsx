@@ -35,6 +35,7 @@ export default class Header extends React.Component {
     var userSection;
     const saveButtonClass = classNames({
       'btn': true,
+      'navbar-btn': true,
       'btn-primary': this.state.saveSuccessfully,
       'btn-danger': !this.state.saveSuccessfully
     });
@@ -42,7 +43,6 @@ export default class Header extends React.Component {
     if (this.state.currentUser) {
       userSection = <div className="navbar-text">
         <span>Welcome {this.state.currentUser.name}</span>
-        <a href="#" onClick={this.onSaveTrip} className={saveButtonClass}>Save</a>
       </div>;
     } else {
       userSection = <a className="btn" onClick={this.handleLogin}>
@@ -69,6 +69,7 @@ export default class Header extends React.Component {
               <li>
                 {userSection}
               </li>
+              <li><button type="button" onClick={this.onSaveTrip} className={saveButtonClass}>Save</button></li>
             </ul>
           </div>
         </div>

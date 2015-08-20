@@ -3,15 +3,12 @@ import dispatcher from '../../dispatcher/dispatcher'
 import ActionType from '../../trips/action_types'
 import tripsStore from '../../trips/trips_store'
 import MousetrapMixin from '../../libraries/mousetrap_mixin/mousetrap_mixin'
-import HTML5Backend from 'react-dnd/modules/backends/HTML5';
-import { DragDropContext } from 'react-dnd';
 
 import Group from '../group/group'
 import GroupMember from '../group/group_member'
 
 require('./option_list.less');
 
-@DragDropContext(HTML5Backend)
 class OptionList extends React.Component {
   constructor(props) {
     super(props);

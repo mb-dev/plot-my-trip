@@ -2,6 +2,7 @@ var webpack = require('webpack');
 
 module.exports = {
   devtool: 'source-map',
+  watch: true,
 
   context: __dirname + "/client",
   entry: {
@@ -24,7 +25,7 @@ module.exports = {
     new webpack.NoErrorsPlugin(),
     new webpack.optimize.CommonsChunkPlugin(/* chunkName= */"vendor", /* filename= */"vendor.bundle.js")
   ],
-  
+
   resolve: {
     extensions: ['', '.js', '.jsx']
   },

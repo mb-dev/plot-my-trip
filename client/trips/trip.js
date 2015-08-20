@@ -10,18 +10,15 @@ export default class Trip {
     return current;
   }
   reset() {
-    this.data = {groups: [], locations: [], nextId: 1};
+    this.data = {regions: [], groups: [], locations: [], nextId: 1};
     this.activePlace = null;
-    this.activeGroup = null;
+    this.activeRegion = null;
   }
   getActiveLocation() {
     return this.activePlace;
   }
   setActivePlace(place) {
     this.activePlace = place;
-  }
-  setActiveGroup(group) {
-    this.activeGroup = group;
   }
   addActivePlaceToTrip() {
     if (!this.activePlace) {
@@ -55,20 +52,38 @@ export default class Trip {
   getGroups() {
     return this.data.groups;
   }
+  getGroupsInRegion(regionId) {
+    return _.filter(this.data.groups, group => group.regionId === regionId )
+  }
   getGroupById(groupId) {
     return _.find(this.data.groups, {id: groupId});
   }
-  addGroup(groupName) {
+  addGroup(regionId, groupName) {
     let group = {
       id: this.getNextId(),
       name: groupName,
+      regionId: regionId,
       locations: []
     };
     this.data.groups.push(group);
+    let region = this.getRegionById(regionId);
+    region.groups.push(group.id);
     return group;
   }
   deleteGroup(groupId) {
-    _.remove(this.data.groups, (group) => group.id === groupId)
+    let group = this.getGroupById(groupId);
+    // remove group from locations
+    for (let location of this.data.locations) {
+      if (location.groupId == groupId) {
+        location.groupId = null;
+      }
+    }
+    // remove group from region
+    if (group.regionId) {
+      this.removeGroupFromRegion(group.regionId, groupId);
+    }
+    // remove group
+    _.remove(this.data.groups, (group) => group.id === groupId);
   }
   getGroupMembers(groupId) {
     return _.filter(this.data.locations, (location) => location.groupId === groupId );
@@ -108,5 +123,42 @@ export default class Trip {
     }
     group.locations.splice(currentIndex, 1);
     group.locations.splice(currentIndex+1, 0, locationId);
+  }
+
+  // regions
+  getActiveRegion() {
+    return this.activeRegion;
+  }
+  setActiveRegion(region) {
+    this.activeRegion = region;
+  }
+  getRegionById(regionId) {
+    return _.find(this.data.regions, {id: regionId});
+  }
+  getRegions() {
+    return this.data.regions;
+  }
+  addActivePlaceAsRegion() {
+    let region = {
+      id: this.getNextId(),
+      name: this.activePlace.name,
+      groups: [],
+      scrapeLocations: [],
+      googleData: this.activePlace
+    };
+    this.data.regions.push(region);
+    return region;
+  }
+  removeGroupFromRegion(regionId, groupId) {
+    let region = this.getRegionById(regionId);
+    region.groups = _.without(region.groups, groupId);
+  }
+  addLocationToRegion(regionId, locationId) {
+    let region = this.getRegionById(regionId);
+    region.scrapeLocations.push(locationId);
+  }
+  getRegionScrapeLocations(regionId) {
+    let region = this.getRegionById(regionId);
+    return _.filter(this.data.locations, (location) => region.scrapeLocations.indexOf(location.id) >= 0);
   }
 }
