@@ -1,13 +1,15 @@
 const DEBUG = process.env.NODE_ENV === 'debug';
 const CI = process.env.CI === 'true';
 
-var child 				= require('child_process');
-var gulp          = require("gulp");
-var gutil				  = require('gulp-util');
-var shell 			  = require("gulp-shell");
-var webpack 		  = require("webpack");
-var mocha					= require('gulp-spawn-mocha');
-var webpackConfig = require("./webpack.config.js");
+var child 				   = require('child_process');
+var gulp             = require("gulp");
+var gutil				     = require('gulp-util');
+var shell 			     = require("gulp-shell");
+var webpack 		     = require("webpack");
+var mocha					   = require('gulp-spawn-mocha');
+var webpackConfig    = require("./webpack.config.js");
+var notify				   = require('gulp-notify');
+var WebpackDevServer = require("webpack-dev-server");
 
 gulp.task("mocha", function() {
 	return gulp.src(['client/**/*.test.js'], {read: false})
@@ -52,8 +54,7 @@ gulp.task("server", function(done) {
 	}
 });
 
-gulp.task("dev", ["server", "webpack"], function() {
-	gulp.watch(["client/**/*"], ["webpack"]);
+gulp.task("dev", ["server", "webpack-dev-server"], function() {
 	gulp.watch(["api/**/*.go", "server.go"], ["server"])
 });
 
@@ -64,6 +65,27 @@ gulp.task("webpack", function(callback) {
         gutil.log("[webpack]", stats.toString({
             // output options
         }));
+				notify('compile finished');
+        callback();
+    });
+});
+
+gulp.task("webpack-dev-server", function(callback) {
+    // Start a webpack-dev-server
+    var compiler = webpack(webpackConfig, function(err, stats) {
+        if(err) throw new gutil.PluginError("webpack", err);
+        gutil.log("[webpack]", stats.toString({
+            // output options
+        }));
+				notify('compile finished');
+    });
+
+    new WebpackDevServer(compiler, webpackConfig.devServer).listen(8080, "localhost", function(err) {
+        if(err) throw new gutil.PluginError("webpack-dev-server", err);
+        // Server listening
+        gutil.log("[webpack-dev-server]", "http://localhost:8080/webpack-dev-server/index.html");
+
+        // keep the server alive or continue?
         callback();
     });
 });

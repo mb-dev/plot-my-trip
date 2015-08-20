@@ -3,6 +3,7 @@ import classNames from 'classNames'
 
 import userStore  from '../../users/users_store'
 import tripsStore from '../../trips/trips_store'
+import apiClient from '../../libraries/api_client/api_client'
 
 export default class Header extends React.Component {
   constructor(props) {
@@ -13,9 +14,9 @@ export default class Header extends React.Component {
   }
   handleLogin() {
     // get Google Auth URL
-    $.get('/api/auth/google', function(result) {
-      window.location.href = result;
-    })
+    apiClient.getGoogleAuthUrl(result => {
+      window.top.location.href = result;
+    });
   }
   onSaveTrip() {
     tripsStore.save();

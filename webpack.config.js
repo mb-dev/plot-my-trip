@@ -24,7 +24,12 @@ module.exports = {
     new webpack.NoErrorsPlugin(),
     new webpack.optimize.CommonsChunkPlugin(/* chunkName= */"vendor", /* filename= */"vendor.bundle.js")
   ],
+  
   resolve: {
     extensions: ['', '.js', '.jsx']
+  },
+
+  devServer: {
+    contentBase: './static'
   }
 }

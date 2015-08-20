@@ -1,6 +1,9 @@
 import React from 'react';
 import { DragSource } from 'react-dnd';
 
+import dispatcher from '../../dispatcher/dispatcher.js'
+import ActionType from '../../trips/action_types'
+
 const groupSource = {
   beginDrag(props) {
     return {
@@ -17,6 +20,13 @@ const LocationItem = 'location';
   isDragging: monitor.isDragging()
 }))
 export default class GroupMember extends React.Component {
+  constructor(props) {
+    super(props);
+    this.onDeleteLocation = this.onDeleteLocation.bind(this);
+  }
+  onDeleteLocation() {
+    dispatcher.dispatch({actionType: ActionType.LOCATIONS.DELETE_LOCATION, locationId: this.props.location.id});
+  }
   render() {
     const { isDragging, connectDragSource, text } = this.props;
     return connectDragSource(
@@ -25,7 +35,7 @@ export default class GroupMember extends React.Component {
         <span className="controls">
           <a><i className="fa fa-caret-up"></i></a>
           <a><i className="fa fa-caret-down"></i></a>
-          <a><i className="fa fa-times text-danger"></i></a>
+          <a><i className="fa fa-times text-danger" onClick={this.onDeleteLocation}></i></a>
         </span>
       </li>
     );

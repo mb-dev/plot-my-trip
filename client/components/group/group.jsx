@@ -39,6 +39,9 @@ export default class Group extends React.Component {
     let members = tripsStore.currentTrip.getGroupMembers(this.props.group.id);
     this.setState({groupMembers: members});
   }
+  onSelectGroup() {
+
+  }
   componentDidMount() {
     tripsStore.addChangeListener(this.onTripsStoreChange);
   }

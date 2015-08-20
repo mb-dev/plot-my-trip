@@ -20,6 +20,7 @@ class OptionList extends React.Component {
 
     this.addPlace = this.addPlace.bind(this);
     this.addGroup = this.addGroup.bind(this);
+    this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
   }
   onKeyUp(e) {
     this.setState({selectedIndex: this.state.selectedIndex - 1});
@@ -28,7 +29,7 @@ class OptionList extends React.Component {
     this.setState({selectedIndex: this.state.selectedIndex + 1});
   }
   addPlace() {
-    dispatcher.dispatch({actionType: ActionType.ADD_LOCATION});
+    dispatcher.dispatch({actionType: ActionType.LOCATIONS.ADD_LOCATION});
   }
   addGroup() {
     let groupName = React.findDOMNode(this.refs.groupNameInput).value;
@@ -38,10 +39,10 @@ class OptionList extends React.Component {
     this.setState({locations: tripsStore.currentTrip.getUnassignedLocations(), groups: tripsStore.currentTrip.getGroups()});
   }
   componentDidMount() {
-    tripsStore.addChangeListener(this.onTripsStoreChange.bind(this));
+    tripsStore.addChangeListener(this.onTripsStoreChange);
   }
   componentWillUnmount() {
-    tripsStore.removeChangeListener(this.onTripsStoreChange.bind(this));
+    tripsStore.removeChangeListener(this.onTripsStoreChange);
   }
   render() {
     var selectedIndex = this.state.selectedIndex;

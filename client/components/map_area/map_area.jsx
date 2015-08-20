@@ -3,6 +3,7 @@ import React, { PropTypes } from 'react';
 import GoogleMapsService from '../../libraries/google_maps/google_maps.js'
 import dispatcher from '../../dispatcher/dispatcher.js'
 import ActionType from '../../trips/action_types'
+import tripsStore from '../../trips/trips_store'
 
 require('./map_area.less');
 
@@ -24,21 +25,46 @@ function placeToLocation(place) {
     types: place.types,
     place_id: place.place_id,
     name: place.name,
-    location: {lat: place.geometry.location.lat(), lng: place.geometry.location.lng()},
+    position: {lat: place.geometry.location.lat(), lng: place.geometry.location.lng()},
     country: country,
     city: city
   };
 }
 
 export default class MapArea extends React.Component {
+  constructor(props) {
+    super(props);
+    this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
+  }
   componentDidMount() {
     googleMapsService.createMap(this.refs.mapCanvas.getDOMNode());
     googleMapsService.createAutoComplete(this.refs.autoComplete.getDOMNode());
     googleMapsService.addHandler('onPlaceChanged', function(place) {
-      googleMapsService.findPlace(place);
       let googleData = placeToLocation(place);
-      dispatcher.dispatch({actionType: ActionType.PLACE_CHANGED, googleData: googleData});
+      dispatcher.dispatch({actionType: ActionType.LOCATIONS.PLACE_CHANGED, googleData: googleData});
     });
+    tripsStore.addChangeListener(this.onTripsStoreChange);
+    this.state = {locations: []};
+  }
+  componentWillUnmount() {
+    tripsStore.removeChangeListener(this.onTripsStoreChange);
+  }
+  onTripsStoreChange() {
+    let locations = tripsStore.currentTrip.getLocations();
+    let activeLocation = tripsStore.currentTrip.getActiveLocation();
+    this.setState({locations: locations, activeLocation: activeLocation});
+    let locationsForMap = locations.map(location => ({
+      id: location.id,
+      position: location.googleData.position,
+      group: location.groupId
+    }));
+    if (activeLocation) {
+      googleMapsService.findPlace(activeLocation.position);
+    } else {
+      googleMapsService.clearPlace();
+    }
+
+    googleMapsService.displayLocations(locationsForMap);
   }
   onSubmit(e) {
     return false;

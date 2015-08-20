@@ -1,5 +1,5 @@
 import {EventEmitter} from 'events'
-import storage from '../libraries/storage/storage'
+import apiClient from '../libraries/api_client/api_client'
 
 var CHANGE_EVENT = 'change';
 
@@ -15,19 +15,10 @@ class UserStore extends EventEmitter {
     if (this.currentUser) {
       return;
     }
-    let bearerToken = storage.getBearerToken();
-    if (!bearerToken) {
-      return;
-    }
-    $.ajax({
-      url: '/api/auth/get-user',
-      beforeSend: (xhr) => {
-        xhr.setRequestHeader("Authorization", "Bearer " + bearerToken);
-      },
-      success: (data) => {
-        this.currentUser = data;
-        this.emitChange();
-      }
+
+    apiClient.getCurrentUser((data) => {
+      this.currentUser = data;
+      this.emitChange();
     });
   }
 

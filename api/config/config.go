@@ -8,6 +8,7 @@ import (
 
 type configuration struct {
 	HostURL    string `default:"http://www.plot-my-trip.local.com:4000"`
+	HttpUrl    string `default:"http://www.plot-my-trip.local.com:8080"`
 	APIRoot    string `default:"/api"`
 	APIVersion string `default:"v1"`
 
@@ -31,6 +32,6 @@ func LoadConfiguration() error {
 		return err
 	}
 	Config.OauthURL = Config.HostURL + Config.APIRoot + "/auth"
-	Config.OauthGoogleRedirectURL = Config.HostURL + "/auth/google/callback"
+	Config.OauthGoogleRedirectURL = Config.HttpUrl + "/webpack-dev-server/handleCallback.html"
 	return nil
 }

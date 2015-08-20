@@ -9,6 +9,7 @@ import (
 	"github.com/mb-dev/plot-my-trip/api"
 	"github.com/mb-dev/plot-my-trip/api/config"
 	"github.com/mb-dev/plot-my-trip/api/lib/auth"
+	"github.com/rs/cors"
 )
 
 func serveCallback(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -30,5 +31,6 @@ func main() {
 	api.Initialize(router)
 
 	fmt.Println("Starting server on port 4000...")
-	log.Fatal(http.ListenAndServe(":4000", router))
+	handler := cors.New(cors.Options{AllowedHeaders: []string{"Accept", "Content-Type", "Authorization"}}).Handler(router)
+	log.Fatal(http.ListenAndServe(":4000", handler))
 }
