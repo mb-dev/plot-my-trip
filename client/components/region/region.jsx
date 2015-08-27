@@ -35,11 +35,18 @@ export default class Region extends React.Component {
     groupNameNode.value = '';
   }
   onTripsStoreChange() {
+    this.updateState(this.props);
+
+  }
+  updateState(props) {
     this.setState({
       activeLocation: tripsStore.currentTrip.getActiveLocation(),
-      scrapeLocations: tripsStore.currentTrip.getRegionScrapeLocations(this.props.region.id),
-      groups: tripsStore.currentTrip.getGroupsInRegion(this.props.region.id)
+      scrapeLocations: tripsStore.currentTrip.getRegionScrapeLocations(props.region.id),
+      groups: tripsStore.currentTrip.getGroupsInRegion(props.region.id)
     });
+  }
+  componentWillReceiveProps(nextProps) {
+    this.updateState(nextProps);
   }
   componentDidMount() {
     tripsStore.addChangeListener(this.onTripsStoreChange);

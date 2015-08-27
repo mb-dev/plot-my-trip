@@ -41,11 +41,21 @@ function placeToLocation(place) {
   return data;
 }
 
+function locationToMapLocation(location) {
+  return {
+    id: location.id,
+    position: location.googleData.position,
+    group: location.groupId,
+    color: tripsStore.currentTrip.getColorOfGroup(location.groupId)
+  };
+}
+
 export default class MapArea extends React.Component {
   constructor(props) {
     super(props);
     this.state = {locations: [], activeLocation: null, activeRegion: null};
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
+    this.onAddRegion = this.onAddRegion.bind(this);
   }
   componentDidMount() {
     googleMapsService.createMap(this.refs.mapCanvas.getDOMNode());
@@ -59,49 +69,46 @@ export default class MapArea extends React.Component {
   componentWillUnmount() {
     tripsStore.removeChangeListener(this.onTripsStoreChange);
   }
+  onAddRegion() {
+    dispatcher.dispatch({actionType: ActionType.REGIONS.ADD_REGION});
+  }
   onTripsStoreChange() {
-    let locations = tripsStore.currentTrip.getLocations();
     let activeLocation = tripsStore.currentTrip.getActiveLocation();
-    let activeRegion = tripsStore.currentTrip.getActiveRegion()
-
-    this.setState({locations: locations, activeLocation: activeLocation, activeRegion: activeRegion});
-
-    let locationsForMap = locations.map(location => ({
-      id: location.id,
-      position: location.googleData.position,
-      group: location.groupId
-    }));
-
-    if (activeLocation) {
-      googleMapsService.findPlace(activeLocation.position);
-    } else {
-      googleMapsService.clearPlace();
-    }
+    let activeRegion = tripsStore.currentTrip.getActiveRegion();
+    let activeGroup = tripsStore.currentTrip.getActiveGroup();
+    let locations = [];
 
     if (activeRegion) {
+
+      if (activeLocation) {
+        googleMapsService.findPlace(activeLocation.position, activeLocation.viewport);
+      } else {
+        googleMapsService.clearPlace();
+        let groupNameNode = React.findDOMNode(this.refs.autoComplete);
+        groupNameNode.value = "";
+      }
+
       googleMapsService.setCenterAndBounds(activeRegion.googleData.position, activeRegion.googleData.viewport);
+
+      if (activeGroup) {
+        locations = tripsStore.currentTrip.getGroupMembers(activeGroup.id).map(locationToMapLocation);
+        googleMapsService.displayDirections(locations);
+      } else {
+        locations = tripsStore.currentTrip.getLocationsInRegion(activeRegion.id).map(locationToMapLocation);
+        googleMapsService.displayLocations(locations);
+      }
     }
 
-    googleMapsService.displayLocations(locationsForMap);
+    this.setState({locations: locations, activeLocation: activeLocation, activeRegion: activeRegion, activeGroup: activeGroup});
   }
   onSubmit(e) {
     return false;
   }
-  getAllTrips() {
-    let bearerToken = Cookies.get('token');
-    $.ajax({
-      url: '/api/trips',
-      beforeSend: function (xhr) {
-        xhr.setRequestHeader("Authorization", "Bearer " + bearerToken);
-      },
-      success: function(data) {
-        console.log(data);
-      }
-    });
-  }
   render() {
-    var currentDay = {number: 1};
-    var autoCompleteStyle = {'margin': '15px 0', 'width': '368px'};
+    let currentDay = {number: 1};
+    let autoCompleteStyle = {'margin': '15px 0', 'width': '368px'};
+    let addAsRegionBtn = <button onClick={this.onAddRegion} className="btn btn-default">Add As Region</button>
+
     return (
       <div id="map-area">
         <form className="form-inline" onSubmit={this.onSubmit}>
@@ -112,9 +119,9 @@ export default class MapArea extends React.Component {
           <button className="btn btn-primary" type="primary" onClick={this.onSearch}>
             <i className="fa fa-search"></i>
           </button>
+          {this.state.activeLocation && addAsRegionBtn}
         </form>
         <div id="map-canvas" ref="mapCanvas"></div>
-        <a onClick={this.getAllTrips} href="#">Get Trips</a>
       </div>
     );
   }

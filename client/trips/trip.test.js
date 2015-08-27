@@ -119,5 +119,20 @@ describe('Trip', function() {
         expect(locations[0].id).to.equal(this.location.id);
       });
     });
+    describe('getLocationsInRegion', function() {
+      it('should return assigned and scrape locations', function() {
+        trip.setActivePlace(sydney);
+        let region = trip.addActivePlaceAsRegion();
+        trip.addLocationToRegion(region.id, this.location.id);
+        let group = trip.addGroup(region.id, 'Day 1');
+        trip.setActivePlace(pocketBar);
+        let location2 = trip.addActivePlaceToTrip();
+        trip.addLocationToGroup(group.id, location2.id);
+        let locations = trip.getLocationsInRegion(region.id);
+        expect(locations.length).to.equal(2);
+        expect(locations[0].id).to.equal(this.location.id);
+        expect(locations[1].id).to.equal(location2.id);
+      });
+    });
   });
 });

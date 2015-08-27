@@ -1,5 +1,6 @@
 import config from '../../config/config'
 import storage from '../storage/storage'
+import $ from 'jquery/jquery'
 
 class ApiClient {
   getGoogleAuthUrl(success) {

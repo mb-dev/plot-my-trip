@@ -1,4 +1,4 @@
-require('./index.less')
+require('./index.less');
 
 import React, { PropTypes } from 'react';
 import { Router, Route, Link } from 'react-router';

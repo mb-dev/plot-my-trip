@@ -23,6 +23,7 @@ class TripsStore extends EventEmitter{
         if (this.currentTrip.data.regions.length > 0) {
           this.currentTrip.setActiveRegion(this.currentTrip.data.regions[0]);
         }
+        this.currentTrip.assignColorByGroup();
         this.emitChange();
       }
     });
@@ -71,18 +72,25 @@ class TripsStore extends EventEmitter{
         this.currentTrip.addLocationToGroup(payload.groupId, payload.locationId);
         this.emitChange();
         break;
+      case ActionType.GROUPS.SELECT_GROUP:
+        this.currentTrip.selectGroup(payload.groupId);
+        this.emitChange();
+        break;
       case ActionType.REGIONS.ADD_REGION:
         let region = this.currentTrip.addActivePlaceAsRegion();
         this.currentTrip.setActiveRegion(region);
         this.emitChange();
         break;
       case ActionType.REGIONS.DELETE_REGION:
+        this.currentTrip.deleteRegion();
         this.emitChange();
         break;
       case ActionType.REGIONS.SELECT_PREV_REGION:
+        this.currentTrip.selectPrevRegion();
         this.emitChange();
         break;
       case ActionType.REGIONS.SELECT_NEXT_REGION:
+        this.currentTrip.selectNextRegion();
         this.emitChange();
         break;
 

@@ -11,26 +11,38 @@ export default class GoogleMapsService {
       center: { lat: -34.397, lng: 150.644},
       zoom: 8
     };
-    this.map = new google.maps.Map(mapDomNode, mapOptions);
-    this.marker = new google.maps.Marker({draggable: true});
-    this.markers = {};
-    this.currentCenter = null;
-    this.currentViewport = null;
+    if (window.google) {
+      this.map = new google.maps.Map(mapDomNode, mapOptions);
+      this.marker = new google.maps.Marker({draggable: true});
+      this.markers = {};
+      this.currentCenter = null;
+      this.currentViewport = null;
+      this.directionsDisplay = new google.maps.DirectionsRenderer();
+      this.directionsService = new google.maps.DirectionsService();
+      this.directionsDisplay.setMap(this.map);
+    }
   }
   createAutoComplete(inputDomNode) {
-    this.autocomplete = new google.maps.places.Autocomplete(inputDomNode);
-    this.autocomplete.bindTo('bounds', this.map);
-    google.maps.event.addListener(this.autocomplete, 'place_changed', this.onPlaceChanged.bind(this));
+    if (window.google) {
+      this.autocomplete = new google.maps.places.Autocomplete(inputDomNode);
+      this.autocomplete.bindTo('bounds', this.map);
+      google.maps.event.addListener(this.autocomplete, 'place_changed', this.onPlaceChanged.bind(this));
+    }
   }
-  findPlace(position) {
-    this.marker.setPosition(position);
-    this.marker.setMap(this.map);
-    setTimeout(() => {
-      this.map.panTo(position);
-      // if (place.geometry.viewport) {
-      //   this.map.fitBounds(place.geometry.viewport);
-      // }
-    }, 100);
+  findPlace(position, viewport) {
+    if (window.google) {
+      this.marker.setPosition(position);
+      this.marker.setMap(this.map);
+      setTimeout(() => {
+        this.map.panTo(position);
+        if (viewport) {
+          this.map.fitBounds(new google.maps.LatLngBounds(
+            new google.maps.LatLng(viewport.sw.lat, viewport.sw.lng),
+            new google.maps.LatLng(viewport.ne.lat, viewport.ne.lng)
+          ));
+        }
+      }, 100);
+    }
   }
   clearPlace() {
     if (this.marker) {
@@ -38,34 +50,64 @@ export default class GoogleMapsService {
     }
   }
   setCenterAndBounds(center, viewport) {
-    if (_.isEqual(center, this.currentCenter) && _.isEqual(viewport, this.currentViewport)) {
-      return;
+    if (window.google) {
+      if (_.isEqual(center, this.currentCenter) && _.isEqual(viewport, this.currentViewport)) {
+        return;
+      }
+      this.map.setCenter(new google.maps.LatLng(center.lat, center.lng));
+      this.map.fitBounds(new google.maps.LatLngBounds(
+        new google.maps.LatLng(viewport.sw.lat, viewport.sw.lng),
+        new google.maps.LatLng(viewport.ne.lat, viewport.ne.lng)
+      ));
+      this.currentCenter = center;
+      this.currentViewport = viewport;
     }
-    this.map.setCenter(new google.maps.LatLng(center.lat, center.lng));
-    this.map.fitBounds(new google.maps.LatLngBounds(
-      new google.maps.LatLng(viewport.sw.lat, viewport.sw.lng),
-      new google.maps.LatLng(viewport.ne.lat, viewport.ne.lng)
-    ));
-    this.currentCenter = center;
-    this.currentViewport = viewport;
   }
   addHandler(callback, handler) {
     this.handlers[callback] = handler;
   }
   displayLocations(locations) {
-    let existingLocationIds = Object.keys(this.markers);
-    let newLocationIds = locations.map(location => location.id);
-    let markersToRemove = _.difference(existingLocationIds, newLocationIds);
-    for (let locationId of markersToRemove) {
-      this.markers[locationId].setMap(null);
-      delete this.markers[locationId];
-    }
-    for (let location of locations) {
-      if (!this.markers[location.id]) {
-        let marker = this.markers[location.id] = new google.maps.Marker();
-        marker.setPosition(location.position);
-        marker.setMap(this.map);
+    if (window.google) {
+      let existingLocationIds = Object.keys(this.markers);
+      let newLocationIds = locations.map(location => location.id);
+      let markersToRemove = _.difference(existingLocationIds, newLocationIds);
+      for (let locationId of markersToRemove) {
+        this.markers[locationId].setMap(null);
+        delete this.markers[locationId];
       }
+      for (let location of locations) {
+        if (!this.markers[location.id]) {
+          let marker = this.markers[location.id] = new google.maps.Marker();
+          marker.setPosition(location.position);
+          marker.setMap(this.map);
+          let image = new google.maps.MarkerImage('http://maps.google.com/mapfiles/ms/icons/' + location.color + '-dot.png');
+          marker.setIcon(image);
+        }
+      }
+    }
+  }
+  displayDirections(locations) {
+    if (window.google) {
+      let points = locations.map(location => location.position);
+      let length = points.length;
+      let start = points[0];
+      let end = points[length-1];
+      let request = {
+        origin: new google.maps.LatLng(start.lat, start.lng),
+        destination: new google.maps.LatLng(end.lat, end.lng),
+        travelMode: google.maps.DirectionsTravelMode.DRIVING
+      };
+      if (length > 2) {
+        request.waypoints = []
+        for (let i = 1; i < points.length - 2; ++i) {
+          request.waypoints.push({location: new google.maps.LatLng(waypoint.lat, waypoint.lng)});
+        }
+      }
+      this.directionsService.route(request, (response, status) => {
+        if (status === google.maps.DirectionsStatus.OK) {
+          this.directionsDisplay.setDirections(response)
+        }
+      });
     }
   }
   onPlaceChanged() {

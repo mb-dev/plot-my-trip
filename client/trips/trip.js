@@ -1,5 +1,7 @@
 import _ from 'lodash'
 
+const COLORS = ['red', 'blue', 'purple', 'yellow', 'green']
+
 export default class Trip {
   constructor() {
     this.reset();
@@ -13,6 +15,8 @@ export default class Trip {
     this.data = {regions: [], groups: [], locations: [], nextId: 1};
     this.activePlace = null;
     this.activeRegion = null;
+    this.activeGroup = null;
+    this.colorByGroup = {};
   }
   getActiveLocation() {
     return this.activePlace;
@@ -58,6 +62,9 @@ export default class Trip {
   getGroupById(groupId) {
     return _.find(this.data.groups, {id: groupId});
   }
+  getActiveGroup() {
+    return this.activeGroup;
+  }
   addGroup(regionId, groupName) {
     let group = {
       id: this.getNextId(),
@@ -91,6 +98,7 @@ export default class Trip {
   addLocationToGroup(groupId, locationId) {
     let location = this.getLocationById(locationId);
     let group = this.getGroupById(groupId);
+    let region = this.getRegionById(group.regionId)
     if (location.groupId === groupId) {
       return;
     }
@@ -98,7 +106,8 @@ export default class Trip {
       this.removeLocationFromGroup(location.groupId, locationId);
     }
     location.groupId = groupId;
-    group.locations.push(locationId);
+    group.locations = _.union(group.locations, [locationId]);
+    this.removeLocationFromRegion(region, location);
   }
   removeLocationFromGroup(groupId, locationId) {
     let location = this.getLocationById(locationId);
@@ -124,6 +133,9 @@ export default class Trip {
     group.locations.splice(currentIndex, 1);
     group.locations.splice(currentIndex+1, 0, locationId);
   }
+  selectGroup(groupId) {
+    this.activeGroup = this.getGroupById(groupId);
+  }
 
   // regions
   getActiveRegion() {
@@ -131,6 +143,8 @@ export default class Trip {
   }
   setActiveRegion(region) {
     this.activeRegion = region;
+    this.activeGroup = null;
+    this.activePlace = null;
   }
   getRegionById(regionId) {
     return _.find(this.data.regions, {id: regionId});
@@ -157,8 +171,57 @@ export default class Trip {
     let region = this.getRegionById(regionId);
     region.scrapeLocations.push(locationId);
   }
+  removeLocationFromRegion(regionId, locationId) {
+    let region = _.isNumber(regionId) ? this.getRegionById(regionId) : regionId;
+    let location = _.isNumber(locationId) ? this.getLocationById(regionId) : locationId;
+    region.scrapeLocations = _.without(region.scrapeLocations, locationId);
+  }
   getRegionScrapeLocations(regionId) {
     let region = this.getRegionById(regionId);
     return _.filter(this.data.locations, (location) => region.scrapeLocations.indexOf(location.id) >= 0);
+  }
+  getLocationsInRegion(regionId) {
+    let region = this.getRegionById(regionId);
+    let groupsInRegion = _.indexBy(this.getGroupsInRegion(regionId), 'id');
+    let scrapeLocationIds = _.object(region.scrapeLocations, _.identity);
+
+    return _.filter(this.data.locations, location => groupsInRegion[location.groupId] || _.has(scrapeLocationIds, location.id) );
+  }
+  selectPrevRegion() {
+    if (this.data.regions.length <= 1) {
+      return;
+    }
+    let currentIndex = this.data.regions.indexOf(this.activeRegion);
+    if (currentIndex === 0) {
+      return;
+    }
+    this.activeRegion = this.data.regions[currentIndex - 1];
+    this.activeGroup = null;
+  }
+  selectNextRegion() {
+    if (this.data.regions.length <= 1) {
+      return;
+    }
+    let currentIndex = this.data.regions.indexOf(this.activeRegion);
+    if (currentIndex === this.data.regions.length - 1) {
+      return;
+    }
+    this.activeRegion = this.data.regions[currentIndex + 1];
+    this.activeGroup = null;
+  }
+
+  // other - ui state
+  assignColorByGroup() {
+    this.colorByGroup = {};
+    for(let i = 0; i < this.data.groups.length; ++i) {
+      let group = this.data.groups[i];
+      this.colorByGroup[group.id] = COLORS[i];
+    }
+  }
+  getColorOfGroup(groupId) {
+    if (groupId) {
+      return this.colorByGroup[groupId];
+    }
+    return 'green';
   }
 }

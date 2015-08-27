@@ -32,41 +32,48 @@ const locationTarget = {
 export default class Group extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {groupMembers: []};
+    this.state = {groupMembers: [], selectedGroup: null};
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
+    this.onSelectGroup = this.onSelectGroup.bind(this);
   }
   onTripsStoreChange() {
     let members = tripsStore.currentTrip.getGroupMembers(this.props.group.id);
-    this.setState({groupMembers: members});
+    let activeGroup = tripsStore.currentTrip.getActiveGroup();
+    this.setState({groupMembers: members, activeGroup: activeGroup});
   }
   onSelectGroup() {
-
+    dispatcher.dispatch({actionType: ActionType.GROUPS.SELECT_GROUP, groupId: this.props.group.id});
   }
   componentDidMount() {
     tripsStore.addChangeListener(this.onTripsStoreChange);
+    // Not sure why this line is needed
+    this.onTripsStoreChange();
   }
   componentWillUnmount() {
     tripsStore.removeChangeListener(this.onTripsStoreChange);
   }
   render() {
     const {canDrop, isOver, connectDropTarget} = this.props;
-    const isActive = canDrop && isOver;
     const groupClassName = classNames({
       'group': true,
-      'drag-item-is-over': isActive
+      'drag-item-is-over': canDrop && isOver,
+      'active': this.state.activeGroup && this.state.activeGroup.id == this.props.group.id
     });
 
-    var groupMembers = this.state.groupMembers.map(function(location, index) {
+    let groupMembers = this.state.groupMembers.map(function(location, index) {
       var className = '';
       return (<GroupMember key={location.id} location={location} />);
     });
 
+    let noGroupMembersElement = <div className="no-group-members">Group has no members</div>
+
     return connectDropTarget(
       <div className={groupClassName}>
-        <h4>{this.props.group.name}</h4>
         <div className="group-controls">
           <a>Delete Group</a>
         </div>
+        <h4 onClick={this.onSelectGroup}>{this.props.group.name}</h4>
+        { this.state.groupMembers.length == 0 && noGroupMembersElement}
         <ul className="group-members">
           {groupMembers}
         </ul>
