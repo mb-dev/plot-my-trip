@@ -62,6 +62,7 @@ class TripsStore extends EventEmitter{
         break;
       case ActionType.GROUPS.ADD_GROUP:
         this.currentTrip.addGroup(payload.regionId, payload.groupName);
+        this.currentTrip.assignColorByGroup();
         this.emitChange();
         break;
       case ActionType.GROUPS.DELETE_GROUP:
@@ -74,6 +75,10 @@ class TripsStore extends EventEmitter{
         break;
       case ActionType.GROUPS.SELECT_GROUP:
         this.currentTrip.selectGroup(payload.groupId);
+        this.emitChange();
+        break;
+      case ActionType.REGIONS.SELECT_REGION:
+        this.currentTrip.setActiveRegion(payload.regionId);
         this.emitChange();
         break;
       case ActionType.REGIONS.ADD_REGION:

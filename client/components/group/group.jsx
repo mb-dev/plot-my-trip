@@ -32,14 +32,15 @@ const locationTarget = {
 export default class Group extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {groupMembers: [], selectedGroup: null};
+    this.state = {groupMembers: [], selectedGroup: null, groupColor: null};
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
     this.onSelectGroup = this.onSelectGroup.bind(this);
   }
   onTripsStoreChange() {
     let members = tripsStore.currentTrip.getGroupMembers(this.props.group.id);
     let activeGroup = tripsStore.currentTrip.getActiveGroup();
-    this.setState({groupMembers: members, activeGroup: activeGroup});
+    let groupColor = tripsStore.currentTrip.getColorOfGroup(this.props.group.id);
+    this.setState({groupMembers: members, activeGroup: activeGroup, groupColor: groupColor});
   }
   onSelectGroup() {
     dispatcher.dispatch({actionType: ActionType.GROUPS.SELECT_GROUP, groupId: this.props.group.id});
@@ -66,13 +67,17 @@ export default class Group extends React.Component {
     });
 
     let noGroupMembersElement = <div className="no-group-members">Group has no members</div>
+    let groupColorStyle = {'background-color': this.state.groupColor};
 
     return connectDropTarget(
       <div className={groupClassName}>
         <div className="group-controls">
           <a>Delete Group</a>
         </div>
-        <h4 onClick={this.onSelectGroup}>{this.props.group.name}</h4>
+        <div>
+          <div className="group-color" style={groupColorStyle}/>
+          <h4 onClick={this.onSelectGroup}>{this.props.group.name}</h4>
+        </div>
         { this.state.groupMembers.length == 0 && noGroupMembersElement}
         <ul className="group-members">
           {groupMembers}

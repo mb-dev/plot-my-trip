@@ -14,8 +14,11 @@ require('./side_bar.less');
 export default class SideBar extends React.Component {
   constructor(props) {
     super(props);
-    this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
+
     this.state = {activeLocation: null, activeRegion: null}
+
+    this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
+    this.onSelectRegion = this.onSelectRegion.bind(this);
   }
   onTripsStoreChange() {
     this.setState({
@@ -38,6 +41,9 @@ export default class SideBar extends React.Component {
   onAddRegion() {
     dispatcher.dispatch({actionType: ActionType.REGIONS.ADD_REGION});
   }
+  onSelectRegion() {
+    dispatcher.dispatch({actionType: ActionType.REGIONS.SELECT_REGION, regionId: this.state.activeRegion.id});
+  }
   render() {
     let regionRender = <Region region={this.state.activeRegion}></Region>;
     let activeLocationName = this.state.activeLocation ? this.state.activeLocation.name : '';
@@ -52,14 +58,13 @@ export default class SideBar extends React.Component {
 
     let regionElement = this.state.activeRegion ? regionRender : noRegion;
     let activeRegionName = this.state.activeRegion ? this.state.activeRegion.name : '';
-    let activeRegionElement = <div className="active-region-name">{activeRegionName}</div>;
-    let activeRegionElementCondition = this.state.activeRegion ? activeRegionElement : '';
+    let activeRegionElement = <div onClick={this.onSelectRegion} className="active-region-name">{activeRegionName}</div>;
 
     return (
       <div id="side-bar">
         <div className="top">
           <a href="#" onClick={this.onPrevRegion} className="prev-region">Prev Region</a>
-          {activeRegionElementCondition}
+          {this.state.activeRegion && activeRegionElement}
           <a href="#" onClick={this.onNextRegion} className="next-region">Next Region</a>
         </div>
         {regionElement}

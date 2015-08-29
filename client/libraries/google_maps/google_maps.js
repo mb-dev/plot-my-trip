@@ -19,7 +19,6 @@ export default class GoogleMapsService {
       this.currentViewport = null;
       this.directionsDisplay = new google.maps.DirectionsRenderer();
       this.directionsService = new google.maps.DirectionsService();
-      this.directionsDisplay.setMap(this.map);
     }
   }
   createAutoComplete(inputDomNode) {
@@ -68,6 +67,7 @@ export default class GoogleMapsService {
   }
   displayLocations(locations) {
     if (window.google) {
+      this.directionsDisplay.setMap(null);
       let existingLocationIds = Object.keys(this.markers);
       let newLocationIds = locations.map(location => location.id);
       let markersToRemove = _.difference(existingLocationIds, newLocationIds);
@@ -88,6 +88,8 @@ export default class GoogleMapsService {
   }
   displayDirections(locations) {
     if (window.google) {
+      this.directionsDisplay.setMap(this.map);
+      this.currentViewport = null;
       let points = locations.map(location => location.position);
       let length = points.length;
       let start = points[0];

@@ -8,50 +8,72 @@ let tetsuyaRestaurant = {"types":["restaurant","food","point_of_interest","estab
 
 let trip = new Trip();
 
+var addRegion = function(trip, location) {
+  trip.setActivePlace(location);
+  return trip.addActivePlaceAsRegion();
+}
+
+var addLocationToTrip = function(trip, region, place) {
+  trip.setActivePlace(place);
+  let location = trip.addActivePlaceToTrip();
+  trip.addLocationToRegion(region.id, location.id);
+  return location;
+}
+
 describe('Trip', function() {
   beforeEach(function() {
     trip.reset();
   });
   describe('location', function() {
     beforeEach(function() {
-      trip.setActivePlace(sydney);
-      this.region = trip.addActivePlaceAsRegion();
+      this.region = addRegion(trip, sydney);
       expect(this.region).to.exist
     });
     describe('addActivePlaceToTrip', function() {
       it('should be able to add a location', function() {
-        trip.setActivePlace(sydneyOpera);
-        trip.addActivePlaceToTrip();
+        addLocationToTrip(trip, this.region, sydneyOpera);
         let locations = trip.getLocations();
         expect(locations.length).to.equal(1);
       });
     });
     describe('deleteLocation', function() {
-      it('should be able to remove', function() {
-        trip.setActivePlace(sydneyOpera);
-        let location = trip.addActivePlaceToTrip();
+      it('should be able to remove location from group', function() {
         let group = trip.addGroup(this.region.id, 'Sydney Day 1');
+        let location = addLocationToTrip(trip, this.region, sydneyOpera);
         trip.addLocationToGroup(group.id, location.id);
+        let location2 = addLocationToTrip(trip, this.region, pocketBar);
+        trip.addLocationToGroup(group.id, location2.id);
         trip.deleteLocation(location.id);
         let locations = trip.getLocations();
-        expect(locations.length).to.equal(0);
-        expect(group.locations).to.deep.equal([]);
+        expect(locations.length).to.equal(1);
+        expect(group.locations).to.deep.equal([location2.id]);
+        expect(this.region.scrapeLocations).to.deep.equal([]);
+      });
+      it('should be able to remove location from region', function() {
+        let location = addLocationToTrip(trip, this.region, sydneyOpera);
+        let location2 = addLocationToTrip(trip, this.region, pocketBar);
+        trip.deleteLocation(location.id);
+        let locations = trip.getLocations();
+        expect(locations.length).to.equal(1);
+        expect(this.region.scrapeLocations).to.deep.equal([location2.id]);
       });
     });
   });
   describe('groups', function() {
     beforeEach(function() {
-      trip.setActivePlace(sydneyOpera);
-      this.location = trip.addActivePlaceToTrip();
       trip.setActivePlace(sydney);
       this.region = trip.addActivePlaceAsRegion();
+      trip.setActivePlace(sydneyOpera);
+      this.location = trip.addActivePlaceToTrip();
+      trip.addLocationToRegion(this.region.id, this.location.id);
     });
     describe('addLocationToGroup', function() {
-      it('should be able to add the location to a group', function() {
+      it('should add the location to the group and remove it from scrape locations', function() {
         let group = trip.addGroup(this.region.id, 'Sydney Day 1');
         trip.addLocationToGroup(group.id, this.location.id);
         this.location = trip.getLocationById(this.location.id);
         expect(this.location.groupId).to.equal(group.id);
+        expect(this.region.scrapeLocations.length).to.equal(0);
       });
       it('adding location to a group twice should not add multiple times', function() {
         let group = trip.addGroup(this.region.id, 'Sydney Day 1');

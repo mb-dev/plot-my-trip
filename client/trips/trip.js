@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-const COLORS = ['red', 'blue', 'purple', 'yellow', 'green']
+const COLORS = ['red', 'blue', 'purple', 'yellow'];
 
 export default class Trip {
   constructor() {
@@ -40,7 +40,8 @@ export default class Trip {
   }
   deleteLocation(locationId) {
     _.remove(this.data.locations, location => location.id === locationId);
-    this.data.groups.forEach(group => _.remove(group.locations, _.matches(locationId)));
+    this.data.groups.forEach(group => _.remove(group.locations,  (groupLocation) => groupLocation === locationId ));
+    this.data.regions.forEach(region => _.remove(region.scrapeLocations, (regionLocation) => regionLocation === locationId ));
   }
   getLocationById(locationId) {
     return _.find(this.data.locations, {id: locationId});
@@ -141,7 +142,9 @@ export default class Trip {
   getActiveRegion() {
     return this.activeRegion;
   }
-  setActiveRegion(region) {
+  setActiveRegion(regionId) {
+    let region = _.isNumber(regionId) ? this.getRegionById(regionId) : regionId;
+
     this.activeRegion = region;
     this.activeGroup = null;
     this.activePlace = null;
@@ -174,7 +177,7 @@ export default class Trip {
   removeLocationFromRegion(regionId, locationId) {
     let region = _.isNumber(regionId) ? this.getRegionById(regionId) : regionId;
     let location = _.isNumber(locationId) ? this.getLocationById(regionId) : locationId;
-    region.scrapeLocations = _.without(region.scrapeLocations, locationId);
+    region.scrapeLocations = _.without(region.scrapeLocations, location.id);
   }
   getRegionScrapeLocations(regionId) {
     let region = this.getRegionById(regionId);
@@ -215,7 +218,7 @@ export default class Trip {
     this.colorByGroup = {};
     for(let i = 0; i < this.data.groups.length; ++i) {
       let group = this.data.groups[i];
-      this.colorByGroup[group.id] = COLORS[i];
+      this.colorByGroup[group.id] = COLORS[i % COLORS.length];
     }
   }
   getColorOfGroup(groupId) {
