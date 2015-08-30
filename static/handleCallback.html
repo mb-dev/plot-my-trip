@@ -19,10 +19,17 @@
         }
       }
       if(state && code) {
-        $.post('http://www.plot-my-trip.local.com:8000/api/auth/tokenize', JSON.stringify({state, code}), function(data, textStatus) {
+        var tokenizeUrl = 'http://www.plot-my-trip.local.com:8000/api/auth/tokenize';
+        var redirectUrl = '/webpack-dev-server/'
+        if (window.location.href.indexOf('plot-my-trip.com') > 0) {
+          tokenizeUrl = 'http://www.plot-my-trip.com/api/auth/tokenize';
+          redirectUrl = '/';
+        }
+        
+        $.post('', JSON.stringify({state, code}), function(data, textStatus) {
           var sevenDays = 60 * 60 * 24 * 7;
           Cookies.set('token', data, { expires: sevenDays });
-          window.top.location.href = '/webpack-dev-server/';
+          window.top.location.href = redirectUrl;
         });
       }
     </script>
