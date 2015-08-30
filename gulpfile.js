@@ -10,6 +10,7 @@ var mocha					   = require('gulp-spawn-mocha');
 var webpackConfig    = require("./webpack.config.js");
 var notify				   = require('gulp-notify');
 var WebpackDevServer = require("webpack-dev-server");
+var runSequence      = require('run-sequence');
 
 gulp.task("mocha", function() {
 	return gulp.src(['client/**/*.test.js'], {read: false})
@@ -58,7 +59,11 @@ gulp.task("dev", ["server", "webpack"], function() {
 	gulp.watch(["api/**/*.go", "server.go"], ["server"])
 });
 
-gulp.task("webpack", function() {
+gulp.task("webpack", function(callback) {
+		if (CI) {
+			webpackConfig.watch = false;
+			webpackConfig.bail = true;
+		}
     // run webpack
     webpack(webpackConfig, function(err, stats) {
       if (err) {
@@ -67,6 +72,7 @@ gulp.task("webpack", function() {
       gutil.log("[webpack]", stats.toString({
           // output options
       }));
+			callback();
     });
 });
 
