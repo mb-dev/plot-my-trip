@@ -7,7 +7,7 @@ import (
 )
 
 type configuration struct {
-	HostURL    string `default:"http://www.plot-my-trip.local.com:4000"`
+	HostURL    string `default:"http://www.plot-my-trip.local.com:8000"`
 	HttpUrl    string `default:"http://www.plot-my-trip.local.com:8080"`
 	APIRoot    string `default:"/api"`
 	APIVersion string `default:"v1"`

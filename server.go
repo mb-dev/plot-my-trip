@@ -30,7 +30,7 @@ func main() {
 	registerRoutes(router)
 	api.Initialize(router)
 
-	fmt.Println("Starting server on port 4000...")
+	fmt.Println("Starting server on port 8000...")
 	handler := cors.New(cors.Options{AllowedHeaders: []string{"Accept", "Content-Type", "Authorization"}}).Handler(router)
-	log.Fatal(http.ListenAndServe(":4000", handler))
+	log.Fatal(http.ListenAndServe(":8000", handler))
 }
