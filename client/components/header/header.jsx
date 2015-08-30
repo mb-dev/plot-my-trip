@@ -1,5 +1,5 @@
 import React from 'react';
-import classNames from 'classNames'
+import classNames from 'classnames'
 
 import userStore  from '../../users/users_store'
 import tripsStore from '../../trips/trips_store'

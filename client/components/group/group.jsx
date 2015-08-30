@@ -1,5 +1,5 @@
 import React from 'react';
-import classNames from 'classNames'
+import classNames from 'classnames'
 import { DropTarget } from 'react-dnd';
 
 import dispatcher from '../../dispatcher/dispatcher'

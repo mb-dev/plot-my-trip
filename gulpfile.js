@@ -61,7 +61,9 @@ gulp.task("dev", ["server", "webpack"], function() {
 gulp.task("webpack", function() {
     // run webpack
     webpack(webpackConfig, function(err, stats) {
-      if(err) throw new gutil.PluginError("webpack", err);
+      if (err) {
+				throw new gutil.PluginError("webpack", err);
+			}
       gutil.log("[webpack]", stats.toString({
           // output options
       }));
