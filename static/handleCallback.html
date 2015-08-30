@@ -25,8 +25,8 @@
           tokenizeUrl = 'http://www.plot-my-trip.com/api/auth/tokenize';
           redirectUrl = '/';
         }
-        
-        $.post('', JSON.stringify({state, code}), function(data, textStatus) {
+
+        $.post(tokenizeUrl, JSON.stringify({state, code}), function(data, textStatus) {
           var sevenDays = 60 * 60 * 24 * 7;
           Cookies.set('token', data, { expires: sevenDays });
           window.top.location.href = redirectUrl;
