@@ -78,15 +78,15 @@ export default class MapArea extends React.Component {
     let activeGroup = tripsStore.currentTrip.getActiveGroup();
     let locations = [];
 
-    if (activeRegion) {
+    if (activeLocation) {
+      googleMapsService.findPlace(activeLocation.position, activeLocation.viewport);
+    } else {
+      googleMapsService.clearPlace();
+      let groupNameNode = React.findDOMNode(this.refs.autoComplete);
+      groupNameNode.value = "";
+    }
 
-      if (activeLocation) {
-        googleMapsService.findPlace(activeLocation.position, activeLocation.viewport);
-      } else {
-        googleMapsService.clearPlace();
-        let groupNameNode = React.findDOMNode(this.refs.autoComplete);
-        groupNameNode.value = "";
-      }
+    if (activeRegion) {
 
       googleMapsService.setCenterAndBounds(activeRegion.googleData.position, activeRegion.googleData.viewport);
 

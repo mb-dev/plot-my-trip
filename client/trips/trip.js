@@ -179,7 +179,7 @@ export default class Trip {
     let location = _.isNumber(locationId) ? this.getLocationById(regionId) : locationId;
     region.scrapeLocations = _.without(region.scrapeLocations, location.id);
   }
-  getRegionScrapeLocations(regionId) {
+  getRegionScrapLocations(regionId) {
     let region = this.getRegionById(regionId);
     return _.filter(this.data.locations, (location) => region.scrapeLocations.indexOf(location.id) >= 0);
   }

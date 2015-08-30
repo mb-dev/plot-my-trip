@@ -12,7 +12,7 @@ require('./region.less');
 export default class Region extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {scrapeLocations: [], groups: [], activeLocation: null};
+    this.state = {scrapLocations: [], groups: [], activeLocation: null};
     this.mouseTrap = new MousetrapMixin();
 
     this.addPlace = this.addPlace.bind(this);
@@ -41,7 +41,7 @@ export default class Region extends React.Component {
   updateState(props) {
     this.setState({
       activeLocation: tripsStore.currentTrip.getActiveLocation(),
-      scrapeLocations: tripsStore.currentTrip.getRegionScrapeLocations(props.region.id),
+      scrapLocations: tripsStore.currentTrip.getRegionScrapLocations(props.region.id),
       groups: tripsStore.currentTrip.getGroupsInRegion(props.region.id)
     });
   }
@@ -60,7 +60,7 @@ export default class Region extends React.Component {
   }
   render() {
     let selectedIndex = this.state.selectedIndex;
-    let locationNodes = this.state.scrapeLocations.map(function(location, index) {
+    let locationNodes = this.state.scrapLocations.map(function(location, index) {
       var className = index == selectedIndex ? 'selected' : '';
       return (<GroupMember key={location.id} location={location} />);
     });
@@ -82,9 +82,9 @@ export default class Region extends React.Component {
         {groupNodes}
 
         {addPlaceCondition}
-        <h4>Scrape Book:</h4>
+        <h4>Scrapbook:</h4>
 
-        <ul className="scrape-locations">
+        <ul className="scrap-locations">
           {locationNodes}
         </ul>
       </div>

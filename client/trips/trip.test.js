@@ -68,7 +68,7 @@ describe('Trip', function() {
       trip.addLocationToRegion(this.region.id, this.location.id);
     });
     describe('addLocationToGroup', function() {
-      it('should add the location to the group and remove it from scrape locations', function() {
+      it('should add the location to the group and remove it from scrap locations', function() {
         let group = trip.addGroup(this.region.id, 'Sydney Day 1');
         trip.addLocationToGroup(group.id, this.location.id);
         this.location = trip.getLocationById(this.location.id);
@@ -132,12 +132,12 @@ describe('Trip', function() {
         expect(trip.getRegions()[0].id).to.deep.equal(region.id);
       });
     });
-    describe('getRegionScrapeLocations', function() {
+    describe('getRegionScrapLocations', function() {
       it('should return scrape locations', function() {
         trip.setActivePlace(sydney);
         let region = trip.addActivePlaceAsRegion();
         trip.addLocationToRegion(region.id, this.location.id);
-        let locations = trip.getRegionScrapeLocations(region.id);
+        let locations = trip.getRegionScrapLocations(region.id);
         expect(locations[0].id).to.equal(this.location.id);
       });
     });

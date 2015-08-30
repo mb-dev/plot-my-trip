@@ -59,7 +59,7 @@ gulp.task("dev", ["server", "webpack"], function() {
 	gulp.watch(["api/**/*.go", "server.go"], ["server"])
 });
 
-gulp.task("webpack", function(callback) {
+gulp.task("webpack", function() {
 		if (CI) {
 			webpackConfig.watch = false;
 			webpackConfig.bail = true;
@@ -72,7 +72,6 @@ gulp.task("webpack", function(callback) {
       gutil.log("[webpack]", stats.toString({
           // output options
       }));
-			callback();
     });
 });
 
