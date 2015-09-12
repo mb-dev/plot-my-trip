@@ -10,7 +10,10 @@ var CHANGE_EVENT = 'change';
 class TripsStore extends EventEmitter{
   constructor() {
     super();
-    this.currentTrip = new Trip();
+    this.currentTrip = null;
+    this.trips = [];
+    this.tripById = {};
+    this.activeTripId = null;
     this.saveSuccessfully = true;
   }
   emitChange() {
@@ -19,11 +22,18 @@ class TripsStore extends EventEmitter{
   load() {
     apiClient.getTrips((data) => {
       if(data.length > 0) {
-        this.currentTrip.data = data[0];
-        if (this.currentTrip.data.regions.length > 0) {
-          this.currentTrip.setActiveRegion(this.currentTrip.data.regions[0]);
-        }
-        this.currentTrip.assignColorByGroup();
+        data.forEach((tripData) => {
+          let trip = new Trip(tripData);
+          let tripId = trip.getTripId();
+          this.addTrip(trip);
+          if (tripId === this.activeTripId) {
+            this.currentTrip = trip;
+          }
+          if (trip.data.regions.length > 0) {
+            trip.setActiveRegion(trip.data.regions[0]);
+          }
+          trip.assignColorByGroup();
+        });
         this.emitChange();
       }
     });
@@ -37,6 +47,30 @@ class TripsStore extends EventEmitter{
       console.log('save failed', err);
     });
   }
+  getTripsSummary() {
+    return this.trips.map(function(trip) {
+      return {
+        id: trip.getTripId(),
+        name: trip.getTripName(),
+        regionsCount: trip.getRegionCount()
+      };
+    });
+  }
+  getTripById(id) {
+    if (!id) {
+      return null;
+    }
+    return this.tripById[id];
+  }
+  addTrip(trip) {
+    let tripId = trip.getTripId();
+    this.tripById[tripId] = trip;
+    this.trips.push(trip);
+  }
+  setActiveTrip(id) {
+    this.activeTripId = id;
+    this.currentTrip = this.getTripById(id);
+  }
   addChangeListener(callback) {
     this.on(CHANGE_EVENT, callback);
   }
@@ -45,6 +79,15 @@ class TripsStore extends EventEmitter{
   }
   handleDispatch(payload) {
     switch (payload.actionType) {
+      case ActionType.TRIPS.CREATE_TRIP:
+        let trip = new Trip();
+        trip.setActivePlace(payload.initialPlace);
+        let region2 = trip.addActivePlaceAsRegion();
+        trip.setActiveRegion(region2);
+        this.addTrip(trip);
+        this.setActiveTrip(trip.getTripId());
+        this.emitChange();
+        break;
       case ActionType.LOCATIONS.PLACE_CHANGED:
         this.currentTrip.setActivePlace(payload.googleData);
         this.emitChange();

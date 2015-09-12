@@ -3,8 +3,8 @@ import classNames from 'classnames'
 import { DropTarget } from 'react-dnd';
 
 import dispatcher from '../../dispatcher/dispatcher'
-import ActionType from '../../trips/action_types'
-import tripsStore from '../../trips/trips_store'
+import ActionType from '../../stores/action_types'
+import tripsStore from '../../stores/trips_store'
 import GroupMember from './group_member'
 
 require('./group.less');
@@ -37,6 +37,9 @@ export default class Group extends React.Component {
     this.onSelectGroup = this.onSelectGroup.bind(this);
   }
   onTripsStoreChange() {
+    if (!tripsStore.currentTrip) {
+      return;
+    }
     let members = tripsStore.currentTrip.getGroupMembers(this.props.group.id);
     let activeGroup = tripsStore.currentTrip.getActiveGroup();
     let groupColor = tripsStore.currentTrip.getColorOfGroup(this.props.group.id);

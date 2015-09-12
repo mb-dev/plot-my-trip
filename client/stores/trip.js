@@ -3,8 +3,11 @@ import _ from 'lodash'
 const COLORS = ['red', 'blue', 'purple', 'yellow'];
 
 export default class Trip {
-  constructor() {
+  constructor(tripData) {
     this.reset();
+    if(tripData) {
+      this.data = tripData;
+    }
   }
   getNextId() {
     let current = this.data.nextId;
@@ -12,11 +15,17 @@ export default class Trip {
     return current;
   }
   reset() {
-    this.data = {regions: [], groups: [], locations: [], nextId: 1};
+    this.data = {_id: 'new', regions: [], groups: [], locations: [], nextId: 1};
     this.activePlace = null;
     this.activeRegion = null;
     this.activeGroup = null;
     this.colorByGroup = {};
+  }
+  getTripId() {
+    return this.data._id;
+  }
+  getTripName() {
+    return this.data.name;
   }
   getActiveLocation() {
     return this.activePlace;
@@ -141,6 +150,9 @@ export default class Trip {
   // regions
   getActiveRegion() {
     return this.activeRegion;
+  }
+  getRegionCount() {
+    return this.data.regions.length;
   }
   setActiveRegion(regionId) {
     let region = _.isNumber(regionId) ? this.getRegionById(regionId) : regionId;

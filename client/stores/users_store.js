@@ -1,5 +1,7 @@
 import {EventEmitter} from 'events'
 import apiClient from '../libraries/api_client/api_client'
+import dispatcher from '../dispatcher/dispatcher'
+import ActionType from './action_types'
 
 var CHANGE_EVENT = 'change';
 
@@ -31,7 +33,18 @@ class UserStore extends EventEmitter {
   removeChangeListener(callback) {
     this.removeListener(CHANGE_EVENT, callback);
   }
+  handleDispatch(payload) {
+    switch (payload.actionType) {
+      case ActionType.USER.LOGOUT:
+        this.currentUser = null;
+        this.emitChange();
+        break
+    }
+  }
+
 }
 
-var userStore = new UserStore();
-export default userStore;
+var store = new UserStore();
+dispatcher.register(store.handleDispatch.bind(store));
+
+export default store;

@@ -1,9 +1,10 @@
 import React from 'react';
-import classNames from 'classnames'
+import {Link} from 'react-router';
+import classNames from 'classnames';
 
-import userStore  from '../../users/users_store'
-import tripsStore from '../../trips/trips_store'
-import apiClient from '../../libraries/api_client/api_client'
+import userStore  from '../../stores/users_store';
+import tripsStore from '../../stores/trips_store';
+import apiClient from '../../libraries/api_client/api_client';
 
 export default class Header extends React.Component {
   constructor(props) {
@@ -31,6 +32,10 @@ export default class Header extends React.Component {
     userStore.addChangeListener(this.onUsersStoreChange);
     tripsStore.addChangeListener(this.onTripsStoreChange);
   }
+  componentWillUnmount() {
+    userStore.removeChangeListener(this.onUsersStoreChange);
+    tripsStore.removeChangeListener(this.onTripsStoreChange);
+  }
   render() {
     var userSection;
     const saveButtonClass = classNames({
@@ -43,6 +48,8 @@ export default class Header extends React.Component {
     if (this.state.currentUser) {
       userSection = <div className="navbar-text">
         <span>Welcome {this.state.currentUser.name}</span>
+        &nbsp;
+        (<Link to="logout">Logout</Link>)
       </div>;
     } else {
       userSection = <a className="btn" onClick={this.handleLogin}>
@@ -59,11 +66,11 @@ export default class Header extends React.Component {
               <span className="icon-bar"></span>
               <span className="icon-bar"></span>
             </button>
-            <a className="navbar-brand" href="#">Plot My Trip</a>
+            <Link className="navbar-brand" to="home">Plot My Trip</Link>
           </div>
           <div className="collapse navbar-collapse">
             <ul className="nav navbar-nav">
-              <li className="active"><a href="#">Home <span className="sr-only">(current)</span></a></li>
+              <li className="active"><Link to="home">Home <span className="sr-only">(current)</span></Link></li>
             </ul>
             <ul className="nav navbar-nav navbar-right">
               <li>

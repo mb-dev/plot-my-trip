@@ -2,7 +2,7 @@ import React from 'react';
 import { DragSource } from 'react-dnd';
 
 import dispatcher from '../../dispatcher/dispatcher.js'
-import ActionType from '../../trips/action_types'
+import ActionType from '../../stores/action_types'
 
 const groupSource = {
   beginDrag(props) {

@@ -4,6 +4,13 @@ class Storage {
   getBearerToken() {
     return Cookies.get('token');
   }
+  setBearerToken(token) {
+    var sevenDays = 60 * 60 * 24 * 7;
+    Cookies.set('token', token, { expires: sevenDays });
+  }
+  clearAll() {
+    Cookies.expire('token');
+  }
 }
 
 var storage = new Storage();

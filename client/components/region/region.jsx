@@ -1,7 +1,7 @@
 import React from 'react';
 import dispatcher from '../../dispatcher/dispatcher'
-import ActionType from '../../trips/action_types'
-import tripsStore from '../../trips/trips_store'
+import ActionType from '../../stores/action_types'
+import tripsStore from '../../stores/trips_store'
 import MousetrapMixin from '../../libraries/mousetrap_mixin/mousetrap_mixin'
 
 import Group from '../group/group'

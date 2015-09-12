@@ -24,7 +24,9 @@ export default class GoogleMapsService {
   createAutoComplete(inputDomNode) {
     if (window.google) {
       this.autocomplete = new google.maps.places.Autocomplete(inputDomNode);
-      this.autocomplete.bindTo('bounds', this.map);
+      if(this.map) {
+        this.autocomplete.bindTo('bounds', this.map);
+      }
       google.maps.event.addListener(this.autocomplete, 'place_changed', this.onPlaceChanged.bind(this));
     }
   }
@@ -64,6 +66,9 @@ export default class GoogleMapsService {
   }
   addHandler(callback, handler) {
     this.handlers[callback] = handler;
+  }
+  clearHandlers() {
+    this.handlers = [];
   }
   displayLocations(locations) {
     if (window.google) {
