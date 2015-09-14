@@ -86,7 +86,7 @@ export default class MapArea extends React.Component {
   }
   render() {
     let currentDay = {number: 1};
-    let addAsRegionBtn = <button onClick={this.onAddRegion} className="btn btn-default">Add As Region</button>
+    let addAsRegionBtn = <button onClick={this.onAddRegion} className="btn btn-default">Add Another City</button>
 
     return (
       <div id="map-area">

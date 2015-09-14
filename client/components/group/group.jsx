@@ -69,19 +69,21 @@ export default class Group extends React.Component {
       return (<GroupMember key={location.id} location={location} />);
     });
 
-    let noGroupMembersElement = <div className="no-group-members">Group has no members</div>
+    let noGroupMembersElement = <div className="no-group-members">Day has no locations</div>
     let groupColorStyle = {'background-color': this.state.groupColor};
 
     return connectDropTarget(
       <div className={groupClassName}>
         <div className="group-controls">
-          <a>Delete Group</a>
+          <a>Delete Day</a>
         </div>
         <div>
           <div className="group-color" style={groupColorStyle}/>
           <h4 onClick={this.onSelectGroup}>{this.props.group.name}</h4>
         </div>
-        { this.state.groupMembers.length == 0 && noGroupMembersElement}
+        { this.state.groupMembers.length == 0 &&
+          <div className="no-group-members text-muted">Day has no locations</div>
+        }
         <ul className="group-members">
           {groupMembers}
         </ul>

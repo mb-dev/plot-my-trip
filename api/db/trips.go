@@ -31,7 +31,7 @@ func TripCollectionToJSON(in []Trip) ([]byte, error) {
 // GetAllTrips returns all trips by the user
 func GetAllTrips(userID string) (results []Trip, err *errors.Error) {
 	tripsCollection := Db.Session.DB(config.Config.DatabaseName).C(collectionName)
-	if err := tripsCollection.Find(bson.M{"userId": bson.ObjectIdHex(userID)}).Limit(5).All(&results); err != nil {
+	if err := tripsCollection.Find(bson.M{"userId": bson.ObjectIdHex(userID)}).Limit(10).All(&results); err != nil {
 		return results, errors.Wrap(err, 0)
 	}
 	return results, nil
