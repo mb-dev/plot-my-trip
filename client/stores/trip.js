@@ -15,17 +15,20 @@ export default class Trip {
     return current;
   }
   reset() {
-    this.data = {_id: 'new', regions: [], groups: [], locations: [], nextId: 1};
+    this.data = {_id: null, regions: [], groups: [], locations: [], nextId: 1};
     this.activePlace = null;
     this.activeRegion = null;
     this.activeGroup = null;
     this.colorByGroup = {};
   }
   getTripId() {
-    return this.data._id;
+    return this.data._id || 'new';
   }
   getTripName() {
     return this.data.name;
+  }
+  setTripName(name) {
+    this.data.name = name;
   }
   getActiveLocation() {
     return this.activePlace;

@@ -38,10 +38,19 @@ class TripsStore extends EventEmitter{
       }
     });
   }
-  save() {
+  save(success) {
     this.saveSuccessfully = false;
     apiClient.updateTrips(this.currentTrip.data, (data) => {
       this.saveSuccessfully = true;
+      if(this.currentTrip.data._id === null && data.tripId) {
+        let tripId = this.currentTrip.data._id = data.tripId;
+        delete this.tripById['new'];
+        this.tripById[tripId] = this.currentTrip;
+        this.activeTripId = tripId;
+      }
+      if (success) {
+        success();
+      }
       this.emitChange();
     }, (err) => {
       console.log('save failed', err);
@@ -81,9 +90,13 @@ class TripsStore extends EventEmitter{
     switch (payload.actionType) {
       case ActionType.TRIPS.CREATE_TRIP:
         let trip = new Trip();
+        trip.setTripName('Trip to ' + payload.initialPlace.name)
         trip.setActivePlace(payload.initialPlace);
         let region2 = trip.addActivePlaceAsRegion();
         trip.setActiveRegion(region2);
+        trip.addGroup(region2.id, 'Day 1');
+        trip.addGroup(region2.id, 'Day 2');
+        trip.assignColorByGroup();
         this.addTrip(trip);
         this.setActiveTrip(trip.getTripId());
         this.emitChange();
@@ -104,7 +117,8 @@ class TripsStore extends EventEmitter{
         this.emitChange();
         break;
       case ActionType.GROUPS.ADD_GROUP:
-        this.currentTrip.addGroup(payload.regionId, payload.groupName);
+        let amountOfGroups = this.currentTrip.getGroupsInRegion(payload.regionId).length;
+        this.currentTrip.addGroup(payload.regionId, 'Day ' + (amountOfGroups + 1));
         this.currentTrip.assignColorByGroup();
         this.emitChange();
         break;

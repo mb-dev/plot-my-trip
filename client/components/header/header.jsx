@@ -4,6 +4,7 @@ import classNames from 'classnames';
 
 import userStore  from '../../stores/users_store';
 import tripsStore from '../../stores/trips_store';
+import tripActions from '../../actions/trip_actions';
 import apiClient from '../../libraries/api_client/api_client';
 
 export default class Header extends React.Component {
@@ -12,6 +13,7 @@ export default class Header extends React.Component {
     this.state = {currentUser: null, saveSuccessfully: true};
     this.onUsersStoreChange = this.onUsersStoreChange.bind(this);
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
+    this.onSaveTrip = this.onSaveTrip.bind(this);
   }
   handleLogin() {
     // get Google Auth URL
@@ -20,7 +22,7 @@ export default class Header extends React.Component {
     });
   }
   onSaveTrip() {
-    tripsStore.save();
+    tripActions.saveTrip(this.context.router);
   }
   onUsersStoreChange() {
     this.setState({currentUser: userStore.getCurrentUser()});
@@ -83,4 +85,8 @@ export default class Header extends React.Component {
       </nav>
     );
   }
+}
+
+Header.contextTypes = {
+  router: React.PropTypes.func.isRequired
 }

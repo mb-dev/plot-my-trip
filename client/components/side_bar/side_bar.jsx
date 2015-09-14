@@ -71,7 +71,7 @@ export default class SideBar extends React.Component {
 
     return (
       <div id="side-bar">
-        <div className="top">
+        <div className="top clearfix">
           <a href="#" onClick={this.onPrevRegion} className="prev-region">Prev Region</a>
           {this.state.activeRegion && activeRegionElement}
           <a href="#" onClick={this.onNextRegion} className="next-region">Next Region</a>

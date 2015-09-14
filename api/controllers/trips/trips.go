@@ -1,6 +1,7 @@
 package trips
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/mb-dev/plot-my-trip/api/db"
 	"github.com/mb-dev/plot-my-trip/api/lib/auth"
+	"github.com/mb-dev/plot-my-trip/api/lib/bson_helper"
 	"github.com/mb-dev/plot-my-trip/api/lib/context"
 )
 
@@ -26,29 +28,39 @@ func getAllTripsHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 	w.Write(responseJSON)
 }
 
+type updateTripResponse struct {
+	TripID string `json:"tripId"`
+}
+
 func updateTripHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params, context context.Context) {
-	trips, err := db.GetAllTrips(context.User.ID.Hex())
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 	body, rawErr := ioutil.ReadAll(r.Body)
-	if err != nil {
+	if rawErr != nil {
 		http.Error(w, errors.Wrap(rawErr, 0).ErrorStack(), http.StatusInternalServerError)
 		return
 	}
-	if len(trips) == 0 {
-		if err := db.CreateTripFromBody(context.User.ID.Hex(), body); err != nil {
-			http.Error(w, err.ErrorStack(), http.StatusInternalServerError)
+	trip := db.Trip{}
+	if err := bsonHelper.JSONToBSONStruct(body, &trip); err != nil {
+		http.Error(w, errors.Wrap(err, 0).ErrorStack(), http.StatusInternalServerError)
+	}
+	trip.UserID = context.User.ID
+	if trip.ID.Valid() {
+		if err := db.UpdateTrip(&trip); err != nil {
+			http.Error(w, errors.Wrap(err, 0).ErrorStack(), http.StatusInternalServerError)
 			return
 		}
 	} else {
-		if err := db.UpdateTripFromBody(context.User.ID.Hex(), body); err != nil {
-			http.Error(w, err.ErrorStack(), http.StatusInternalServerError)
+		if err := db.InsertTrip(&trip); err != nil {
+			http.Error(w, errors.Wrap(err, 0).ErrorStack(), http.StatusInternalServerError)
 			return
 		}
 	}
-	w.WriteHeader(http.StatusOK)
+	js, err := json.Marshal(&updateTripResponse{TripID: trip.ID.Hex()})
+	if err != nil {
+		http.Error(w, errors.Wrap(err, 0).ErrorStack(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
 }
 
 // RegisterRoutes adds trip routers to the router

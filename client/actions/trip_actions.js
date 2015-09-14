@@ -9,6 +9,18 @@ import tripsStore  from '../stores/trips_store'
 export default {
   createTrip: function(initialPlace, router) {
     dispatcher.dispatch({actionType: ActionType.TRIPS.CREATE_TRIP, initialPlace: initialPlace});
-    router.transitionTo('edit', {tripId: 'new'});
+    setTimeout(function() {
+      router.transitionTo('edit', {tripId: 'new'});
+    }, 100);
+  },
+  saveTrip: function(router) {
+    let newTrip = !tripsStore.currentTrip.data._id
+    tripsStore.save(() => {
+      if (newTrip && !!tripsStore.currentTrip.data._id) {
+        setTimeout(function() {
+          router.transitionTo('edit', {tripId: tripsStore.currentTrip.data._id});
+        }, 100);
+      }
+    });
   }
 }

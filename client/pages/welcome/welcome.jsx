@@ -60,18 +60,11 @@ export default class Welcome extends React.Component {
   }
   render() {
     let tripsNodes = this.state.trips.map(function(trip) {
-      return (<li key={trip.id}><Link to="edit" params={{tripId: trip.id}}>{trip.name || 'Untitled'} ({trip.regionsCount}) </Link></li>);
+      return (<li key={trip.id}><Link to="edit" params={{tripId: (trip.id || 'new')}}>{trip.name || 'Untitled'} ({trip.regionsCount}) </Link></li>);
     });
     let validPlace = this.state.currentPlace && this.state.currentPlace !== 'invalid';
     return (
       <div id="page-content" className="container">
-
-        <div className="existing-trips">
-          <h2>Existing Trips:</h2>
-          <ul>
-            {tripsNodes}
-          </ul>
-        </div>
         <div className="create-trip">
           <h2>Create a new trip</h2>
           <form className="text-center" onSubmit={this.onSubmit}>
@@ -85,6 +78,12 @@ export default class Welcome extends React.Component {
               Create Trip
             </button>
           </form>
+        </div>
+        <div className="existing-trips">
+          <h2>Existing Trips:</h2>
+          <ul>
+            {tripsNodes}
+          </ul>
         </div>
       </div>
     )

@@ -65,7 +65,6 @@ export default class MapArea extends React.Component {
     }
 
     if (activeRegion) {
-      console.log('active region', activeRegion);
       googleMapsService.setCenterAndBounds(activeRegion.googleData.position, activeRegion.googleData.viewport);
 
       if (activeGroup) {
