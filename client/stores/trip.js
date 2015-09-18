@@ -1,5 +1,6 @@
 import _ from 'lodash'
 
+// green - no group, pink - focus 
 const COLORS = ['red', 'blue', 'purple', 'yellow'];
 
 export default class Trip {
@@ -17,6 +18,7 @@ export default class Trip {
   reset() {
     this.data = {_id: null, regions: [], groups: [], locations: [], nextId: 1};
     this.activePlace = null;
+    this.focusLocationId = null;
     this.activeRegion = null;
     this.activeGroup = null;
     this.colorByGroup = {};
@@ -36,6 +38,12 @@ export default class Trip {
   setActivePlace(place) {
     this.activePlace = place;
   }
+  getFocusLocation() {
+    return this.focusLocationId;
+  }
+  setFocusLocation(locationId) {
+    this.focusLocationId = locationId;
+  }
   addActivePlaceToTrip() {
     if (!this.activePlace) {
       return;
@@ -49,6 +57,11 @@ export default class Trip {
     this.data.locations.push(location);
     this.activePlace = null;
     return location;
+  }
+  editLocation(locationId, newData) {
+    let location = this.getLocationById(locationId);
+    location.name = newData.name;
+    location.comments = newData.comments;
   }
   deleteLocation(locationId) {
     _.remove(this.data.locations, location => location.id === locationId);

@@ -17,6 +17,8 @@ export default class GoogleMapsService {
       this.markers = {};
       this.currentCenter = null;
       this.currentViewport = null;
+      this.previousFocusIcon = null;
+      this.currentFocusLocationId = null;
       this.directionsDisplay = new google.maps.DirectionsRenderer();
       this.directionsService = new google.maps.DirectionsService();
     }
@@ -85,10 +87,34 @@ export default class GoogleMapsService {
           let marker = this.markers[location.id] = new google.maps.Marker();
           marker.setPosition(location.position);
           marker.setMap(this.map);
-          let image = new google.maps.MarkerImage('http://maps.google.com/mapfiles/ms/icons/' + location.color + '-dot.png');
-          marker.setIcon(image);
+          if (this.currentFocusLocationId === location.id) {
+            let image = new google.maps.MarkerImage('http://maps.google.com/mapfiles/ms/icons/pink-dot.png');
+            marker.setIcon(image);
+          } else {
+            let image = new google.maps.MarkerImage('http://maps.google.com/mapfiles/ms/icons/' + location.color + '-dot.png');
+            marker.setIcon(image);
+          }
         }
       }
+    }
+  }
+  setFocusLocation(locationId) {
+    let marker = this.markers[locationId];
+    if (locationId && marker && locationId != this.currentFocusLocationId) {
+      if (this.currentFocusLocationId) {
+        this.clearFocusLocation();
+      }
+      this.previousFocusIcon = marker.getIcon();
+      let image = new google.maps.MarkerImage('http://maps.google.com/mapfiles/ms/icons/pink-dot.png');
+      marker.setIcon(image);
+      this.currentFocusLocationId = locationId;
+    }
+  }
+  clearFocusLocation() {
+    if (this.currentFocusLocationId) {
+      let marker = this.markers[this.currentFocusLocationId];
+      marker.setIcon(this.previousFocusIcon);
+      this.currentFocusLocationId = null;
     }
   }
   displayDirections(locations) {

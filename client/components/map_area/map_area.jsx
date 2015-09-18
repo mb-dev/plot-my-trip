@@ -52,6 +52,7 @@ export default class MapArea extends React.Component {
     let activeLocation = tripsStore.currentTrip.getActiveLocation();
     let activeRegion = tripsStore.currentTrip.getActiveRegion();
     let activeGroup = tripsStore.currentTrip.getActiveGroup();
+    let focusLocationId = tripsStore.currentTrip.getFocusLocation();
     let locations = [];
 
     if (activeLocation) {
@@ -62,6 +63,12 @@ export default class MapArea extends React.Component {
       if (groupNameNode) {
         groupNameNode.value = "";
       }
+    }
+
+    if (focusLocationId) {
+      googleMapsService.setFocusLocation(focusLocationId);
+    } else {
+      googleMapsService.clearFocusLocation();
     }
 
     if (activeRegion) {
@@ -76,7 +83,13 @@ export default class MapArea extends React.Component {
       }
     }
 
-    this.setState({locations: locations, activeLocation: activeLocation, activeRegion: activeRegion, activeGroup: activeGroup});
+    this.setState({
+      locations: locations,
+      activeLocation: activeLocation,
+      activeRegion: activeRegion,
+      activeGroup: activeGroup,
+      focusLocationId: focusLocationId
+    });
   }
   onTripsStoreChange() {
     this.updateState(this.props);

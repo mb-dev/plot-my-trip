@@ -105,11 +105,19 @@ class TripsStore extends EventEmitter{
         this.currentTrip.setActivePlace(payload.googleData);
         this.emitChange();
         break;
+      case ActionType.LOCATIONS.FOCUS_LOCATION:
+        this.currentTrip.setFocusLocation(payload.locationId);
+        this.emitChange();
+        break;
       case ActionType.LOCATIONS.ADD_LOCATION:
         let location = this.currentTrip.addActivePlaceToTrip();
         if (payload.regionId) {
           this.currentTrip.addLocationToRegion(payload.regionId, location.id);
         }
+        this.emitChange();
+        break;
+      case ActionType.LOCATIONS.EDIT_LOCATION:
+        this.currentTrip.editLocation(payload.locationId, payload.newData);
         this.emitChange();
         break;
       case ActionType.LOCATIONS.DELETE_LOCATION:
