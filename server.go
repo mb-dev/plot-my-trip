@@ -12,14 +12,14 @@ import (
 	"github.com/rs/cors"
 )
 
-func serveCallback(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	http.ServeFile(w, r, "static/handleCallback.html")
+func serveIndex(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "static/index.html")
 }
 
 func registerRoutes(router *httprouter.Router) {
-	router.NotFound = http.FileServer(http.Dir("static"))
-
-	router.GET("/auth/google/callback", serveCallback)
+	router.NotFound = http.HandlerFunc(serveIndex)
+	router.Handler("GET", "/js/*file", http.StripPrefix("/js/", http.FileServer(http.Dir("static/"))))
+	router.Handler("GET", "/css/*file", http.StripPrefix("/css/", http.FileServer(http.Dir("static/"))))
 }
 
 func main() {
@@ -27,8 +27,8 @@ func main() {
 	auth.Initialize()
 
 	router := httprouter.New()
-	registerRoutes(router)
 	api.Initialize(router)
+	registerRoutes(router)
 
 	fmt.Println("Starting server on port 8000...")
 	handler := cors.New(cors.Options{AllowedHeaders: []string{"Accept", "Content-Type", "Authorization"}}).Handler(router)

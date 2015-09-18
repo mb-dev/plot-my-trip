@@ -1,7 +1,7 @@
 import React from 'react';
 import dispatcher from '../../dispatcher/dispatcher'
-import ActionType from '../../trips/action_types'
-import tripsStore from '../../trips/trips_store'
+import ActionType from '../../stores/action_types'
+import tripsStore from '../../stores/trips_store'
 import MousetrapMixin from '../../libraries/mousetrap_mixin/mousetrap_mixin'
 
 import Group from '../group/group'
@@ -16,7 +16,7 @@ export default class Region extends React.Component {
     this.mouseTrap = new MousetrapMixin();
 
     this.addPlace = this.addPlace.bind(this);
-    this.addGroup = this.addGroup.bind(this);
+    this.addDay = this.addDay.bind(this);
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
   }
   onKeyUp(e) {
@@ -28,11 +28,8 @@ export default class Region extends React.Component {
   addPlace() {
     dispatcher.dispatch({actionType: ActionType.LOCATIONS.ADD_LOCATION, regionId: this.props.region.id});
   }
-  addGroup() {
-    let groupNameNode = React.findDOMNode(this.refs.groupNameInput)
-    let groupName = groupNameNode.value;
-    dispatcher.dispatch({actionType: ActionType.GROUPS.ADD_GROUP, regionId: this.props.region.id, groupName: groupName});
-    groupNameNode.value = '';
+  addDay() {
+    dispatcher.dispatch({actionType: ActionType.GROUPS.ADD_GROUP, regionId: this.props.region.id});
   }
   onTripsStoreChange() {
     this.updateState(this.props);
@@ -70,23 +67,23 @@ export default class Region extends React.Component {
     });
     let addPlace = <a className="add-place" href="#" onClick={this.addPlace}>Add</a>;
     let addPlaceCondition = this.state.activeLocation ? addPlace : '';
-
+    let scrapeBookStyle = {'background-color': 'green'};
     return (
       <div id="region">
-        <form className="add-group-form form-inline" onSubmit={this.onSubmit}>
-          <div className="form-group">
-            <label>Group Name:</label>
-            <input ref="groupNameInput" type="text" className="form-control"></input><button className="btn btn-default" onClick={this.addGroup}>Add</button>
-          </div>
-        </form>
+        <a href="#" onClick={this.addDay}><i className="fa fa-plus"></i> Add Day</a>
+
         {groupNodes}
 
         {addPlaceCondition}
-        <h4>Scrapbook:</h4>
-
-        <ul className="scrap-locations">
-          {locationNodes}
-        </ul>
+        <div className="group">
+          <div>
+            <div className="group-color" style={scrapeBookStyle}/>
+            <h4>Scrapbook:</h4>
+          </div>
+          <ul className="scrap-locations">
+            {locationNodes}
+          </ul>
+        </div>
       </div>
     );
   }

@@ -1,5 +1,6 @@
 import config from '../../config/config'
 import storage from '../storage/storage'
+
 import $ from 'jquery'
 
 class ApiClient {
@@ -51,6 +52,14 @@ class ApiClient {
       },
       success: success,
       failure: failure
+    });
+  }
+  getAuthToken(state, code, success, failure) {
+    let tokenizeUrl = config.apiServer + '/api/auth/tokenize';
+
+    $.post(tokenizeUrl, JSON.stringify({state, code}), function(data, textStatus) {
+      storage.setBearerToken(data);
+      success();
     });
   }
 }

@@ -3,8 +3,8 @@ import classNames from 'classnames'
 import { DropTarget } from 'react-dnd';
 
 import dispatcher from '../../dispatcher/dispatcher'
-import ActionType from '../../trips/action_types'
-import tripsStore from '../../trips/trips_store'
+import ActionType from '../../stores/action_types'
+import tripsStore from '../../stores/trips_store'
 import GroupMember from './group_member'
 
 require('./group.less');
@@ -37,6 +37,9 @@ export default class Group extends React.Component {
     this.onSelectGroup = this.onSelectGroup.bind(this);
   }
   onTripsStoreChange() {
+    if (!tripsStore.currentTrip) {
+      return;
+    }
     let members = tripsStore.currentTrip.getGroupMembers(this.props.group.id);
     let activeGroup = tripsStore.currentTrip.getActiveGroup();
     let groupColor = tripsStore.currentTrip.getColorOfGroup(this.props.group.id);
@@ -66,19 +69,21 @@ export default class Group extends React.Component {
       return (<GroupMember key={location.id} location={location} />);
     });
 
-    let noGroupMembersElement = <div className="no-group-members">Group has no members</div>
+    let noGroupMembersElement = <div className="no-group-members">Day has no locations</div>
     let groupColorStyle = {'background-color': this.state.groupColor};
 
     return connectDropTarget(
       <div className={groupClassName}>
         <div className="group-controls">
-          <a>Delete Group</a>
+          <a>Delete Day</a>
         </div>
         <div>
           <div className="group-color" style={groupColorStyle}/>
           <h4 onClick={this.onSelectGroup}>{this.props.group.name}</h4>
         </div>
-        { this.state.groupMembers.length == 0 && noGroupMembersElement}
+        { this.state.groupMembers.length == 0 &&
+          <div className="no-group-members text-muted">Day has no locations</div>
+        }
         <ul className="group-members">
           {groupMembers}
         </ul>

@@ -1,7 +1,7 @@
 import React from 'react';
 import dispatcher from '../../dispatcher/dispatcher'
-import ActionType from '../../trips/action_types'
-import tripsStore from '../../trips/trips_store'
+import ActionType from '../../stores/action_types'
+import tripsStore from '../../stores/trips_store'
 
 import Region from '../region/region'
 
@@ -21,16 +21,25 @@ export default class SideBar extends React.Component {
     this.onSelectRegion = this.onSelectRegion.bind(this);
   }
   onTripsStoreChange() {
-    this.setState({
-      activeLocation: tripsStore.currentTrip.getActiveLocation(),
-      activeRegion: tripsStore.currentTrip.getActiveRegion()
-    });
+    this.updateState(this.props);
+  }
+  componentWillMount() {
+    this.updateState(this.props);
   }
   componentDidMount() {
     tripsStore.addChangeListener(this.onTripsStoreChange);
   }
   componentWillUnmount() {
     tripsStore.removeChangeListener(this.onTripsStoreChange);
+  }
+  updateState(props) {
+    if (!tripsStore.currentTrip) {
+      return;
+    }
+    this.setState({
+      activeLocation: tripsStore.currentTrip.getActiveLocation(),
+      activeRegion: tripsStore.currentTrip.getActiveRegion()
+    });
   }
   onPrevRegion() {
     dispatcher.dispatch({actionType: ActionType.REGIONS.SELECT_PREV_REGION});
@@ -62,10 +71,10 @@ export default class SideBar extends React.Component {
 
     return (
       <div id="side-bar">
-        <div className="top">
-          <a href="#" onClick={this.onPrevRegion} className="prev-region">Prev Region</a>
+        <div className="top clearfix">
+          <a href="#" onClick={this.onPrevRegion} className="prev-region">Prev City</a>
           {this.state.activeRegion && activeRegionElement}
-          <a href="#" onClick={this.onNextRegion} className="next-region">Next Region</a>
+          <a href="#" onClick={this.onNextRegion} className="next-region">Next City</a>
         </div>
         {regionElement}
       </div>

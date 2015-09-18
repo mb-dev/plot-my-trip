@@ -1,10 +1,14 @@
 import _ from 'lodash'
 
+// green - no group, pink - focus 
 const COLORS = ['red', 'blue', 'purple', 'yellow'];
 
 export default class Trip {
-  constructor() {
+  constructor(tripData) {
     this.reset();
+    if(tripData) {
+      this.data = tripData;
+    }
   }
   getNextId() {
     let current = this.data.nextId;
@@ -12,17 +16,33 @@ export default class Trip {
     return current;
   }
   reset() {
-    this.data = {regions: [], groups: [], locations: [], nextId: 1};
+    this.data = {_id: null, regions: [], groups: [], locations: [], nextId: 1};
     this.activePlace = null;
+    this.focusLocationId = null;
     this.activeRegion = null;
     this.activeGroup = null;
     this.colorByGroup = {};
+  }
+  getTripId() {
+    return this.data._id || 'new';
+  }
+  getTripName() {
+    return this.data.name;
+  }
+  setTripName(name) {
+    this.data.name = name;
   }
   getActiveLocation() {
     return this.activePlace;
   }
   setActivePlace(place) {
     this.activePlace = place;
+  }
+  getFocusLocation() {
+    return this.focusLocationId;
+  }
+  setFocusLocation(locationId) {
+    this.focusLocationId = locationId;
   }
   addActivePlaceToTrip() {
     if (!this.activePlace) {
@@ -37,6 +57,11 @@ export default class Trip {
     this.data.locations.push(location);
     this.activePlace = null;
     return location;
+  }
+  editLocation(locationId, newData) {
+    let location = this.getLocationById(locationId);
+    location.name = newData.name;
+    location.comments = newData.comments;
   }
   deleteLocation(locationId) {
     _.remove(this.data.locations, location => location.id === locationId);
@@ -141,6 +166,9 @@ export default class Trip {
   // regions
   getActiveRegion() {
     return this.activeRegion;
+  }
+  getRegionCount() {
+    return this.data.regions.length;
   }
   setActiveRegion(regionId) {
     let region = _.isNumber(regionId) ? this.getRegionById(regionId) : regionId;

@@ -22,7 +22,6 @@ In the code cities are called regions and days are groups.
 Enter a city in the autocomplete input. For example "Rome", and a button "Add Rome as Region" will display.
 
 ## Todo:
-- Add routing, so saving a trip redirects to a url with id. Allow creating more than one trip
 - Add SSL
 - Creating the first and subsequent regions should be made more clear
 - Allow sharing a trip with friends.
