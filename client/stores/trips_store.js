@@ -124,6 +124,14 @@ class TripsStore extends EventEmitter{
         this.currentTrip.deleteLocation(payload.locationId);
         this.emitChange();
         break;
+      case ActionType.LOCATIONS.MOVE_LOCATION_UP:
+        this.currentTrip.moveLocationUp(payload.locationId);
+        this.emitChange();
+        break;
+      case ActionType.LOCATIONS.MOVE_LOCATION_DOWN:
+        this.currentTrip.moveLocationDown(payload.locationId);
+        this.emitChange();
+        break;
       case ActionType.GROUPS.ADD_GROUP:
         let amountOfGroups = this.currentTrip.getGroupsInRegion(payload.regionId).length;
         this.currentTrip.addGroup(payload.regionId, 'Day ' + (amountOfGroups + 1));

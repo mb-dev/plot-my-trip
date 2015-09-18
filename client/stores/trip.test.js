@@ -93,7 +93,7 @@ describe('Trip', function() {
         expect(this.location.groupId).to.equal(group2.id);
       });
     });
-    describe('addLocationToGroup', function() {
+    describe('moveLocationUp', function() {
       it('should be able to move a location up in a group', function() {
         trip.setActivePlace(pocketBar);
         let location1 = this.location;
@@ -102,11 +102,11 @@ describe('Trip', function() {
         trip.addLocationToGroup(group.id, location1.id);
         trip.addLocationToGroup(group.id, location2.id);
         expect(group.locations).to.deep.equal([location1.id, location2.id]);
-        trip.moveLocationUp(group.id, location2.id);
+        trip.moveLocationUp(location2.id);
         expect(group.locations).to.deep.equal([location2.id, location1.id]);
       });
     });
-    describe('addLocationToGroup', function() {
+    describe('moveLocationDown', function() {
       it('should be able to move a location down in a group', function() {
         trip.setActivePlace(pocketBar);
         let location1 = this.location;
@@ -115,7 +115,7 @@ describe('Trip', function() {
         trip.addLocationToGroup(group.id, location1.id);
         trip.addLocationToGroup(group.id, location2.id);
         expect(group.locations).to.deep.equal([location1.id, location2.id]);
-        trip.moveLocationDown(group.id, location1.id);
+        trip.moveLocationDown(location1.id);
         expect(group.locations).to.deep.equal([location2.id, location1.id]);
       });
     });

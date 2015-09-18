@@ -43,5 +43,13 @@ actions.setFocusLocation = function(locationId) {
   dispatcher.dispatch({actionType: ActionType.LOCATIONS.FOCUS_LOCATION, locationId: locationId});
 }
 
+actions.moveLocationUp = function(locationId) {
+  dispatcher.dispatch({actionType: ActionType.LOCATIONS.MOVE_LOCATION_UP, locationId: locationId});
+}
+
+actions.moveLocationDown = function(locationId) {
+  dispatcher.dispatch({actionType: ActionType.LOCATIONS.MOVE_LOCATION_DOWN, locationId: locationId});
+}
+
 
 export default actions;

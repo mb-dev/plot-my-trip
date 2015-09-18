@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-// green - no group, pink - focus 
+// green - no group, pink - focus
 const COLORS = ['red', 'blue', 'purple', 'yellow'];
 
 export default class Trip {
@@ -119,7 +119,10 @@ export default class Trip {
     _.remove(this.data.groups, (group) => group.id === groupId);
   }
   getGroupMembers(groupId) {
-    return _.filter(this.data.locations, (location) => location.groupId === groupId );
+    let locations = _.filter(this.data.locations, (location) => location.groupId === groupId );
+    let locationsById = _.indexBy(locations, 'id');
+    let group = this.getGroupById(groupId);
+    return group.locations.map(id => locationsById[id]);
   }
   addLocationToGroup(groupId, locationId) {
     let location = this.getLocationById(locationId);
@@ -141,8 +144,9 @@ export default class Trip {
     location.groupId = null;
     group.locations = _.without(group.locations, locationId);
   }
-  moveLocationUp(groupId, locationId) {
-    let group = this.getGroupById(groupId);
+  moveLocationUp(locationId) {
+    let location = this.getLocationById(locationId);
+    let group = this.getGroupById(location.groupId);
     let currentIndex = group.locations.indexOf(locationId);
     if (currentIndex < 0) {
       return null;
@@ -150,8 +154,9 @@ export default class Trip {
     group.locations.splice(currentIndex, 1);
     group.locations.splice(currentIndex-1, 0, locationId);
   }
-  moveLocationDown(groupId, locationId) {
-    let group = this.getGroupById(groupId);
+  moveLocationDown(locationId) {
+    let location = this.getLocationById(locationId);
+    let group = this.getGroupById(location.groupId);
     let currentIndex = group.locations.indexOf(locationId);
     if (currentIndex < 0) {
       return null;

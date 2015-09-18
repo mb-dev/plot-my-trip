@@ -29,6 +29,8 @@ export default class GroupMember extends React.Component {
     this.onEditLocationSave = this.onEditLocationSave.bind(this);
     this.onMouseEnter = this.onMouseEnter.bind(this);
     this.onMouseLeave = this.onMouseLeave.bind(this);
+    this.moveLocationUp = this.moveLocationUp.bind(this);
+    this.moveLocationDown = this.moveLocationDown.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.state = {editing: false};
   }
@@ -51,6 +53,12 @@ export default class GroupMember extends React.Component {
     tripActions.modifyLocation(this.props.location.id, {name: nameNode.value, comments: commentsNode.value});
     this.setState({editing: false});
   }
+  moveLocationUp() {
+    tripActions.moveLocationUp(this.props.location.id);
+  }
+  moveLocationDown() {
+    tripActions.moveLocationDown(this.props.location.id);
+  }
   onMouseEnter() {
     tripActions.setFocusLocation(this.props.location.id);
   }
@@ -65,8 +73,8 @@ export default class GroupMember extends React.Component {
           <span>{this.props.location.name}</span>
           <span className="controls">
             <a onClick={this.onEditLocation}><i className="fa fa-pencil"></i></a>
-            <a><i className="fa fa-caret-up"></i></a>
-            <a><i className="fa fa-caret-down"></i></a>
+            <a onClick={this.moveLocationUp}><i className="fa fa-caret-up"></i></a>
+            <a onClick={this.moveLocationDown}><i className="fa fa-caret-down"></i></a>
             <a onClick={this.onDeleteLocation}><i className="fa fa-times text-danger"></i></a>
           </span>
         </div>
