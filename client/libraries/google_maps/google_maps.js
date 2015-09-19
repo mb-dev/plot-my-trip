@@ -76,7 +76,7 @@ export default class GoogleMapsService {
     if (window.google) {
       this.directionsDisplay.setMap(null);
       let existingLocationIds = Object.keys(this.markers);
-      let newLocationIds = locations.map(location => location.id);
+      let newLocationIds = locations.map(location => location.id.toString());
       let markersToRemove = _.difference(existingLocationIds, newLocationIds);
       for (let locationId of markersToRemove) {
         this.markers[locationId].setMap(null);

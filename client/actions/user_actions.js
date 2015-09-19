@@ -11,7 +11,7 @@ export default {
     apiClient.getAuthToken(state, code, () => {
       userStore.loadCurrentUser();
       tripsStore.load();
-      this.context.router.transitionTo('home');
+      router.transitionTo('home');
     });
   },
   logout: function(router) {
