@@ -67,7 +67,7 @@ export default class Region extends React.Component {
     });
     let addPlace = <a className="add-place" href="#" onClick={this.addPlace}>Add</a>;
     let addPlaceCondition = this.state.activeLocation ? addPlace : '';
-    let scrapeBookStyle = {'background-color': 'green'};
+    let scrapeBookStyle = {backgroundColor: 'green'};
     return (
       <div id="region">
         <a href="#" onClick={this.addDay}><i className="fa fa-plus"></i> Add Day</a>

@@ -21,7 +21,7 @@ const LocationItem = 'location';
   connectDragSource: connect.dragSource(),
   isDragging: monitor.isDragging()
 }))
-export default class GroupMember extends React.Component {
+class GroupMember extends React.Component {
   constructor(props) {
     super(props);
     this.onDeleteLocation = this.onDeleteLocation.bind(this);
@@ -116,3 +116,4 @@ GroupMember.propTypes = {
   isDragging: React.PropTypes.bool.isRequired,
   connectDragSource: React.PropTypes.func.isRequired
 };
+export default GroupMember;

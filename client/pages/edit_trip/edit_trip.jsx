@@ -1,4 +1,5 @@
 import React from 'react';
+import {Link} from 'react-router';
 
 import tripsStore from '../../stores/trips_store'
 
@@ -14,7 +15,7 @@ export default class EditTrip extends React.Component {
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
   }
   componentWillMount() {
-    this.setStoreState();
+    this.setStoreState(this.props);
   }
   componentDidMount() {
     tripsStore.addChangeListener(this.onTripsStoreChange);
@@ -22,8 +23,11 @@ export default class EditTrip extends React.Component {
   componentWillUnmount() {
     tripsStore.removeChangeListener(this.onTripsStoreChange);
   }
-  setStoreState() {
-    tripsStore.setActiveTrip(this.props.params.tripId);
+  componentWillReceiveProps(nextProps) {
+    this.setStoreState(nextProps);
+  }
+  setStoreState(props) {
+    tripsStore.setActiveTrip(props.params.tripId, props.params.regionName);
   }
   onTripsStoreChange() {
 

@@ -185,6 +185,9 @@ export default class Trip {
   getRegionById(regionId) {
     return _.find(this.data.regions, {id: regionId});
   }
+  getRegionByName(regionName) {
+    return _.find(this.data.regions, {name: regionName});
+  }
   getRegions() {
     return this.data.regions;
   }
@@ -223,27 +226,25 @@ export default class Trip {
 
     return _.filter(this.data.locations, location => groupsInRegion[location.groupId] || _.has(scrapeLocationIds, location.id) );
   }
-  selectPrevRegion() {
+  getPrevRegion() {
     if (this.data.regions.length <= 1) {
-      return;
+      return null;
     }
     let currentIndex = this.data.regions.indexOf(this.activeRegion);
     if (currentIndex === 0) {
-      return;
+      return null;
     }
-    this.activeRegion = this.data.regions[currentIndex - 1];
-    this.activeGroup = null;
+    return this.data.regions[currentIndex - 1];
   }
-  selectNextRegion() {
+  getNextRegion() {
     if (this.data.regions.length <= 1) {
-      return;
+      return null;
     }
     let currentIndex = this.data.regions.indexOf(this.activeRegion);
     if (currentIndex === this.data.regions.length - 1) {
-      return;
+      return null;
     }
-    this.activeRegion = this.data.regions[currentIndex + 1];
-    this.activeGroup = null;
+    return this.data.regions[currentIndex + 1];
   }
 
   // other - ui state

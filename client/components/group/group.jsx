@@ -70,7 +70,7 @@ export default class Group extends React.Component {
     });
 
     let noGroupMembersElement = <div className="no-group-members">Day has no locations</div>
-    let groupColorStyle = {'background-color': this.state.groupColor};
+    let groupColorStyle = {backgroundColor: this.state.groupColor};
 
     return connectDropTarget(
       <div className={groupClassName}>

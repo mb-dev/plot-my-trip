@@ -8,6 +8,9 @@ import tripsStore  from '../stores/trips_store'
 
 var actions = {}
 
+// ----------------
+// trips
+
 actions.createTrip = function(initialPlace, router) {
     dispatcher.dispatch({actionType: ActionType.TRIPS.CREATE_TRIP, initialPlace: initialPlace});
     setTimeout(function() {
@@ -25,8 +28,6 @@ actions.saveTrip = function(router) {
     }
   });
 }
-
-
 
 // ----------------
 // locations

@@ -11,8 +11,9 @@ import converter from '../../stores/converter'
 require('./welcome.less');
 
 export default class Welcome extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
+
     this.state = {currentPlace: null, trips: []};
     this.onCreateTrip = this.onCreateTrip.bind(this);
     this.googleMapsService = new GoogleMapsService();

@@ -19,7 +19,7 @@ var routes = (
     <DefaultRoute handler={Welcome} />
     <Route name="logout" path="logout" handler={Logout} />
     <Route name="google_callback" path="auth/google/callback" handler={GoogleCallback} />
-    <Route name="edit" path="edit/:tripId?/:region?" handler={EditTrip} />
+    <Route name="edit" path="edit/:tripId?/:regionName?" handler={EditTrip} />
   </Route>
 );
 

@@ -14,6 +14,7 @@ class TripsStore extends EventEmitter{
     this.trips = [];
     this.tripById = {};
     this.activeTripId = null;
+    this.activeRegionName = null;
     this.saveSuccessfully = true;
   }
   emitChange() {
@@ -26,14 +27,9 @@ class TripsStore extends EventEmitter{
           let trip = new Trip(tripData);
           let tripId = trip.getTripId();
           this.addTrip(trip);
-          if (tripId === this.activeTripId) {
-            this.currentTrip = trip;
-          }
-          if (trip.data.regions.length > 0) {
-            trip.setActiveRegion(trip.data.regions[0]);
-          }
           trip.assignColorByGroup();
         });
+        this.applyState();
         this.emitChange();
       }
     });
@@ -76,9 +72,26 @@ class TripsStore extends EventEmitter{
     this.tripById[tripId] = trip;
     this.trips.push(trip);
   }
-  setActiveTrip(id) {
+  applyState() {
+    if (this.activeTripId) {
+      this.currentTrip = this.tripById[this.activeTripId];
+    }
+    if (this.currentTrip.data.regions.length > 0) {
+      if (this.activeRegionName) {
+        this.currentTrip.setActiveRegion(this.currentTrip.getRegionByName(this.activeRegionName));
+      } else {
+        this.currentTrip.setActiveRegion(this.currentTrip.data.regions[0]);
+      }
+    }
+  }
+  setActiveTrip(id, regionName) {
     this.activeTripId = id;
+    this.activeRegionName = regionName;
     this.currentTrip = this.getTripById(id);
+    if (this.currentTrip) {
+      this.applyState();
+      this.emitChange();
+    }
   }
   addChangeListener(callback) {
     this.on(CHANGE_EVENT, callback);
@@ -163,16 +176,6 @@ class TripsStore extends EventEmitter{
         this.currentTrip.deleteRegion();
         this.emitChange();
         break;
-      case ActionType.REGIONS.SELECT_PREV_REGION:
-        this.currentTrip.selectPrevRegion();
-        this.emitChange();
-        break;
-      case ActionType.REGIONS.SELECT_NEXT_REGION:
-        this.currentTrip.selectNextRegion();
-        this.emitChange();
-        break;
-
-
     }
   }
 }

@@ -1,7 +1,9 @@
 import React from 'react';
+import {Link} from 'react-router';
 import dispatcher from '../../dispatcher/dispatcher'
 import ActionType from '../../stores/action_types'
 import tripsStore from '../../stores/trips_store'
+import tripActions from '../../actions/trip_actions'
 
 import Region from '../region/region'
 
@@ -10,10 +12,9 @@ import HTML5Backend from 'react-dnd/modules/backends/HTML5';
 
 require('./side_bar.less');
 
-@DragDropContext(HTML5Backend)
-export default class SideBar extends React.Component {
-  constructor(props) {
-    super(props);
+class SideBar extends React.Component {
+  constructor(props, context) {
+    super(props, context);
 
     this.state = {activeLocation: null, activeRegion: null}
 
@@ -36,22 +37,25 @@ export default class SideBar extends React.Component {
     if (!tripsStore.currentTrip) {
       return;
     }
+    let nextRegion = tripsStore.currentTrip.getNextRegion();
+    let prevRegion = tripsStore.currentTrip.getPrevRegion();
     this.setState({
       activeLocation: tripsStore.currentTrip.getActiveLocation(),
-      activeRegion: tripsStore.currentTrip.getActiveRegion()
+      activeRegion: tripsStore.currentTrip.getActiveRegion(),
+      activeTripId: tripsStore.activeTripId,
+      nextRegionName: nextRegion ? nextRegion.name : null,
+      prevRegionName: prevRegion ? prevRegion.name : null
     });
   }
-  onPrevRegion() {
-    dispatcher.dispatch({actionType: ActionType.REGIONS.SELECT_PREV_REGION});
-  }
-  onNextRegion() {
-    dispatcher.dispatch({actionType: ActionType.REGIONS.SELECT_NEXT_REGION});
-  }
-  onAddRegion() {
+  onAddRegion(e) {
+    e.preventDefault();
     dispatcher.dispatch({actionType: ActionType.REGIONS.ADD_REGION});
+    return false;
   }
-  onSelectRegion() {
+  onSelectRegion(e) {
+    e.preventDefault();
     dispatcher.dispatch({actionType: ActionType.REGIONS.SELECT_REGION, regionId: this.state.activeRegion.id});
+    return false;
   }
   render() {
     let regionRender = <Region region={this.state.activeRegion}></Region>;
@@ -72,9 +76,15 @@ export default class SideBar extends React.Component {
     return (
       <div id="side-bar">
         <div className="top clearfix">
-          <a href="#" onClick={this.onPrevRegion} className="prev-region">Prev City</a>
+          { this.state.prevRegionName ?
+            <Link to="edit" params={{tripId: this.state.activeTripId, regionName: this.state.prevRegionName}} className="prev-region">Prev City</Link>
+            :
+            <div className="prev-link-placeholder"></div>
+          }
           {this.state.activeRegion && activeRegionElement}
-          <a href="#" onClick={this.onNextRegion} className="next-region">Next City</a>
+          { this.state.nextRegionName &&
+            <Link to="edit" params={{tripId: this.state.activeTripId, regionName: this.state.nextRegionName}} className="next-region">Next City</Link>
+          }
         </div>
         {regionElement}
       </div>
@@ -82,3 +92,9 @@ export default class SideBar extends React.Component {
 
   }
 }
+
+SideBar.contextTypes = {
+  router: React.PropTypes.func.isRequired
+}
+SideBar = DragDropContext(HTML5Backend)(SideBar);
+export default SideBar;
