@@ -76,7 +76,7 @@ class TripsStore extends EventEmitter{
     if (this.activeTripId) {
       this.currentTrip = this.tripById[this.activeTripId];
     }
-    if (this.currentTrip.data.regions.length > 0) {
+    if (this.currentTrip && this.currentTrip.data.regions.length > 0) {
       if (this.activeRegionName) {
         this.currentTrip.setActiveRegion(this.currentTrip.getRegionByName(this.activeRegionName));
       } else {
