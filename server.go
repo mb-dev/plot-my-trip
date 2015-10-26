@@ -20,6 +20,7 @@ func registerRoutes(router *httprouter.Router) {
 	router.NotFound = http.HandlerFunc(serveIndex)
 	router.Handler("GET", "/js/*file", http.StripPrefix("/js/", http.FileServer(http.Dir("static/"))))
 	router.Handler("GET", "/css/*file", http.StripPrefix("/css/", http.FileServer(http.Dir("static/"))))
+	router.Handler("GET", "/icons/*file", http.FileServer(http.Dir("static/")))
 }
 
 func main() {

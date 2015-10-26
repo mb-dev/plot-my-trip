@@ -78,7 +78,9 @@ export default class Header extends React.Component {
               <li>
                 {userSection}
               </li>
-              <li><button type="button" onClick={this.onSaveTrip} className={saveButtonClass}>Save</button></li>
+              { this.state.currentUser &&
+                <li><button type="button" onClick={this.onSaveTrip} className={saveButtonClass}>Save</button></li>
+              }
             </ul>
           </div>
         </div>

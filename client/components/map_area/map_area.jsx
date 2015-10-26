@@ -49,44 +49,43 @@ export default class MapArea extends React.Component {
     if (!tripsStore.currentTrip) {
       return;
     }
-    let activeLocation = tripsStore.currentTrip.getActiveLocation();
-    let activeRegion = tripsStore.currentTrip.getActiveRegion();
     let activeGroup = tripsStore.currentTrip.getActiveGroup();
     let focusLocationId = tripsStore.currentTrip.getFocusLocation();
     let locations = [];
+    let mapState = {
+      activeRegion: tripsStore.currentTrip.getActiveRegion(),
+      activeLocation: tripsStore.currentTrip.getActiveLocation()
+    };
 
-    if (activeLocation) {
-      googleMapsService.findPlace(activeLocation.position, activeLocation.viewport);
-    } else {
-      googleMapsService.clearPlace();
+    if (!mapState.activeLocation) {
       let groupNameNode = React.findDOMNode(this.refs.autoComplete);
       if (groupNameNode) {
         groupNameNode.value = "";
       }
     }
 
-    if (focusLocationId) {
-      googleMapsService.setFocusLocation(focusLocationId);
-    } else {
-      googleMapsService.clearFocusLocation();
-    }
-
-    if (activeRegion) {
-      googleMapsService.setCenterAndBounds(activeRegion.googleData.position, activeRegion.googleData.viewport);
-
+    if (mapState.activeRegion) {
       if (activeGroup) {
-        locations = tripsStore.currentTrip.getGroupMembers(activeGroup.id).map(locationToMapLocation);
-        googleMapsService.displayDirections(locations);
+        mapState.locations = tripsStore.currentTrip.getGroupMembers(mapState.activeGroup.id).map(locationToMapLocation);
+        mapState.displayStyle = 'directions';
       } else {
-        locations = tripsStore.currentTrip.getLocationsInRegion(activeRegion.id).map(locationToMapLocation);
-        googleMapsService.displayLocations(locations);
+        mapState.locations = tripsStore.currentTrip.getLocationsInRegion(mapState.activeRegion.id).map(locationToMapLocation);
+        mapState.displayStyle = 'locations';
       }
+
+      mapState.locations.forEach(function(location) {
+        if (location.id == focusLocationId) {
+          location.focused = true;
+        }
+      });
     }
+
+    googleMapsService.setState(mapState);
 
     this.setState({
       locations: locations,
-      activeLocation: activeLocation,
-      activeRegion: activeRegion,
+      activeLocation: mapState.activeLocation,
+      activeRegion: mapState.activeRegion,
       activeGroup: activeGroup,
       focusLocationId: focusLocationId
     });

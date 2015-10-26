@@ -1,6 +1,10 @@
+import config from '../../config/config'
+
 function placeToPoint(place) {
   return {lat: place.geometry.location.lat(), lng: place.geometry.location.lng()};
 }
+
+let SELECTED_COLOR = 'gray';
 
 export default class GoogleMapsService {
   constructor() {
@@ -15,6 +19,7 @@ export default class GoogleMapsService {
       this.map = new google.maps.Map(mapDomNode, mapOptions);
       this.marker = new google.maps.Marker({draggable: true});
       this.markers = {};
+      this.currentState = {};
       this.currentCenter = null;
       this.currentViewport = null;
       this.previousFocusIcon = null;
@@ -52,6 +57,35 @@ export default class GoogleMapsService {
       this.marker.setMap(null);
     }
   }
+  setState(state) {
+    if (window.google) {
+      if (!_.isEqual(state.center, this.currentState.center) || !_.isEqual(state.viewport, this.currentState.viewport)) {
+        this.map.setCenter(new google.maps.LatLng(state.center.lat, state.center.lng));
+        this.map.fitBounds(new google.maps.LatLngBounds(
+          new google.maps.LatLng(state.viewport.sw.lat, state.viewport.sw.lng),
+          new google.maps.LatLng(state.viewport.ne.lat, state.viewport.ne.lng)
+        ));
+      }
+
+      if (state.activeLocation) {
+        this.findPlace(state.activeLocation.position, state.activeLocation.viewport);
+      } else {
+        this.clearPlace();
+      }
+
+      if (!state.activeLocation && state.activeRegion) {
+        this.setCenterAndBounds(state.activeRegion.googleData.position, state.activeRegion.googleData.viewport);
+      }
+
+      if (state.locations) {
+        if (state.displayStyle == 'locations') {
+          this.displayLocations(state.locations);
+        }
+      }
+
+      this.currentState = state;
+    }
+  }
   setCenterAndBounds(center, viewport) {
     if (window.google) {
       if (_.isEqual(center, this.currentCenter) && _.isEqual(viewport, this.currentViewport)) {
@@ -72,50 +106,48 @@ export default class GoogleMapsService {
   clearHandlers() {
     this.handlers = [];
   }
+  locationToHashKey(location) {
+    return location.id.toString() + '-' + location.color + '-' + location.index.toString() + '-' + location.focused;
+  }
   displayLocations(locations) {
+    let indexByGroup = {};
     if (window.google) {
       this.directionsDisplay.setMap(null);
       let existingLocationIds = Object.keys(this.markers);
+      locations.forEach(function(location, index) {
+        indexByGroup[location.group] = indexByGroup[location.group] || 0;
+        indexByGroup[location.group] = location.index = indexByGroup[location.group] + 1;
+      });
       let newLocationIds = locations.map(location => location.id.toString());
       let markersToRemove = _.difference(existingLocationIds, newLocationIds);
       for (let locationId of markersToRemove) {
-        this.markers[locationId].setMap(null);
+        this.markers[locationId].marker.setMap(null);
         delete this.markers[locationId];
       }
       for (let location of locations) {
-        if (!this.markers[location.id]) {
-          let marker = this.markers[location.id] = new google.maps.Marker();
+        let locationKey = this.locationToHashKey(location);
+        let markerData = this.markers[location.id];
+        if (!markerData) {
+          markerData = this.markers[location.id] = {marker: new google.maps.Marker(), key: null};
+        }
+        let marker = markerData.marker;
+        if (markerData.key != locationKey) {
           marker.setPosition(location.position);
           marker.setMap(this.map);
-          if (this.currentFocusLocationId === location.id) {
-            let image = new google.maps.MarkerImage('http://maps.google.com/mapfiles/ms/icons/pink-dot.png');
+          if (location.focused) {
+            let image = new google.maps.MarkerImage(config.iconServer + 'icons/' + SELECTED_COLOR + '-number-' + location.index + '.png');
             marker.setIcon(image);
           } else {
-            let image = new google.maps.MarkerImage('http://maps.google.com/mapfiles/ms/icons/' + location.color + '-dot.png');
+            let image = new google.maps.MarkerImage(config.iconServer + 'icons/' + location.color + '-number-' + location.index + '.png');
             marker.setIcon(image);
           }
+          markerData.key = locationKey;
         }
       }
     }
   }
-  setFocusLocation(locationId) {
-    let marker = this.markers[locationId];
-    if (locationId && marker && locationId != this.currentFocusLocationId) {
-      if (this.currentFocusLocationId) {
-        this.clearFocusLocation();
-      }
-      this.previousFocusIcon = marker.getIcon();
-      let image = new google.maps.MarkerImage('http://maps.google.com/mapfiles/ms/icons/pink-dot.png');
-      marker.setIcon(image);
-      this.currentFocusLocationId = locationId;
-    }
-  }
-  clearFocusLocation() {
-    if (this.currentFocusLocationId) {
-      let marker = this.markers[this.currentFocusLocationId];
-      marker.setIcon(this.previousFocusIcon);
-      this.currentFocusLocationId = null;
-    }
+  markerUrl() {
+
   }
   displayDirections(locations) {
     if (window.google) {

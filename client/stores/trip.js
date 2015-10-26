@@ -1,7 +1,13 @@
 import _ from 'lodash'
 
-// green - no group, pink - focus
-const COLORS = ['red', 'blue', 'purple', 'yellow'];
+// white (#FFFFFF) - no group, gray (#6E6E6E)- focus
+const COLORS = [
+  'red',    // #FF0000
+  'blue',   // #0080FF
+  'purple', // #8000FF
+  'yellow', // #FFFF00
+  'green'   // #04B404
+];
 
 export default class Trip {
   constructor(tripData) {
@@ -259,6 +265,6 @@ export default class Trip {
     if (groupId) {
       return this.colorByGroup[groupId];
     }
-    return 'green';
+    return 'white';
   }
 }

@@ -80,9 +80,9 @@ export default class Region extends React.Component {
             <div className="group-color" style={scrapeBookStyle}/>
             <h4>Scrapbook:</h4>
           </div>
-          <ul className="scrap-locations">
+          <ol className="scrap-locations">
             {locationNodes}
-          </ul>
+          </ol>
         </div>
       </div>
     );

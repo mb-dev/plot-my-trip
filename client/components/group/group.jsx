@@ -34,7 +34,6 @@ export default class Group extends React.Component {
     super(props);
     this.state = {groupMembers: [], selectedGroup: null, groupColor: null};
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
-    this.onSelectGroup = this.onSelectGroup.bind(this);
   }
   onTripsStoreChange() {
     if (!tripsStore.currentTrip) {
@@ -44,9 +43,6 @@ export default class Group extends React.Component {
     let activeGroup = tripsStore.currentTrip.getActiveGroup();
     let groupColor = tripsStore.currentTrip.getColorOfGroup(this.props.group.id);
     this.setState({groupMembers: members, activeGroup: activeGroup, groupColor: groupColor});
-  }
-  onSelectGroup() {
-    dispatcher.dispatch({actionType: ActionType.GROUPS.SELECT_GROUP, groupId: this.props.group.id});
   }
   componentDidMount() {
     tripsStore.addChangeListener(this.onTripsStoreChange);
@@ -79,14 +75,14 @@ export default class Group extends React.Component {
         </div>
         <div>
           <div className="group-color" style={groupColorStyle}/>
-          <h4 onClick={this.onSelectGroup}>{this.props.group.name}</h4>
+          <h4>{this.props.group.name}</h4>
         </div>
         { this.state.groupMembers.length == 0 &&
           <div className="no-group-members text-muted">Day has no locations</div>
         }
-        <ul className="group-members">
+        <ol className="group-members">
           {groupMembers}
-        </ul>
+        </ol>
       </div>
     );
   }
