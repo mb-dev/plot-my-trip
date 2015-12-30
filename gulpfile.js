@@ -11,6 +11,7 @@ var webpackConfig    = require("./webpack.config.js");
 var notify				   = require('gulp-notify');
 var WebpackDevServer = require("webpack-dev-server");
 var runSequence      = require('run-sequence');
+var bg = require("gulp-bg");
 
 gulp.task("mocha", function() {
 	return gulp.src(['client/**/*.test.js'], {read: false})
@@ -19,6 +20,9 @@ gulp.task("mocha", function() {
       R: 'spec'
     }));
 });
+
+var timeServiceBg;
+gulp.task('time-service', timeServiceBg = bg('python3', 'time-service/service.py'));
 
 gulp.task("gotest", shell.task(['go test ./...']));
 
@@ -55,8 +59,9 @@ gulp.task("server", function(done) {
 	}
 });
 
-gulp.task("dev", ["server", "webpack"], function() {
-	gulp.watch(["api/**/*.go", "server.go"], ["server"])
+gulp.task("dev", ["server", "time-service", "webpack"], function() {
+	gulp.watch(["api/**/*.go", "server.go"], ["server"]);
+  gulp.watch(["time-server/**/*.py"], ['time-service']);
 });
 
 gulp.task("webpack", function() {
