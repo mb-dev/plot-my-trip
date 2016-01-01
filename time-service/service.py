@@ -1,6 +1,6 @@
 from flask import Flask
-import config
-from lib import Dropbox
+from config import ConfigClass
+from lib.dropboxHandler import DropboxHandler
 
 app = Flask(__name__)
 app.config.from_object(__name__+'.ConfigClass')

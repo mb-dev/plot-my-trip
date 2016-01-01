@@ -1,6 +1,6 @@
 from dropbox import DropboxOAuth2Flow
 
-class Dropbox:
+class DropboxHandler:
   # session[csrf_token_session_key] will be stored
   def get_dropbox_auth_flow(config, session):
     return DropboxOAuth2Flow(
@@ -21,16 +21,16 @@ class Dropbox:
       access_token, user_id, url_state = \
               get_dropbox_auth_flow(web_app_session).finish(
                   request.query_params)
-    except BadRequestException, e:
+    except BadRequestException as e:
         http_status(400)
-    except BadStateException, e:
+    except BadStateException as e:
         # Start the auth flow again.
         redirect_to("/dropbox-auth-start")
-    except CsrfException, e:
+    except CsrfException as e:
         http_status(403)
-    except NotApprovedException, e:
+    except NotApprovedException as e:
         flash('Not approved?  Why not?')
         return redirect_to("/home")
-    except ProviderException, e:
+    except ProviderException as e:
         logger.log("Auth error: %s" % (e,))
         http_status(403)

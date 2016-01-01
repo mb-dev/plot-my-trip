@@ -65,9 +65,18 @@ export default class Welcome extends React.Component {
     });
     let validPlace = this.state.currentPlace && this.state.currentPlace !== 'invalid';
     return (
-      <div id="page-content" className="container">
-        <div className="create-trip">
-          <h2>Create a new trip</h2>
+      <div id="page-content" className="welcome-page">
+        <div className="about">
+          <h2>Plan your next trip easily</h2>
+          <img src="https://s3-us-west-1.amazonaws.com/plot-my-trip/images/PlottingTrips.png" width="807" height="535"></img>
+          <ul className="story">
+            <li>Enter your points of interest</li>
+            <li>See where they are in the city</li>
+            <li>Arrange them by day</li>
+          </ul>
+        </div>
+        <div className="create-trip container">
+          <h2>Getting Started:</h2>
           <form className="text-center" onSubmit={this.onSubmit}>
             <div className="which-city">To which city would you like to travel today?</div>
             <input className="form-control" id="autocomplete" ref="autoComplete" type="text"/>
@@ -80,7 +89,8 @@ export default class Welcome extends React.Component {
             </button>
           </form>
         </div>
-        <div className="existing-trips">
+
+        <div className="existing-trips container">
           <h2>Existing Trips:</h2>
           <ul>
             {tripsNodes}
