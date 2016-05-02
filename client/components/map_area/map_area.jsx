@@ -25,6 +25,7 @@ export default class MapArea extends React.Component {
     this.state = {locations: [], activeLocation: null, activeRegion: null};
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
     this.onAddRegion = this.onAddRegion.bind(this);
+    this.onAddToScrape = this.onAddToScrape.bind(this);
   }
   componentWillMount() {
 
@@ -44,6 +45,9 @@ export default class MapArea extends React.Component {
   }
   onAddRegion() {
     dispatcher.dispatch({actionType: ActionType.REGIONS.ADD_REGION});
+  }
+  onAddToScrape() {
+    dispatcher.dispatch({actionType: ActionType.LOCATIONS.ADD_LOCATION, regionId: this.state.activeRegion.id});
   }
   updateState(props) {
     if (!tripsStore.currentTrip) {
@@ -99,6 +103,7 @@ export default class MapArea extends React.Component {
   render() {
     let currentDay = {number: 1};
     let addAsRegionBtn = <button onClick={this.onAddRegion} className="btn btn-default">Add Another City</button>
+    let addToScrapeBook = <button onClick={this.onAddToScrape} className="btn btn-default">Add to Scrape Book</button>
 
     return (
       <div id="map-area">
@@ -111,6 +116,7 @@ export default class MapArea extends React.Component {
             <i className="fa fa-search"></i>
           </button>
           {this.state.activeLocation && addAsRegionBtn}
+          {this.state.activeLocation && addToScrapeBook}
         </form>
         <div id="map-canvas" ref="mapCanvas"></div>
       </div>

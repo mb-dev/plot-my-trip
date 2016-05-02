@@ -107,7 +107,7 @@ export default class GoogleMapsService {
     this.handlers = [];
   }
   locationToHashKey(location) {
-    return location.id.toString() + '-' + location.color + '-' + location.index.toString() + '-' + location.focused;
+    return location.id.toString() + '-' + location.color.file + '-' + location.index.toString() + '-' + location.focused;
   }
   displayLocations(locations) {
     let indexByGroup = {};
@@ -134,11 +134,12 @@ export default class GoogleMapsService {
         if (markerData.key != locationKey) {
           marker.setPosition(location.position);
           marker.setMap(this.map);
+          marker.setLabel(location.index.toString());
           if (location.focused) {
-            let image = new google.maps.MarkerImage(config.iconServer + 'icons/' + SELECTED_COLOR + '-number-' + location.index + '.png');
+            let image = new google.maps.MarkerImage(config.iconServer + 'icons/' + SELECTED_COLOR + '-pin.png');
             marker.setIcon(image);
           } else {
-            let image = new google.maps.MarkerImage(config.iconServer + 'icons/' + location.color + '-number-' + location.index + '.png');
+            let image = new google.maps.MarkerImage(config.iconServer + 'icons/' + location.color.file + '-pin.png');
             marker.setIcon(image);
           }
           markerData.key = locationKey;

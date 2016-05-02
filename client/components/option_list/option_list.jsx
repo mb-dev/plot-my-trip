@@ -36,7 +36,10 @@ class OptionList extends React.Component {
     if (!tripsStore.currentTrip) {
       return;
     }
-    this.setState({locations: tripsStore.currentTrip.getUnassignedLocations(), groups: tripsStore.currentTrip.getGroups()});
+    this.setState({
+      locations: tripsStore.currentTrip.getUnassignedLocations(), 
+      groups: tripsStore.currentTrip.getGroups(),
+    });
   }
   componentDidMount() {
     tripsStore.addChangeListener(this.onTripsStoreChange);
@@ -54,6 +57,7 @@ class OptionList extends React.Component {
       var className = '';
       return (<Group key={group.id} group={group} />);
     });
+    const scrapeGroup = {id: null, name: 'Scrape Book'};
     return (
       <div id="days">
         <h2>Groups:</h2>
@@ -61,11 +65,7 @@ class OptionList extends React.Component {
           <input ref="groupNameInput" type="text" className="form-control"></input><button className="btn btn-default" onClick={this.addGroup}>Add</button>
         </div>
         {groupNodes}
-        <h2>Scrape Book:</h2>
-        <a href="#" onClick={this.addPlace}>Add</a>
-        <ul>
-          {locationNodes}
-        </ul>
+        <Group group={scrapeGroup} />
       </div>
     );
   }

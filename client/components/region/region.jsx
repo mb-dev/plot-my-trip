@@ -37,8 +37,6 @@ export default class Region extends React.Component {
   }
   updateState(props) {
     this.setState({
-      activeLocation: tripsStore.currentTrip.getActiveLocation(),
-      scrapLocations: tripsStore.currentTrip.getRegionScrapLocations(props.region.id),
       groups: tripsStore.currentTrip.getGroupsInRegion(props.region.id)
     });
   }
@@ -57,33 +55,18 @@ export default class Region extends React.Component {
   }
   render() {
     let selectedIndex = this.state.selectedIndex;
-    let locationNodes = this.state.scrapLocations.map(function(location, index) {
-      var className = index == selectedIndex ? 'selected' : '';
-      return (<GroupMember key={location.id} location={location} />);
-    });
-    let groupNodes = this.state.groups.map(function(group, index) {
+    let groupNodes = this.state.groups.map((group, index) => {
       var className = '';
-      return (<Group key={group.id} group={group} />);
+      return (<Group key={group.id} group={group} region={this.props.region} />);
     });
-    let addPlace = <a className="add-place" href="#" onClick={this.addPlace}>Add</a>;
-    let addPlaceCondition = this.state.activeLocation ? addPlace : '';
-    let scrapeBookStyle = {backgroundColor: 'green'};
+    const scrapeGroup = {id: null, name: 'Scrape Book'};
     return (
       <div id="region">
         <a href="#" onClick={this.addDay}><i className="fa fa-plus"></i> Add Day</a>
 
         {groupNodes}
 
-        {addPlaceCondition}
-        <div className="group">
-          <div>
-            <div className="group-color" style={scrapeBookStyle}/>
-            <h4>Scrapbook:</h4>
-          </div>
-          <ol className="scrap-locations">
-            {locationNodes}
-          </ol>
-        </div>
+        <Group group={scrapeGroup} region={this.props.region}/>
       </div>
     );
   }

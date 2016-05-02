@@ -16,6 +16,9 @@ class TripsStore extends EventEmitter{
     this.activeTripId = null;
     this.activeRegionName = null;
     this.saveSuccessfully = true;
+    this.state = {
+      activeRegionId: null,
+    };
   }
   emitChange() {
     this.emit(CHANGE_EVENT);
@@ -84,10 +87,11 @@ class TripsStore extends EventEmitter{
       }
     }
   }
-  setActiveTrip(id, regionName) {
+  setActiveTrip(id, regionId, regionName) {
     this.activeTripId = id;
     this.activeRegionName = regionName;
     this.currentTrip = this.getTripById(id);
+    this.state.activeRegionId = regionId;
     if (this.currentTrip) {
       this.applyState();
       this.emitChange();
@@ -145,6 +149,10 @@ class TripsStore extends EventEmitter{
         this.currentTrip.moveLocationDown(payload.locationId);
         this.emitChange();
         break;
+      case ActionType.LOCATIONS.UNASSIGN_LOCATION:
+        this.currentTrip.unassignLocation(payload.locationId, payload.regionId);
+        this.emitChange();
+        break;
       case ActionType.GROUPS.ADD_GROUP:
         let amountOfGroups = this.currentTrip.getGroupsInRegion(payload.regionId).length;
         this.currentTrip.addGroup(payload.regionId, 'Day ' + (amountOfGroups + 1));
@@ -165,11 +173,13 @@ class TripsStore extends EventEmitter{
         break;
       case ActionType.REGIONS.SELECT_REGION:
         this.currentTrip.setActiveRegion(payload.regionId);
+        this.state.activeRegionId = payload.regionId;
         this.emitChange();
         break;
       case ActionType.REGIONS.ADD_REGION:
         let region = this.currentTrip.addActivePlaceAsRegion();
         this.currentTrip.setActiveRegion(region);
+        this.state.activeRegionId = payload.regionId;
         this.emitChange();
         break;
       case ActionType.REGIONS.DELETE_REGION:

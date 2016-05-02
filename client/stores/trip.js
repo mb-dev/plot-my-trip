@@ -2,12 +2,19 @@ import _ from 'lodash'
 
 // white (#FFFFFF) - no group, gray (#6E6E6E)- focus
 const COLORS = [
-  'red',    // #FF0000
-  'blue',   // #0080FF
-  'purple', // #8000FF
-  'yellow', // #FFFF00
-  'green'   // #04B404
+  {file: 'red', color: '#FF0000'},
+  {file: 'blue', color: '#0080FF'},
+  {file: 'purple', color: '#8000FF'},
+  {file: 'yellow', color: '#FFFF00'},
+  {file: 'green', color: '#04B404'},
+  {file: 'brown', color: '#784600'},
+  {file: 'pink', color: '#ffb8c2' },
+  {file: 'dark-red', color: '#b31e3e' },
+  {file: 'shiny-yellow', color: '#e5ff00' },
+  {file: 'light-green', color: '#b4eeb4'},
 ];
+
+const WHITE_COLOR = {file: 'white', color: 'white'};
 
 export default class Trip {
   constructor(tripData) {
@@ -133,7 +140,6 @@ export default class Trip {
   addLocationToGroup(groupId, locationId) {
     let location = this.getLocationById(locationId);
     let group = this.getGroupById(groupId);
-    let region = this.getRegionById(group.regionId)
     if (location.groupId === groupId) {
       return;
     }
@@ -142,6 +148,7 @@ export default class Trip {
     }
     location.groupId = groupId;
     group.locations = _.union(group.locations, [locationId]);
+    let region = this.getRegionById(group.regionId)
     this.removeLocationFromRegion(region, location);
   }
   removeLocationFromGroup(groupId, locationId) {
@@ -149,6 +156,16 @@ export default class Trip {
     let group = this.getGroupById(groupId);
     location.groupId = null;
     group.locations = _.without(group.locations, locationId);
+  }
+  unassignLocation(locationId, regionId) {
+    let location = this.getLocationById(locationId);
+    if (!location.groupId) {
+      return;
+    }
+    if (location.groupId) {
+      this.removeLocationFromGroup(location.groupId, locationId);
+    }
+    this.addLocationToRegion(regionId, locationId);
   }
   moveLocationUp(locationId) {
     let location = this.getLocationById(locationId);
@@ -265,6 +282,6 @@ export default class Trip {
     if (groupId) {
       return this.colorByGroup[groupId];
     }
-    return 'white';
+    return WHITE_COLOR;
   }
 }

@@ -16,11 +16,19 @@ const locationTarget = {
     return monitor.getItem().groupId !== props.group.id;
   },
   drop(props, monitor) {
-    dispatcher.dispatch({
-      actionType: ActionType.GROUPS.ADD_PLACE_TO_GROUP,
-      groupId: props.group.id,
-      locationId: monitor.getItem().id
-    });
+    if (props.group.id) {
+      dispatcher.dispatch({
+        actionType: ActionType.GROUPS.ADD_PLACE_TO_GROUP,
+        groupId: props.group.id,
+        locationId: monitor.getItem().id,
+      });
+    } else {
+      dispatcher.dispatch({
+        actionType: ActionType.LOCATIONS.UNASSIGN_LOCATION,
+        regionId: props.region.id,
+        locationId: monitor.getItem().id,
+      });
+    }
   }
 };
 
@@ -39,10 +47,19 @@ export default class Group extends React.Component {
     if (!tripsStore.currentTrip) {
       return;
     }
-    let members = tripsStore.currentTrip.getGroupMembers(this.props.group.id);
+    let members = []
+    if (this.props.group.id) {
+      members = tripsStore.currentTrip.getGroupMembers(this.props.group.id);
+    } else {
+      members = tripsStore.currentTrip.getUnassignedLocations();
+    }
     let activeGroup = tripsStore.currentTrip.getActiveGroup();
     let groupColor = tripsStore.currentTrip.getColorOfGroup(this.props.group.id);
-    this.setState({groupMembers: members, activeGroup: activeGroup, groupColor: groupColor});
+    this.setState({
+      groupMembers: members,
+      activeGroup: activeGroup,
+      groupColor: groupColor.color
+    });
   }
   componentDidMount() {
     tripsStore.addChangeListener(this.onTripsStoreChange);
@@ -70,9 +87,11 @@ export default class Group extends React.Component {
 
     return connectDropTarget(
       <div className={groupClassName}>
-        <div className="group-controls">
-          <a>Delete Day</a>
-        </div>
+        { this.props.group.id && 
+          <div className="group-controls">
+            <a>Delete Day</a>
+          </div>
+        }
         <div>
           <div className="group-color" style={groupColorStyle}/>
           <h4>{this.props.group.name}</h4>

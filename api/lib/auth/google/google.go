@@ -25,8 +25,6 @@ func getConfiguration() *oauth2.Config {
 		Scopes: []string{
 			"email",
 			"profile",
-			"https://www.googleapis.com/auth/plus.login",
-			"https://www.googleapis.com/auth/calendar.readonly",
 		},
 		Endpoint: Endpoint,
 	}
