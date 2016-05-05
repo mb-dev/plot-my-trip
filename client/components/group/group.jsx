@@ -74,7 +74,8 @@ export default class Group extends React.Component {
     const groupClassName = classNames({
       'group': true,
       'drag-item-is-over': canDrop && isOver,
-      'active': this.state.activeGroup && this.state.activeGroup.id == this.props.group.id
+      'active': this.state.activeGroup && this.state.activeGroup.id == this.props.group.id,
+      'scrape': !this.props.group.id,
     });
 
     let groupMembers = this.state.groupMembers.map(function(location, index) {

@@ -63,9 +63,9 @@ export default class Region extends React.Component {
     return (
       <div id="region">
         <a href="#" onClick={this.addDay}><i className="fa fa-plus"></i> Add Day</a>
-
-        {groupNodes}
-
+        <div className="group-nodes">
+          {groupNodes}
+        </div>
         <Group group={scrapeGroup} region={this.props.region}/>
       </div>
     );
