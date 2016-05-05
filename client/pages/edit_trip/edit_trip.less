@@ -1,19 +1,34 @@
+.edit-page {
+  footer {
+    position: fixed;
+    bottom: 5px;
+    left: 0;
+    right: 0;
+  }
+}
+
 .edit-trip {
-  display: flex;
-  flex-direction: row;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
   
   #side-bar {
     width: 329px;
     margin-right: 20px;
     overflow-y: scroll;
-    top: 88px;
-    bottom: 0;
+    top: 80px;
+    bottom: 30px;
     left: 0;
-    position: absolute;
+    position: fixed;
   }
 
   #map-area {
-    flex: 1;
-    margin-left: 350px;
+    position: fixed;
+    top: 60px;
+    bottom: 30px;
+    left: 350px;
+    right: 0;
   }
 }

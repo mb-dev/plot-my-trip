@@ -19,9 +19,11 @@ export default class EditTrip extends React.Component {
   }
   componentDidMount() {
     tripsStore.addChangeListener(this.onTripsStoreChange);
+    document.body.classList.add('edit-page');
   }
   componentWillUnmount() {
     tripsStore.removeChangeListener(this.onTripsStoreChange);
+    document.body.classList.remove('edit-page');
   }
   componentWillReceiveProps(nextProps) {
     this.setStoreState(nextProps);
