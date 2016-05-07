@@ -67,7 +67,7 @@ class GroupMember extends React.Component {
   }
   render() {
     const { isDragging, connectDragSource, text } = this.props;
-    return connectDragSource(
+    const component = (
       <li style={{ opacity: isDragging ? 0.5 : 1 }} onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave}>
         <div>
           <span>{this.props.location.name}</span>
@@ -107,6 +107,7 @@ class GroupMember extends React.Component {
         </Modal>
       </li>
     );
+    return connectDragSource(component);
   }
 }
 

@@ -18,6 +18,7 @@ class TripsStore extends EventEmitter{
     this.saveSuccessfully = true;
     this.state = {
       activeRegionId: null,
+      editable: false,
     };
   }
   emitChange() {
