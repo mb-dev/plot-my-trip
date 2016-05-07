@@ -21,8 +21,7 @@ export default class Header extends React.Component {
       window.top.location.href = result;
     });
   }
-  onSaveTrip(e) {
-    e.preventDefault();
+  onSaveTrip() {
     tripActions.saveTrip(this.context.router);
   }
   onUsersStoreChange() {
@@ -80,7 +79,7 @@ export default class Header extends React.Component {
                 {userSection}
               </li>
               { this.state.currentUser &&
-                <li><a onClick={this.onSaveTrip} className={saveButtonClass}>Save</a></li>
+                <li><button type="button" onClick={this.onSaveTrip} className={saveButtonClass}>Save</button></li>
               }
             </ul>
           </div>
