@@ -20,8 +20,7 @@ process.on('uncaughtException', function (er) {
 gulp.task("mocha", function() {
 	return gulp.src(['client/**/*.test.js'], {read: false})
 		.pipe(mocha({
-			compilers: 'js:babel/register',
-      R: 'spec'
+			compilers: 'js:babel-register',
     }));
 });
 
