@@ -1,10 +1,10 @@
 import React from 'react';
 import {Link} from 'react-router';
 
-import tripsStore from '../../stores/trips_store'
+import tripsStore from '../../stores/trips_store';
 
-import SideBar     from '../../components/side_bar/side_bar'
-import MapArea     from '../../components/map_area/map_area'
+import SideBar     from '../../components/side_bar/side_bar';
+import MapArea     from '../../components/map_area/map_area';
 
 require('./edit_trip.less');
 
@@ -21,18 +21,18 @@ export default class EditTrip extends React.Component {
     tripsStore.addChangeListener(this.onTripsStoreChange);
     document.body.classList.add('edit-page');
   }
+  componentWillReceiveProps(props) {
+    this.setStoreState(props);
+  }
   componentWillUnmount() {
     tripsStore.removeChangeListener(this.onTripsStoreChange);
     document.body.classList.remove('edit-page');
   }
-  componentWillReceiveProps(nextProps) {
-    this.setStoreState(nextProps);
+  onTripsStoreChange() {
+
   }
   setStoreState(props) {
     tripsStore.setActiveTrip(props.params.tripId, props.params.regionName);
-  }
-  onTripsStoreChange() {
-
   }
   render() {
     return (
@@ -40,10 +40,6 @@ export default class EditTrip extends React.Component {
         <SideBar />
         <MapArea />
       </div>
-    )
+    );
   }
-}
-
-EditTrip.contextTypes = {
-  router: React.PropTypes.func.isRequired
 }

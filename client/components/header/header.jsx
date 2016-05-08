@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 import userStore  from '../../stores/users_store';
 import tripsStore from '../../stores/trips_store';
-import tripActions from '../../actions/trip_actions';
+import actions from '../../actions/actions';
 import apiClient from '../../libraries/api_client/api_client';
 
 export default class Header extends React.Component {
@@ -22,7 +22,7 @@ export default class Header extends React.Component {
     });
   }
   onSaveTrip() {
-    tripActions.saveTrip(this.context.router);
+    actions.saveTrip();
   }
   onUsersStoreChange() {
     this.setState({currentUser: userStore.getCurrentUser()});
@@ -44,20 +44,26 @@ export default class Header extends React.Component {
       'btn': true,
       'navbar-btn': true,
       'btn-primary': this.state.saveSuccessfully,
-      'btn-danger': !this.state.saveSuccessfully
+      'btn-danger': !this.state.saveSuccessfully,
     });
 
     if (this.state.currentUser) {
       userSection = <div className="navbar-text">
         <span>Welcome {this.state.currentUser.name}</span>
         &nbsp;
-        (<Link to="logout">Logout</Link>)
+        (<Link to="/logout">Logout</Link>)
       </div>;
     } else {
       userSection = <a className="btn" onClick={this.handleLogin}>
         <i className="fa fa-google"></i> Login using Google
       </a>;
     }
+
+    const links = [
+      {name: 'Home', link: '/', className: window.location.pathname.length <= 1 ? 'active' : ''},
+      {name: 'My Trips', link: '/trips', className: window.location.pathname.indexOf('/trips') >= 0 ? 'active' : ''},
+    ];
+
     return (
       <nav className="navbar navbar-default">
         <div className="container-fluid">
@@ -72,7 +78,11 @@ export default class Header extends React.Component {
           </div>
           <div className="collapse navbar-collapse">
             <ul className="nav navbar-nav">
-              <li className="active"><Link to="home">Home <span className="sr-only">(current)</span></Link></li>
+              { links.map((link) => (
+                <li className={link.className} key={link.name}>
+                  <Link to={link.link}>{link.name}</Link>
+                </li>
+              ))}
             </ul>
             <ul className="nav navbar-nav navbar-right">
               <li>
@@ -87,8 +97,4 @@ export default class Header extends React.Component {
       </nav>
     );
   }
-}
-
-Header.contextTypes = {
-  router: React.PropTypes.func.isRequired
 }

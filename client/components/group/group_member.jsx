@@ -1,32 +1,36 @@
 import React from 'react';
-import { DragSource } from 'react-dnd';
-import {Modal} from 'react-bootstrap'
+import {DragSource} from 'react-dnd';
 
-import dispatcher from '../../dispatcher/dispatcher.js'
-import ActionType from '../../stores/action_types'
-import tripActions from '../../actions/trip_actions'
+import dispatcher from '../../dispatcher/dispatcher';
+import ActionType from '../../stores/action_types';
+import actions from '../../actions/actions';
 
 const groupSource = {
   beginDrag(props) {
     return {
       id: props.location.id,
-      groupId: props.location.groupId
+      groupId: props.location.groupId,
     };
-  }
+  },
 };
 
 const LocationItem = 'location';
 
 @DragSource(LocationItem, groupSource, (connect, monitor) => ({
   connectDragSource: connect.dragSource(),
-  isDragging: monitor.isDragging()
+  isDragging: monitor.isDragging(),
 }))
-class GroupMember extends React.Component {
+export default class GroupMember extends React.Component {
+  static propTypes = {
+    location: React.PropTypes.object,
+    // Injected by React DnD:
+    isDragging: React.PropTypes.bool.isRequired,
+    connectDragSource: React.PropTypes.func.isRequired,
+  }
   constructor(props) {
     super(props);
     this.onDeleteLocation = this.onDeleteLocation.bind(this);
     this.onEditLocation = this.onEditLocation.bind(this);
-    this.onEditLocationSave = this.onEditLocationSave.bind(this);
     this.onMouseEnter = this.onMouseEnter.bind(this);
     this.onMouseLeave = this.onMouseLeave.bind(this);
     this.moveLocationUp = this.moveLocationUp.bind(this);
@@ -35,7 +39,7 @@ class GroupMember extends React.Component {
     this.state = {editing: false};
   }
   onDeleteLocation() {
-    tripActions.deleteLocation(this.props.location);
+    actions.deleteLocation(this.props.location);
   }
   onEditLocation() {
     this.setState({editing: true});
@@ -47,23 +51,17 @@ class GroupMember extends React.Component {
     e.preventDefault();
     return false;
   }
-  onEditLocationSave(e) {
-    let nameNode = React.findDOMNode(this.refs.locationNameInput);
-    let commentsNode = React.findDOMNode(this.refs.locationCommentsInput);
-    tripActions.modifyLocation(this.props.location.id, {name: nameNode.value, comments: commentsNode.value});
-    this.setState({editing: false});
-  }
   moveLocationUp() {
-    tripActions.moveLocationUp(this.props.location.id);
+    actions.moveLocationUp(this.props.location.id);
   }
   moveLocationDown() {
-    tripActions.moveLocationDown(this.props.location.id);
+    actions.moveLocationDown(this.props.location.id);
   }
   onMouseEnter() {
-    tripActions.setFocusLocation(this.props.location.id);
+    actions.setFocusLocation(this.props.location.id);
   }
   onMouseLeave() {
-    tripActions.setFocusLocation(null);
+    actions.setFocusLocation(null);
   }
   render() {
     const { isDragging, connectDragSource, text } = this.props;
@@ -83,38 +81,10 @@ class GroupMember extends React.Component {
             {this.props.location.comments}
           </div>
         }
-        <Modal show={this.state.editing} onHide={this.closeModal}>
-          <div className="modal-content">
-            <div className="modal-header">
-              <h2>Edit {this.props.location.name}</h2>
-            </div>
-            <div className="modal-body">
-              <form onSubmit={this.onSubmit}>
-                <div className="form-group">
-                  <label>Name:</label>
-                  <input type="text" className="form-control" defaultValue={this.props.location.name} ref="locationNameInput"/>
-                </div>
-                <div className="form-group">
-                  <label>Comments:</label>
-                  <textarea className="form-control" defaultValue={this.props.location.comments} ref="locationCommentsInput"/>
-                </div>
-              </form>
-            </div>
-            <div className="modal-footer">
-              <button type="submit" className="btn btn-default" onClick={this.onEditLocationSave}>Submit</button>
-            </div>
-          </div>
-        </Modal>
       </li>
     );
     return connectDragSource(component);
   }
 }
 
-GroupMember.propTypes = {
-  location: React.PropTypes.object,
-  // Injected by React DnD:
-  isDragging: React.PropTypes.bool.isRequired,
-  connectDragSource: React.PropTypes.func.isRequired
-};
 export default GroupMember;

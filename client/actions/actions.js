@@ -1,27 +1,38 @@
-import storage from '../libraries/storage/storage'
-import dispatcher from '../dispatcher/dispatcher'
-import ActionType from '../stores/action_types'
-import apiClient from '../libraries/api_client/api_client'
-
-import userStore   from '../stores/users_store'
-import tripsStore  from '../stores/trips_store'
+import storage from '../libraries/storage/storage';
+import dispatcher from '../dispatcher/dispatcher';
+import ActionType from '../stores/action_types';
+import apiClient from '../libraries/api_client/api_client';
+import {browserHistory} from 'react-router';
+import userStore   from '../stores/users_store';
+import tripsStore  from '../stores/trips_store';
 
 // ----------------
 // trips
 
 class Actions {
-  createTrip(initialPlace, router) {
-    dispatcher.dispatch({actionType: ActionType.TRIPS.CREATE_TRIP, initialPlace: initialPlace});
-    setTimeout(function() {
-      router.transitionTo('edit', {tripId: 'new'});
-    }, 100);
+  login(state, code) {
+    apiClient.getAuthToken(state, code, () => {
+      userStore.loadCurrentUser();
+      tripsStore.load();
+      browserHistory.push('/trips');
+    });
   }
-  saveTrip(router) {
-    let newTrip = !tripsStore.currentTrip.data._id
+  logout() {
+    storage.clearAll();
+    dispatcher.dispatch({actionType: ActionType.USER.LOGOUT});
+    browserHistory.push('/');
+  }
+
+  createTrip(initialPlace) {
+    dispatcher.dispatch({actionType: ActionType.TRIPS.CREATE_TRIP, initialPlace: initialPlace});
+    setTimeout(() => {browserHistory.push('/trip/new');}, 100);
+  }
+  saveTrip() {
+    const newTrip = !tripsStore.currentTrip.data._id;
     tripsStore.save(() => {
       if (newTrip && !!tripsStore.currentTrip.data._id) {
-        setTimeout(function() {
-          router.transitionTo('edit', {tripId: tripsStore.currentTrip.data._id});
+        setTimeout(() => {
+          browserHistory.push(`/trip/${tripsStore.currentTrip.data._id}`);
         }, 100);
       }
     });

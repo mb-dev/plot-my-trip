@@ -31,8 +31,8 @@ export default class MapArea extends React.Component {
 
   }
   componentDidMount() {
-    googleMapsService.createMap(this.refs.mapCanvas.getDOMNode());
-    googleMapsService.createAutoComplete(this.refs.autoComplete.getDOMNode());
+    googleMapsService.createMap(this.refs.mapCanvas);
+    googleMapsService.createAutoComplete(this.refs.autoComplete);
     googleMapsService.addHandler('onPlaceChanged', function(place) {
       let googleData = converter.placeToLocation(place);
       dispatcher.dispatch({actionType: ActionType.LOCATIONS.PLACE_CHANGED, googleData: googleData});
@@ -58,11 +58,11 @@ export default class MapArea extends React.Component {
     let locations = [];
     let mapState = {
       activeRegion: tripsStore.currentTrip.getActiveRegion(),
-      activeLocation: tripsStore.currentTrip.getActiveLocation()
+      activeLocation: tripsStore.currentTrip.getActiveLocation(),
     };
 
     if (!mapState.activeLocation) {
-      let groupNameNode = React.findDOMNode(this.refs.autoComplete);
+      let groupNameNode = this.refs.autoComplete;
       if (groupNameNode) {
         groupNameNode.value = "";
       }

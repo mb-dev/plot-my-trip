@@ -1,15 +1,20 @@
 import React from 'react';
+import {Link} from 'react-router';
 
-import tripActions from '../../actions/trip_actions'
+import actions from '../../actions/actions';
 import CitySelector from '../../components/city_selector/city_selector';
-import tripsStore from '../../stores/trips_store'
+import tripsStore from '../../stores/trips_store';
 
 export default class HomePage extends React.Component {
-  constructor(props, context) {
+  constructor(props) {
+    super(props);
     this.onCreateTrip = this.onCreateTrip.bind(this);
-    this.state = {city: null, trips: []};
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
     this.onSelectCity = this.onSelectCity.bind(this);
+    this.state = {
+      city: null,
+      trips: [],
+    };
   }
   componentWillMount() {
     this.updateState(this.props);
@@ -17,30 +22,33 @@ export default class HomePage extends React.Component {
   componentDidMount() {
     tripsStore.addChangeListener(this.onTripsStoreChange);
   }
-  componentWillUnmount() {
-    tripsStore.removeChangeListener(this.onTripsStoreChange);
-  }
   componentWillReceiveProps(nextProps) {
     this.updateState(nextProps);
   }
-  updateState(props) {
-    this.setState({
-      trips: tripsStore.getTripsSummary()
-    });
+  componentWillUnmount() {
+    tripsStore.removeChangeListener(this.onTripsStoreChange);
   }
   onCreateTrip() {
-    tripActions.createTrip(this.state.city, this.context.router);
+    actions.createTrip(this.state.city);
+  }
+  onTripsStoreChange() {
+    this.updateState(this.props);
   }
   onSelectCity(city) {
     this.setState({
-      city: city
+      city: city,
     });
   }
   onSubmit(e) {
     e.preventDefault();
   }
+  updateState() {
+    this.setState({
+      trips: tripsStore.getTripsSummary(),
+    });
+  }
   render() {
-    let validPlace = this.state.currentPlace && this.state.currentPlace !== 'invalid';
+    const validPlace = this.state.city && this.state.city !== 'invalid';
     return (
       <div className="home-page">
         <div className="create-trip container">
@@ -58,15 +66,11 @@ export default class HomePage extends React.Component {
           <h2>Existing Trips:</h2>
           <ul>
             {this.state.trips.map((trip) => (
-              <li key={trip.id}><Link to="edit" params={{tripId: (trip.id || 'new')}}>{trip.name || 'Untitled'} ({trip.regionsCount}) </Link></li>
+              <li key={trip.id}><Link to={`/trip/${trip.id}`}>{trip.name || 'Untitled'} ({trip.regionsCount}) </Link></li>
             ))}
           </ul>
         </div>
       </div>
-    )
+    );
   }
-}
-
-HomePage.contextTypes = {
-  router: React.PropTypes.func.isRequired
 }

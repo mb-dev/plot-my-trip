@@ -1,28 +1,25 @@
 import React from 'react';
 import {Link} from 'react-router';
-import dispatcher from '../../dispatcher/dispatcher'
-import ActionType from '../../stores/action_types'
-import tripsStore from '../../stores/trips_store'
-import tripActions from '../../actions/trip_actions'
+import dispatcher from '../../dispatcher/dispatcher';
+import ActionType from '../../stores/action_types';
+import tripsStore from '../../stores/trips_store';
 
-import Region from '../region/region'
+import Region from '../region/region';
 
-import { DragDropContext } from 'react-dnd';
-import HTML5Backend from 'react-dnd/modules/backends/HTML5';
+import {DragDropContext} from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
 
 require('./side_bar.less');
 
+@DragDropContext(HTML5Backend)
 class SideBar extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    this.state = {activeLocation: null, activeRegion: null}
+    this.state = {activeLocation: null, activeRegion: null};
 
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
     this.onSelectRegion = this.onSelectRegion.bind(this);
-  }
-  onTripsStoreChange() {
-    this.updateState(this.props);
   }
   componentWillMount() {
     this.updateState(this.props);
@@ -44,8 +41,11 @@ class SideBar extends React.Component {
       activeRegion: tripsStore.currentTrip.getActiveRegion(),
       activeTripId: tripsStore.activeTripId,
       nextRegionName: nextRegion ? nextRegion.name : null,
-      prevRegionName: prevRegion ? prevRegion.name : null
+      prevRegionName: prevRegion ? prevRegion.name : null,
     });
+  }
+  onTripsStoreChange() {
+    this.updateState(this.props);
   }
   onAddRegion(e) {
     e.preventDefault();
@@ -88,13 +88,8 @@ class SideBar extends React.Component {
         </div>
         {regionElement}
       </div>
-    )
-
+    );
   }
 }
 
-SideBar.contextTypes = {
-  router: React.PropTypes.func.isRequired
-}
-SideBar = DragDropContext(HTML5Backend)(SideBar);
 export default SideBar;
