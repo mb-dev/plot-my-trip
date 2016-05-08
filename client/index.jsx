@@ -14,8 +14,6 @@ import EditTrip       from './pages/edit_trip/edit_trip';
 import Welcome        from './pages/welcome/welcome';
 import HomePage       from './pages/home/home';
 
-require('bootstrap-loader');
-
 render((
   <Router history={browserHistory}>
     <Route component={App} path="/">
