@@ -9,6 +9,7 @@ module.exports = {
 
   module: {
     loaders: [
+      { test: /bootstrap-sass\/assets\/javascripts\//, loader: 'imports?jQuery=jquery' },
       {
         test: /\.jsx?$/,
         exclude: /(node_modules|env)/,
@@ -16,7 +17,12 @@ module.exports = {
         loader: 'babel',
       },
       {test: /\.less$/, exclude: /node_modules/, loader: 'style!css!less'},
+      {test: /\.scss$/, loaders: ['style', 'css', 'postcss', 'sass']},
       {test: /\.css$/, exclude: /node_modules/, loader: 'style!css'},
+      {test: /\.woff2?(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/font-woff'},
+      {test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/octet-stream'},
+      {test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, loader: 'file'},
+      {test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=image/svg+xml'},
     ],
   },
 

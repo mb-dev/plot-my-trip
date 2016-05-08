@@ -1,7 +1,7 @@
 import React from 'react';
 import dispatcher from '../../dispatcher/dispatcher';
 import ActionType from '../../stores/action_types';
-import tripsStore from '../../stores/trips_store';
+import store from '../../stores/store';
 
 import Group from '../group/group';
 
@@ -19,14 +19,14 @@ export default class Region extends React.Component {
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
   }
   componentDidMount() {
-    tripsStore.addChangeListener(this.onTripsStoreChange);
+    store.addChangeListener(this.onTripsStoreChange);
     this.onTripsStoreChange();
   }
   componentWillReceiveProps(nextProps) {
     this.updateState(nextProps);
   }
   componentWillUnmount() {
-    tripsStore.removeChangeListener(this.onTripsStoreChange);
+    store.removeChangeListener(this.onTripsStoreChange);
   }
   onAddDay() {
     dispatcher.dispatch({actionType: ActionType.GROUPS.ADD_GROUP, regionId: this.props.region.id});
@@ -39,7 +39,7 @@ export default class Region extends React.Component {
   }
   updateState(props) {
     this.setState({
-      groups: tripsStore.currentTrip.getGroupsInRegion(props.region.id),
+      groups: store.currentTrip.getGroupsInRegion(props.region.id),
     });
   }
   render() {

@@ -3,7 +3,7 @@ import {Link} from 'react-router';
 
 import actions from '../../actions/actions';
 import CitySelector from '../../components/city_selector/city_selector';
-import tripsStore from '../../stores/trips_store';
+import store from '../../stores/store';
 
 export default class HomePage extends React.Component {
   constructor(props) {
@@ -20,13 +20,13 @@ export default class HomePage extends React.Component {
     this.updateState(this.props);
   }
   componentDidMount() {
-    tripsStore.addChangeListener(this.onTripsStoreChange);
+    store.addChangeListener(this.onTripsStoreChange);
   }
   componentWillReceiveProps(nextProps) {
     this.updateState(nextProps);
   }
   componentWillUnmount() {
-    tripsStore.removeChangeListener(this.onTripsStoreChange);
+    store.removeChangeListener(this.onTripsStoreChange);
   }
   onCreateTrip() {
     actions.createTrip(this.state.city);
@@ -44,7 +44,7 @@ export default class HomePage extends React.Component {
   }
   updateState() {
     this.setState({
-      trips: tripsStore.getTripsSummary(),
+      trips: store.getTripsSummary(),
     });
   }
   render() {

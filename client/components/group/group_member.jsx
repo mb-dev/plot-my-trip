@@ -1,8 +1,5 @@
 import React from 'react';
 import {DragSource} from 'react-dnd';
-
-import dispatcher from '../../dispatcher/dispatcher';
-import ActionType from '../../stores/action_types';
 import actions from '../../actions/actions';
 
 const groupSource = {
@@ -35,27 +32,12 @@ export default class GroupMember extends React.Component {
     this.onMouseLeave = this.onMouseLeave.bind(this);
     this.moveLocationUp = this.moveLocationUp.bind(this);
     this.moveLocationDown = this.moveLocationDown.bind(this);
-    this.closeModal = this.closeModal.bind(this);
-    this.state = {editing: false};
+  }
+  onEditLocation() {
+    actions.editLocation(this.props.location.id);
   }
   onDeleteLocation() {
     actions.deleteLocation(this.props.location);
-  }
-  onEditLocation() {
-    this.setState({editing: true});
-  }
-  closeModal() {
-    this.setState({editing: false});
-  }
-  onSubmit(e) {
-    e.preventDefault();
-    return false;
-  }
-  moveLocationUp() {
-    actions.moveLocationUp(this.props.location.id);
-  }
-  moveLocationDown() {
-    actions.moveLocationDown(this.props.location.id);
   }
   onMouseEnter() {
     actions.setFocusLocation(this.props.location.id);
@@ -63,10 +45,16 @@ export default class GroupMember extends React.Component {
   onMouseLeave() {
     actions.setFocusLocation(null);
   }
+  moveLocationUp() {
+    actions.moveLocationUp(this.props.location.id);
+  }
+  moveLocationDown() {
+    actions.moveLocationDown(this.props.location.id);
+  }
   render() {
-    const { isDragging, connectDragSource, text } = this.props;
+    const {isDragging, connectDragSource} = this.props;
     const component = (
-      <li style={{ opacity: isDragging ? 0.5 : 1 }} onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave}>
+      <li style={{opacity: isDragging ? 0.5 : 1}} onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave}>
         <div>
           <span>{this.props.location.name}</span>
           <span className="controls">
@@ -86,5 +74,3 @@ export default class GroupMember extends React.Component {
     return connectDragSource(component);
   }
 }
-
-export default GroupMember;

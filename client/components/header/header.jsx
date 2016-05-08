@@ -3,7 +3,7 @@ import {Link} from 'react-router';
 import classNames from 'classnames';
 
 import userStore  from '../../stores/users_store';
-import tripsStore from '../../stores/trips_store';
+import store from '../../stores/store';
 import actions from '../../actions/actions';
 import apiClient from '../../libraries/api_client/api_client';
 
@@ -28,15 +28,15 @@ export default class Header extends React.Component {
     this.setState({currentUser: userStore.getCurrentUser()});
   }
   onTripsStoreChange() {
-    this.setState({saveSuccessfully: tripsStore.saveSuccessfully});
+    this.setState({saveSuccessfully: store.saveSuccessfully});
   }
   componentDidMount() {
     userStore.addChangeListener(this.onUsersStoreChange);
-    tripsStore.addChangeListener(this.onTripsStoreChange);
+    store.addChangeListener(this.onTripsStoreChange);
   }
   componentWillUnmount() {
     userStore.removeChangeListener(this.onUsersStoreChange);
-    tripsStore.removeChangeListener(this.onTripsStoreChange);
+    store.removeChangeListener(this.onTripsStoreChange);
   }
   render() {
     var userSection;

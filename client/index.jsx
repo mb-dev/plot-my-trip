@@ -5,7 +5,7 @@ import {render} from 'react-dom';
 import {Router, Route, IndexRoute, browserHistory} from 'react-router';
 
 import userStore   from './stores/users_store';
-import tripsStore  from './stores/trips_store';
+import store  from './stores/store';
 
 import App            from './pages/app/app';
 import Logout         from './pages/logout/logout';
@@ -13,6 +13,8 @@ import GoogleCallback from './pages/google_callback/google_callback';
 import EditTrip       from './pages/edit_trip/edit_trip';
 import Welcome        from './pages/welcome/welcome';
 import HomePage       from './pages/home/home';
+
+require('bootstrap-loader');
 
 render((
   <Router history={browserHistory}>
@@ -27,4 +29,4 @@ render((
 ), document.getElementById('app'));
 
 userStore.loadCurrentUser();
-tripsStore.load();
+store.load();

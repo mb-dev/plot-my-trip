@@ -2,7 +2,7 @@ import React from 'react';
 import {Link} from 'react-router';
 import dispatcher from '../../dispatcher/dispatcher';
 import ActionType from '../../stores/action_types';
-import tripsStore from '../../stores/trips_store';
+import store from '../../stores/store';
 
 import Region from '../region/region';
 
@@ -25,21 +25,21 @@ class SideBar extends React.Component {
     this.updateState(this.props);
   }
   componentDidMount() {
-    tripsStore.addChangeListener(this.onTripsStoreChange);
+    store.addChangeListener(this.onTripsStoreChange);
   }
   componentWillUnmount() {
-    tripsStore.removeChangeListener(this.onTripsStoreChange);
+    store.removeChangeListener(this.onTripsStoreChange);
   }
   updateState(props) {
-    if (!tripsStore.currentTrip) {
+    if (!store.currentTrip) {
       return;
     }
-    let nextRegion = tripsStore.currentTrip.getNextRegion();
-    let prevRegion = tripsStore.currentTrip.getPrevRegion();
+    let nextRegion = store.currentTrip.getNextRegion();
+    let prevRegion = store.currentTrip.getPrevRegion();
     this.setState({
-      activeLocation: tripsStore.currentTrip.getActiveLocation(),
-      activeRegion: tripsStore.currentTrip.getActiveRegion(),
-      activeTripId: tripsStore.activeTripId,
+      activeLocation: store.currentTrip.getActiveLocation(),
+      activeRegion: store.currentTrip.getActiveRegion(),
+      activeTripId: store.activeTripId,
       nextRegionName: nextRegion ? nextRegion.name : null,
       prevRegionName: prevRegion ? prevRegion.name : null,
     });

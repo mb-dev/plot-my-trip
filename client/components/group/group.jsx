@@ -4,7 +4,7 @@ import {DropTarget} from 'react-dnd';
 
 import dispatcher from '../../dispatcher/dispatcher';
 import ActionType from '../../stores/action_types';
-import tripsStore from '../../stores/trips_store';
+import store from '../../stores/store';
 import GroupMember from './group_member';
 
 require('./group.less');
@@ -50,17 +50,17 @@ export default class Group extends React.Component {
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
   }
   onTripsStoreChange() {
-    if (!tripsStore.currentTrip) {
+    if (!store.currentTrip) {
       return;
     }
     let members = [];
     if (this.props.group.id) {
-      members = tripsStore.currentTrip.getGroupMembers(this.props.group.id);
+      members = store.currentTrip.getGroupMembers(this.props.group.id);
     } else {
-      members = tripsStore.currentTrip.getUnassignedLocations();
+      members = store.currentTrip.getUnassignedLocations();
     }
-    let activeGroup = tripsStore.currentTrip.getActiveGroup();
-    let groupColor = tripsStore.currentTrip.getColorOfGroup(this.props.group.id);
+    let activeGroup = store.currentTrip.getActiveGroup();
+    let groupColor = store.currentTrip.getColorOfGroup(this.props.group.id);
     this.setState({
       groupMembers: members,
       activeGroup: activeGroup,
@@ -68,12 +68,12 @@ export default class Group extends React.Component {
     });
   }
   componentDidMount() {
-    tripsStore.addChangeListener(this.onTripsStoreChange);
+    store.addChangeListener(this.onTripsStoreChange);
     // Not sure why this line is needed
     this.onTripsStoreChange();
   }
   componentWillUnmount() {
-    tripsStore.removeChangeListener(this.onTripsStoreChange);
+    store.removeChangeListener(this.onTripsStoreChange);
   }
   render() {
     const {canDrop, isOver, connectDropTarget} = this.props;
