@@ -3,6 +3,9 @@ language: go
 go:
   - 1.6.1
 
+node_js:
+  - "5"
+
 services:
   - mongodb
 
