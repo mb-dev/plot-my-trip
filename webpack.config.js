@@ -1,37 +1,38 @@
-var webpack = require('webpack');
+const webpack = require('webpack');
+const path = require('path');
 
 module.exports = {
   devtool: 'source-map',
   watch: true,
 
-  context: __dirname + "/client",
-  entry: {
-    index: __dirname + "/client/index.jsx",
-    vendor: ["react", "flux"]
-  },
+  entry: ['babel-polyfill', __dirname + '/client/index.jsx'],
 
   module: {
     loaders: [
-      { test: /\.jsx?$/, exclude: /node_modules/, loader: "babel-loader", query: {stage: 0}},
-      { test: /\.less$/, exclude: /node_modules/, loader: "style!css!less"},
-      { test: /\.css$/, exclude: /node_modules/, loader: "style!css"}
-    ]
+      {
+        test: /\.jsx?$/,
+        exclude: /(node_modules|env)/,
+        include: path.join(__dirname, 'client'),
+        loader: 'babel',
+      },
+      {test: /\.less$/, exclude: /node_modules/, loader: 'style!css!less'},
+      {test: /\.css$/, exclude: /node_modules/, loader: 'style!css'},
+    ],
   },
 
   output: {
-    filename: "index.js",
-    path: __dirname + "/static"
+    filename: 'index.js',
+    path: __dirname + '/static',
   },
   plugins: [
     new webpack.NoErrorsPlugin(),
-    new webpack.optimize.CommonsChunkPlugin(/* chunkName= */"vendor", /* filename= */"vendor.bundle.js")
   ],
 
   resolve: {
-    extensions: ['', '.js', '.jsx']
+    extensions: ['', '.js', '.jsx'],
   },
 
   devServer: {
-    contentBase: './static'
-  }
-}
+    contentBase: './static',
+  },
+};

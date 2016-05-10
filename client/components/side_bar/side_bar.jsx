@@ -1,51 +1,51 @@
 import React from 'react';
 import {Link} from 'react-router';
-import dispatcher from '../../dispatcher/dispatcher'
-import ActionType from '../../stores/action_types'
-import tripsStore from '../../stores/trips_store'
-import tripActions from '../../actions/trip_actions'
+import dispatcher from '../../dispatcher/dispatcher';
+import ActionType from '../../stores/action_types';
+import store from '../../stores/store';
 
-import Region from '../region/region'
+import Region from '../region/region';
 
-import { DragDropContext } from 'react-dnd';
-import HTML5Backend from 'react-dnd/modules/backends/HTML5';
+import {DragDropContext} from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
 
 require('./side_bar.less');
 
+@DragDropContext(HTML5Backend)
 class SideBar extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    this.state = {activeLocation: null, activeRegion: null}
+    this.state = {activeLocation: null, activeRegion: null};
 
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
     this.onSelectRegion = this.onSelectRegion.bind(this);
-  }
-  onTripsStoreChange() {
-    this.updateState(this.props);
   }
   componentWillMount() {
     this.updateState(this.props);
   }
   componentDidMount() {
-    tripsStore.addChangeListener(this.onTripsStoreChange);
+    store.addChangeListener(this.onTripsStoreChange);
   }
   componentWillUnmount() {
-    tripsStore.removeChangeListener(this.onTripsStoreChange);
+    store.removeChangeListener(this.onTripsStoreChange);
   }
   updateState(props) {
-    if (!tripsStore.currentTrip) {
+    if (!store.currentTrip) {
       return;
     }
-    let nextRegion = tripsStore.currentTrip.getNextRegion();
-    let prevRegion = tripsStore.currentTrip.getPrevRegion();
+    let nextRegion = store.currentTrip.getNextRegion();
+    let prevRegion = store.currentTrip.getPrevRegion();
     this.setState({
-      activeLocation: tripsStore.currentTrip.getActiveLocation(),
-      activeRegion: tripsStore.currentTrip.getActiveRegion(),
-      activeTripId: tripsStore.activeTripId,
+      activeLocation: store.currentTrip.getActiveLocation(),
+      activeRegion: store.currentTrip.getActiveRegion(),
+      activeTripId: store.activeTripId,
       nextRegionName: nextRegion ? nextRegion.name : null,
-      prevRegionName: prevRegion ? prevRegion.name : null
+      prevRegionName: prevRegion ? prevRegion.name : null,
     });
+  }
+  onTripsStoreChange() {
+    this.updateState(this.props);
   }
   onAddRegion(e) {
     e.preventDefault();
@@ -88,13 +88,8 @@ class SideBar extends React.Component {
         </div>
         {regionElement}
       </div>
-    )
-
+    );
   }
 }
 
-SideBar.contextTypes = {
-  router: React.PropTypes.func.isRequired
-}
-SideBar = DragDropContext(HTML5Backend)(SideBar);
 export default SideBar;

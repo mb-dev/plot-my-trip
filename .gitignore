@@ -31,6 +31,11 @@ static/index.js.map
 static/vendor.bundle.js
 static/vendor.bundle.js.map
 static/icons
+static/*.woff2
+static/*.svg
+static/*.eot
+static/*.woff
+static/*.ttf
 static/images
 coverage
 
