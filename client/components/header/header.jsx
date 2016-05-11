@@ -48,21 +48,24 @@ export default class Header extends React.Component {
     });
 
     if (this.state.currentUser) {
-      userSection = <div className="navbar-text">
+      userSection = (<div className="navbar-text">
         <span>Welcome {this.state.currentUser.name}</span>
         &nbsp;
         (<Link to="/logout">Logout</Link>)
-      </div>;
+      </div>);
     } else {
-      userSection = <a className="btn" onClick={this.handleLogin}>
+      userSection = (<a className="btn" onClick={this.handleLogin}>
         <i className="fa fa-google"></i> Login using Google
-      </a>;
+      </a>);
     }
 
     const links = [
       {name: 'Home', link: '/', className: window.location.pathname.length <= 1 ? 'active' : ''},
-      {name: 'My Trips', link: '/trips', className: window.location.pathname.indexOf('/trips') >= 0 ? 'active' : ''},
     ];
+
+    if (this.state.currentUser) {
+      links.push({name: 'My Trips', link: '/trips', className: window.location.pathname.indexOf('/trips') >= 0 ? 'active' : ''});
+    }
 
     return (
       <nav className="navbar navbar-default">
