@@ -1,6 +1,7 @@
 const ActionType = {
   TRIPS: {
     CREATE_TRIP: 'CREATE_TRIP',
+    VIEW_TRIP: 'VIEW_TRIP',
   },
   LOCATIONS: {
     ADD_LOCATION: 'ADD_LOCATION',

@@ -37,6 +37,9 @@ class Actions {
       }
     });
   }
+  viewTrip(tripId, editMode) {
+    dispatcher.dispatch({actionType: ActionType.TRIPS.VIEW_TRIP, tripId: tripId, editMode: editMode});
+  }
   editLocation(locationId) {
     dispatcher.dispatch({actionType: ActionType.LOCATIONS.EDIT_LOCATION, locationId: locationId});
   }

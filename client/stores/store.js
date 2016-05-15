@@ -18,8 +18,10 @@ class TripsStore extends EventEmitter{
     this.saveSuccessfully = true;
     this.state = {
       activeRegionId: null,
-      editable: false,
       editingLocation: null,
+      viewTrip: {
+        editMode: false,
+      },
     };
   }
   emitChange() {
@@ -27,7 +29,7 @@ class TripsStore extends EventEmitter{
   }
   load() {
     apiClient.getTrips((data) => {
-      if(data.length > 0) {
+      if (data.length > 0) {
         data.forEach((tripData) => {
           let trip = new Trip(tripData);
           let tripId = trip.getTripId();
@@ -43,7 +45,7 @@ class TripsStore extends EventEmitter{
     this.saveSuccessfully = false;
     apiClient.updateTrips(this.currentTrip.data, (data) => {
       this.saveSuccessfully = true;
-      if(this.currentTrip.data._id === null && data.tripId) {
+      if (this.currentTrip.data._id === null && data.tripId) {
         let tripId = this.currentTrip.data._id = data.tripId;
         delete this.tripById['new'];
         this.tripById[tripId] = this.currentTrip;
@@ -58,11 +60,11 @@ class TripsStore extends EventEmitter{
     });
   }
   getTripsSummary() {
-    return this.trips.map(function(trip) {
+    return this.trips.map((trip) => {
       return {
         id: trip.getTripId(),
         name: trip.getTripName(),
-        regionsCount: trip.getRegionCount()
+        regionsCount: trip.getRegionCount(),
       };
     });
   }
@@ -73,7 +75,7 @@ class TripsStore extends EventEmitter{
     return this.tripById[id];
   }
   addTrip(trip) {
-    let tripId = trip.getTripId();
+    const tripId = trip.getTripId();
     this.tripById[tripId] = trip;
     this.trips.push(trip);
   }
@@ -120,6 +122,9 @@ class TripsStore extends EventEmitter{
         this.setActiveTrip(trip.getTripId());
         this.emitChange();
         break;
+      }
+      case ActionType.TRIPS.VIEW_TRIP: {
+        this.state.viewTrip.editMode = payload.editMode;
       }
       case ActionType.LOCATIONS.PLACE_CHANGED:
         this.currentTrip.setActivePlace(payload.googleData);

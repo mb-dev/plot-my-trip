@@ -1,7 +1,7 @@
 import React from 'react';
-import {Link} from 'react-router';
 
 import store from '../../stores/store';
+import actions from '../../actions/actions';
 
 import SideBar            from '../../components/side_bar/side_bar';
 import MapArea            from '../../components/map_area/map_area';
@@ -10,6 +10,10 @@ import EditLocationModal  from '../../components/edit_location_modal/edit_locati
 require('./edit_trip.less');
 
 export default class EditTrip extends React.Component {
+  static propTypes = {
+    location: React.PropTypes.object,
+    params: React.PropTypes.object,
+  }
   constructor(props, context) {
     super(props, context);
 
@@ -17,6 +21,8 @@ export default class EditTrip extends React.Component {
     this.state = {editingLocation: null};
   }
   componentWillMount() {
+    const editMode = this.query.location.query.view !== '1';
+    actions.viewTrip(this.props.params.tripId, editMode);
     this.setStoreState(this.props);
   }
   componentDidMount() {
@@ -33,6 +39,8 @@ export default class EditTrip extends React.Component {
   onTripsStoreChange() {
     this.setState({
       editingLocation: store.state.editingLocation,
+      trip: store.currentTrip,
+      editable: store.state.viewTrip.editMode,
     });
   }
   setStoreState(props) {
@@ -41,7 +49,7 @@ export default class EditTrip extends React.Component {
   render() {
     return (
       <div id="page-content" className="edit-trip">
-        <SideBar />
+        <SideBar trip={this.state.trip} editable={this.state.editable} />
         <MapArea />
         { this.state.editingLocation &&
           <EditLocationModal location={this.state.editingLocation} />
