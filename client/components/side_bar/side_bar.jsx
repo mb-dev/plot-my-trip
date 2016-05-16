@@ -13,6 +13,9 @@ require('./side_bar.less');
 
 @DragDropContext(HTML5Backend)
 class SideBar extends React.Component {
+  static propTypes = {
+    editable: React.PropTypes.bool,
+  }
   constructor(props, context) {
     super(props, context);
 
@@ -27,22 +30,11 @@ class SideBar extends React.Component {
   componentDidMount() {
     store.addChangeListener(this.onTripsStoreChange);
   }
+  componentWillReceiveProps(props) {
+    this.updateState(props);
+  }
   componentWillUnmount() {
     store.removeChangeListener(this.onTripsStoreChange);
-  }
-  updateState(props) {
-    if (!store.currentTrip) {
-      return;
-    }
-    let nextRegion = store.currentTrip.getNextRegion();
-    let prevRegion = store.currentTrip.getPrevRegion();
-    this.setState({
-      activeLocation: store.currentTrip.getActiveLocation(),
-      activeRegion: store.currentTrip.getActiveRegion(),
-      activeTripId: store.activeTripId,
-      nextRegionName: nextRegion ? nextRegion.name : null,
-      prevRegionName: prevRegion ? prevRegion.name : null,
-    });
   }
   onTripsStoreChange() {
     this.updateState(this.props);
@@ -57,36 +49,50 @@ class SideBar extends React.Component {
     dispatcher.dispatch({actionType: ActionType.REGIONS.SELECT_REGION, regionId: this.state.activeRegion.id});
     return false;
   }
+  updateState() {
+    if (!store.currentTrip) {
+      return;
+    }
+    const nextRegion = store.currentTrip.getNextRegion();
+    const prevRegion = store.currentTrip.getPrevRegion();
+    this.setState({
+      activeLocation: store.currentTrip.getActiveLocation(),
+      activeRegion: store.currentTrip.getActiveRegion(),
+      activeTripId: store.activeTripId,
+      nextRegionName: nextRegion ? nextRegion.name : null,
+      prevRegionName: prevRegion ? prevRegion.name : null,
+    });
+  }
   render() {
-    let regionRender = <Region region={this.state.activeRegion}></Region>;
-    let activeLocationName = this.state.activeLocation ? this.state.activeLocation.name : '';
-    let addActiveRegion = <a className="btn btn-primary" href="#" onClick={this.onAddRegion}>Add {activeLocationName} as Region</a>;
-    let noRegionAddPart = this.state.activeLocation ? addActiveRegion : "";
-    let noRegion = (
+    const regionRender = <Region region={this.state.activeRegion} editable={this.props.editable} />;
+    const activeLocationName = this.state.activeLocation ? this.state.activeLocation.name : '';
+    const addActiveRegion = <a className="btn btn-primary" href="#" onClick={this.onAddRegion}>Add {activeLocationName} as Region</a>;
+    const noRegionAddPart = this.state.activeLocation ? addActiveRegion : '';
+    const noRegion = (
       <div className="selectRegion">
         <div>Please select a region.</div>
         {noRegionAddPart}
       </div>
     );
 
-    let regionElement = this.state.activeRegion ? regionRender : noRegion;
-    let activeRegionName = this.state.activeRegion ? this.state.activeRegion.name : '';
-    let activeRegionElement = <div onClick={this.onSelectRegion} className="active-region-name">{activeRegionName}</div>;
+    const activeRegionName = this.state.activeRegion ? this.state.activeRegion.name : '';
 
     return (
       <div id="side-bar">
         <div className="top clearfix">
           { this.state.prevRegionName ?
-            <Link to="edit" params={{tripId: this.state.activeTripId, regionName: this.state.prevRegionName}} className="prev-region">Prev City</Link>
+            <Link to={`/trip/${this.state.activeTripId}/${this.state.prevRegionName}`} className="prev-region">Prev City</Link>
             :
             <div className="prev-link-placeholder"></div>
           }
-          {this.state.activeRegion && activeRegionElement}
+          { this.state.activeRegion &&
+            <div onClick={this.onSelectRegion} className="active-region-name">{activeRegionName}</div>
+          }
           { this.state.nextRegionName &&
-            <Link to="edit" params={{tripId: this.state.activeTripId, regionName: this.state.nextRegionName}} className="next-region">Next City</Link>
+            <Link to={`/trip/${this.state.activeTripId}/${this.state.nextRegionName}`} className="next-region">Next City</Link>
           }
         </div>
-        {regionElement}
+        { this.state.activeRegion ? regionRender : noRegion }
       </div>
     );
   }

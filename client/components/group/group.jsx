@@ -43,11 +43,20 @@ export default class Group extends React.Component {
     isOver: React.PropTypes.bool.isRequired,
     canDrop: React.PropTypes.bool.isRequired,
     connectDropTarget: React.PropTypes.func.isRequired,
+    editable: React.PropTypes.bool,
   };
   constructor(props) {
     super(props);
     this.state = {groupMembers: [], selectedGroup: null, groupColor: null};
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
+  }
+  componentDidMount() {
+    store.addChangeListener(this.onTripsStoreChange);
+    // Not sure why this line is needed
+    this.onTripsStoreChange();
+  }
+  componentWillUnmount() {
+    store.removeChangeListener(this.onTripsStoreChange);
   }
   onTripsStoreChange() {
     if (!store.currentTrip) {
@@ -59,21 +68,13 @@ export default class Group extends React.Component {
     } else {
       members = store.currentTrip.getUnassignedLocations();
     }
-    let activeGroup = store.currentTrip.getActiveGroup();
-    let groupColor = store.currentTrip.getColorOfGroup(this.props.group.id);
+    const activeGroup = store.currentTrip.getActiveGroup();
+    const groupColor = store.currentTrip.getColorOfGroup(this.props.group.id);
     this.setState({
       groupMembers: members,
       activeGroup: activeGroup,
-      groupColor: groupColor.color
+      groupColor: groupColor.color,
     });
-  }
-  componentDidMount() {
-    store.addChangeListener(this.onTripsStoreChange);
-    // Not sure why this line is needed
-    this.onTripsStoreChange();
-  }
-  componentWillUnmount() {
-    store.removeChangeListener(this.onTripsStoreChange);
   }
   render() {
     const {canDrop, isOver, connectDropTarget} = this.props;
@@ -85,20 +86,20 @@ export default class Group extends React.Component {
     });
 
     let groupMembers = this.state.groupMembers.map((location) => (
-      <GroupMember key={location.id} location={location} />
+      <GroupMember key={location.id} location={location} editable={this.props.editable} />
     ));
 
     let groupColorStyle = {backgroundColor: this.state.groupColor};
 
     return connectDropTarget(
       <div className={groupClassName}>
-        { this.props.group.id &&
+        { this.props.editable && this.props.group.id &&
           <div className="group-controls">
             <a>Delete Day</a>
           </div>
         }
         <div>
-          <div className="group-color" style={groupColorStyle}/>
+          <div className="group-color" style={groupColorStyle} />
           <h4>{this.props.group.name}</h4>
         </div>
         { this.state.groupMembers.length === 0 &&

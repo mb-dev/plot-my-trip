@@ -21,8 +21,6 @@ export default class EditTrip extends React.Component {
     this.state = {editingLocation: null};
   }
   componentWillMount() {
-    const editMode = this.query.location.query.view !== '1';
-    actions.viewTrip(this.props.params.tripId, editMode);
     this.setStoreState(this.props);
   }
   componentDidMount() {
@@ -40,17 +38,18 @@ export default class EditTrip extends React.Component {
     this.setState({
       editingLocation: store.state.editingLocation,
       trip: store.currentTrip,
-      editable: store.state.viewTrip.editMode,
+      editable: store.state.viewTrip.editable,
     });
   }
   setStoreState(props) {
-    store.setActiveTrip(props.params.tripId, props.params.regionName);
+    const editable = props.location.query.view !== '1';
+    actions.viewTrip(props.params.tripId, props.params.regionName, editable);
   }
   render() {
     return (
       <div id="page-content" className="edit-trip">
         <SideBar trip={this.state.trip} editable={this.state.editable} />
-        <MapArea />
+        <MapArea editable={this.state.editable} />
         { this.state.editingLocation &&
           <EditLocationModal location={this.state.editingLocation} />
         }

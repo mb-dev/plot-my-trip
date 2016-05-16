@@ -20,7 +20,7 @@ class TripsStore extends EventEmitter{
       activeRegionId: null,
       editingLocation: null,
       viewTrip: {
-        editMode: false,
+        editable: false,
       },
     };
   }
@@ -92,15 +92,7 @@ class TripsStore extends EventEmitter{
     }
   }
   setActiveTrip(id, regionId, regionName) {
-    this.activeTripId = id;
-    this.activeRegionName = regionName;
-    this.currentTrip = this.getTripById(id);
-    this.state.activeRegionId = regionId;
-    if (this.currentTrip) {
-      this.applyState();
-      this.emitChange();
-    }
-  }
+      }
   addChangeListener(callback) {
     this.on(CHANGE_EVENT, callback);
   }
@@ -124,7 +116,16 @@ class TripsStore extends EventEmitter{
         break;
       }
       case ActionType.TRIPS.VIEW_TRIP: {
-        this.state.viewTrip.editMode = payload.editMode;
+        this.state.viewTrip.editable = payload.editable;
+        this.activeTripId = payload.tripId;
+        this.activeRegionName = payload.regionName;
+        this.currentTrip = this.getTripById(payload.tripId);
+        if (this.currentTrip) {
+          this.state.activeRegionId = this.currentTrip.getGroupByName(payload.regionName);
+          this.applyState();
+          this.emitChange();
+        }
+        break;
       }
       case ActionType.LOCATIONS.PLACE_CHANGED:
         this.currentTrip.setActivePlace(payload.googleData);
@@ -196,7 +197,7 @@ class TripsStore extends EventEmitter{
         this.emitChange();
         break;
       case ActionType.REGIONS.ADD_REGION: {
-        let region = this.currentTrip.addActivePlaceAsRegion();
+        const region = this.currentTrip.addActivePlaceAsRegion();
         this.currentTrip.setActiveRegion(region);
         this.state.activeRegionId = payload.regionId;
         this.emitChange();

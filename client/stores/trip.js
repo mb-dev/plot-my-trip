@@ -101,6 +101,9 @@ export default class Trip {
   getGroupById(groupId) {
     return _.find(this.data.groups, {id: groupId});
   }
+  getGroupByName(name) {
+    return _.find(this.data.groups, {name: name});
+  }
   getActiveGroup() {
     return this.activeGroup;
   }

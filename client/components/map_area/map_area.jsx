@@ -20,6 +20,9 @@ function locationToMapLocation(location) {
 }
 
 export default class MapArea extends React.Component {
+  static propTypes = {
+    editable: React.PropTypes.bool,
+  }
   constructor(props) {
     super(props);
     this.state = {locations: [], activeLocation: null, activeRegion: null};
@@ -33,8 +36,8 @@ export default class MapArea extends React.Component {
   componentDidMount() {
     googleMapsService.createMap(this.refs.mapCanvas);
     googleMapsService.createAutoComplete(this.refs.autoComplete);
-    googleMapsService.addHandler('onPlaceChanged', function(place) {
-      let googleData = converter.placeToLocation(place);
+    googleMapsService.addHandler('onPlaceChanged', (place) => {
+      const googleData = converter.placeToLocation(place);
       dispatcher.dispatch({actionType: ActionType.LOCATIONS.PLACE_CHANGED, googleData: googleData});
     });
     store.addChangeListener(this.onTripsStoreChange);
@@ -49,22 +52,28 @@ export default class MapArea extends React.Component {
   onAddToScrape() {
     dispatcher.dispatch({actionType: ActionType.LOCATIONS.ADD_LOCATION, regionId: this.state.activeRegion.id});
   }
+  onTripsStoreChange() {
+    this.updateState(this.props);
+  }
+  onSubmit(e) {
+    e.preventDefault();
+  }
   updateState(props) {
     if (!store.currentTrip) {
       return;
     }
-    let activeGroup = store.currentTrip.getActiveGroup();
-    let focusLocationId = store.currentTrip.getFocusLocation();
-    let locations = [];
-    let mapState = {
+    const activeGroup = store.currentTrip.getActiveGroup();
+    const focusLocationId = store.currentTrip.getFocusLocation();
+    const locations = [];
+    const mapState = {
       activeRegion: store.currentTrip.getActiveRegion(),
       activeLocation: store.currentTrip.getActiveLocation(),
     };
 
     if (!mapState.activeLocation) {
-      let groupNameNode = this.refs.autoComplete;
+      const groupNameNode = this.refs.autoComplete;
       if (groupNameNode) {
-        groupNameNode.value = "";
+        groupNameNode.value = '';
       }
     }
 
@@ -77,8 +86,8 @@ export default class MapArea extends React.Component {
         mapState.displayStyle = 'locations';
       }
 
-      mapState.locations.forEach(function(location) {
-        if (location.id == focusLocationId) {
+      mapState.locations.forEach((location) => {
+        if (location.id === focusLocationId) {
           location.focused = true;
         }
       });
@@ -91,32 +100,25 @@ export default class MapArea extends React.Component {
       activeLocation: mapState.activeLocation,
       activeRegion: mapState.activeRegion,
       activeGroup: activeGroup,
-      focusLocationId: focusLocationId
+      focusLocationId: focusLocationId,
     });
   }
-  onTripsStoreChange() {
-    this.updateState(this.props);
-  }
-  onSubmit(e) {
-    return false;
-  }
   render() {
-    let currentDay = {number: 1};
-    let addAsRegionBtn = <button onClick={this.onAddRegion} className="btn btn-default">Add Another City</button>
-    let addToScrapeBook = <button onClick={this.onAddToScrape} className="btn btn-default">Add to Scrape Book</button>
+    const addAsRegionBtn = <button onClick={this.onAddRegion} className="btn btn-default">Add Another City</button>;
+    const addToScrapeBook = <button onClick={this.onAddToScrape} className="btn btn-default">Add to Scrape Book</button>;
 
     return (
       <div id="map-area">
         <form className="form-inline" onSubmit={this.onSubmit}>
           <div className="form-group">
             <label> Search: &nbsp;</label>
-            <input className="form-control" id="autocomplete" ref="autoComplete" type="text"/>
+            <input className="form-control" id="autocomplete" ref="autoComplete" type="text" />
           </div>
           <button className="btn btn-primary" type="primary" onClick={this.onSearch}>
             <i className="fa fa-search"></i>
           </button>
-          {this.state.activeLocation && addAsRegionBtn}
-          {this.state.activeLocation && addToScrapeBook}
+          {this.props.editable && this.state.activeLocation && addAsRegionBtn}
+          {this.props.editable && this.state.activeLocation && addToScrapeBook}
         </form>
         <div id="map-canvas" ref="mapCanvas"></div>
       </div>

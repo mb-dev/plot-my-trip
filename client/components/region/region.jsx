@@ -10,6 +10,7 @@ require('./region.less');
 export default class Region extends React.Component {
   static propTypes = {
     region: React.PropTypes.object,
+    editable: React.PropTypes.bool,
   };
   constructor(props) {
     super(props);
@@ -44,16 +45,18 @@ export default class Region extends React.Component {
   }
   render() {
     let groupNodes = this.state.groups.map((group) => (
-      <Group key={group.id} group={group} region={this.props.region} />
+      <Group key={group.id} group={group} region={this.props.region} editable={this.props.editable} />
     ));
     const scrapeGroup = {id: null, name: 'Scrape Book'};
     return (
       <div id="region">
-        <a href="#" onClick={this.onAddDay}><i className="fa fa-plus"></i> Add Day</a>
+        { this.props.editable &&
+          <a href="#" onClick={this.onAddDay}><i className="fa fa-plus"></i> Add Day</a>
+        }
         <div className="group-nodes">
           {groupNodes}
         </div>
-        <Group group={scrapeGroup} region={this.props.region} />
+        <Group group={scrapeGroup} region={this.props.region} editable={this.props.editable} />
       </div>
     );
   }
