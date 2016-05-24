@@ -1,14 +1,12 @@
 import React from 'react';
-import {Link} from 'react-router'
-
-import userActions from '../../actions/user_actions'
+import actions from '../../actions/actions';
 
 export default class GoogleCallback extends React.Component {
   componentDidMount() {
-    let {state, code} = this.props.query;
+    const {state, code} = this.props.location.query;
 
-    if(state && code) {
-      userActions.login(state, code, this.context.router);
+    if (state && code) {
+      actions.login(state, code);
     }
   }
   render() {
@@ -16,7 +14,7 @@ export default class GoogleCallback extends React.Component {
       <div id="page-content">
         Logging in...
       </div>
-    )
+    );
   }
 }
 

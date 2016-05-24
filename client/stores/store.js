@@ -16,6 +16,11 @@ class TripsStore extends EventEmitter{
     this.activeTripId = null;
     this.activeRegionName = null;
     this.saveSuccessfully = true;
+    this.state = {
+      activeRegionId: null,
+      editable: false,
+      editingLocation: null,
+    };
   }
   emitChange() {
     this.emit(CHANGE_EVENT);
@@ -84,10 +89,11 @@ class TripsStore extends EventEmitter{
       }
     }
   }
-  setActiveTrip(id, regionName) {
+  setActiveTrip(id, regionId, regionName) {
     this.activeTripId = id;
     this.activeRegionName = regionName;
     this.currentTrip = this.getTripById(id);
+    this.state.activeRegionId = regionId;
     if (this.currentTrip) {
       this.applyState();
       this.emitChange();
@@ -101,11 +107,11 @@ class TripsStore extends EventEmitter{
   }
   handleDispatch(payload) {
     switch (payload.actionType) {
-      case ActionType.TRIPS.CREATE_TRIP:
-        let trip = new Trip();
-        trip.setTripName('Trip to ' + payload.initialPlace.name)
+      case ActionType.TRIPS.CREATE_TRIP: {
+        const trip = new Trip();
+        trip.setTripName('Trip to ' + payload.initialPlace.name);
         trip.setActivePlace(payload.initialPlace);
-        let region2 = trip.addActivePlaceAsRegion();
+        const region2 = trip.addActivePlaceAsRegion();
         trip.setActiveRegion(region2);
         trip.addGroup(region2.id, 'Day 1');
         trip.addGroup(region2.id, 'Day 2');
@@ -114,6 +120,7 @@ class TripsStore extends EventEmitter{
         this.setActiveTrip(trip.getTripId());
         this.emitChange();
         break;
+      }
       case ActionType.LOCATIONS.PLACE_CHANGED:
         this.currentTrip.setActivePlace(payload.googleData);
         this.emitChange();
@@ -122,15 +129,25 @@ class TripsStore extends EventEmitter{
         this.currentTrip.setFocusLocation(payload.locationId);
         this.emitChange();
         break;
-      case ActionType.LOCATIONS.ADD_LOCATION:
-        let location = this.currentTrip.addActivePlaceToTrip();
+      case ActionType.LOCATIONS.ADD_LOCATION: {
+        const location = this.currentTrip.addActivePlaceToTrip();
         if (payload.regionId) {
           this.currentTrip.addLocationToRegion(payload.regionId, location.id);
         }
         this.emitChange();
         break;
+      }
       case ActionType.LOCATIONS.EDIT_LOCATION:
+        this.state.editingLocation = this.currentTrip.getLocationById(payload.locationId);
+        this.emitChange();
+        break;
+      case ActionType.LOCATIONS.EDIT_LOCATION_OK:
         this.currentTrip.editLocation(payload.locationId, payload.newData);
+        this.state.editingLocation = null;
+        this.emitChange();
+        break;
+      case ActionType.LOCATIONS.EDIT_LOCATION_CLOSED:
+        this.state.editingLocation = null;
         this.emitChange();
         break;
       case ActionType.LOCATIONS.DELETE_LOCATION:
@@ -145,12 +162,17 @@ class TripsStore extends EventEmitter{
         this.currentTrip.moveLocationDown(payload.locationId);
         this.emitChange();
         break;
-      case ActionType.GROUPS.ADD_GROUP:
-        let amountOfGroups = this.currentTrip.getGroupsInRegion(payload.regionId).length;
+      case ActionType.LOCATIONS.UNASSIGN_LOCATION:
+        this.currentTrip.unassignLocation(payload.locationId, payload.regionId);
+        this.emitChange();
+        break;
+      case ActionType.GROUPS.ADD_GROUP: {
+        const amountOfGroups = this.currentTrip.getGroupsInRegion(payload.regionId).length;
         this.currentTrip.addGroup(payload.regionId, 'Day ' + (amountOfGroups + 1));
         this.currentTrip.assignColorByGroup();
         this.emitChange();
         break;
+      }
       case ActionType.GROUPS.DELETE_GROUP:
         this.currentTrip.addGroup(payload.groupId);
         this.emitChange();
@@ -165,22 +187,27 @@ class TripsStore extends EventEmitter{
         break;
       case ActionType.REGIONS.SELECT_REGION:
         this.currentTrip.setActiveRegion(payload.regionId);
+        this.state.activeRegionId = payload.regionId;
         this.emitChange();
         break;
-      case ActionType.REGIONS.ADD_REGION:
+      case ActionType.REGIONS.ADD_REGION: {
         let region = this.currentTrip.addActivePlaceAsRegion();
         this.currentTrip.setActiveRegion(region);
+        this.state.activeRegionId = payload.regionId;
         this.emitChange();
         break;
+      }
       case ActionType.REGIONS.DELETE_REGION:
         this.currentTrip.deleteRegion();
         this.emitChange();
         break;
+      default:
+        console.log('Invalid action: ', payload.actionType);
     }
   }
 }
 
-var store = new TripsStore();
+const store = new TripsStore();
 dispatcher.register(store.handleDispatch.bind(store));
 
 export default store;

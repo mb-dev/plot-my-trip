@@ -12,7 +12,7 @@ func GetAuthUrlImpl() (string, error) {
 	if googleOauthConfig == nil {
 		return "", errors.New("google auth not intialized")
 	}
-	url := googleOauthConfig.AuthCodeURL("state", oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	url := googleOauthConfig.AuthCodeURL("state")
 	return url, nil
 }
 

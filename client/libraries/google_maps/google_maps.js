@@ -1,4 +1,4 @@
-import config from '../../config/config'
+import config from '../../config/config';
 
 function placeToPoint(place) {
   return {lat: place.geometry.location.lat(), lng: place.geometry.location.lng()};
@@ -13,7 +13,7 @@ export default class GoogleMapsService {
   createMap(mapDomNode) {
     var mapOptions = {
       center: { lat: -34.397, lng: 150.644},
-      zoom: 8
+      zoom: 8,
     };
     if (window.google) {
       this.map = new google.maps.Map(mapDomNode, mapOptions);
@@ -77,12 +77,6 @@ export default class GoogleMapsService {
         this.setCenterAndBounds(state.activeRegion.googleData.position, state.activeRegion.googleData.viewport);
       }
 
-      if (state.locations) {
-        if (state.displayStyle == 'locations') {
-          this.displayLocations(state.locations);
-        }
-      }
-
       this.currentState = state;
     }
   }
@@ -107,44 +101,7 @@ export default class GoogleMapsService {
     this.handlers = [];
   }
   locationToHashKey(location) {
-    return location.id.toString() + '-' + location.color + '-' + location.index.toString() + '-' + location.focused;
-  }
-  displayLocations(locations) {
-    let indexByGroup = {};
-    if (window.google) {
-      this.directionsDisplay.setMap(null);
-      let existingLocationIds = Object.keys(this.markers);
-      locations.forEach(function(location, index) {
-        indexByGroup[location.group] = indexByGroup[location.group] || 0;
-        indexByGroup[location.group] = location.index = indexByGroup[location.group] + 1;
-      });
-      let newLocationIds = locations.map(location => location.id.toString());
-      let markersToRemove = _.difference(existingLocationIds, newLocationIds);
-      for (let locationId of markersToRemove) {
-        this.markers[locationId].marker.setMap(null);
-        delete this.markers[locationId];
-      }
-      for (let location of locations) {
-        let locationKey = this.locationToHashKey(location);
-        let markerData = this.markers[location.id];
-        if (!markerData) {
-          markerData = this.markers[location.id] = {marker: new google.maps.Marker(), key: null};
-        }
-        let marker = markerData.marker;
-        if (markerData.key != locationKey) {
-          marker.setPosition(location.position);
-          marker.setMap(this.map);
-          if (location.focused) {
-            let image = new google.maps.MarkerImage(config.iconServer + 'icons/' + SELECTED_COLOR + '-number-' + location.index + '.png');
-            marker.setIcon(image);
-          } else {
-            let image = new google.maps.MarkerImage(config.iconServer + 'icons/' + location.color + '-number-' + location.index + '.png');
-            marker.setIcon(image);
-          }
-          markerData.key = locationKey;
-        }
-      }
-    }
+    return location.id.toString() + '-' + location.color.file + '-' + location.index.toString() + '-' + location.focused;
   }
   markerUrl() {
 

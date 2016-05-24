@@ -1,23 +1,30 @@
-import _ from 'lodash'
+import _ from 'lodash';
 
 // white (#FFFFFF) - no group, gray (#6E6E6E)- focus
 const COLORS = [
-  'red',    // #FF0000
-  'blue',   // #0080FF
-  'purple', // #8000FF
-  'yellow', // #FFFF00
-  'green'   // #04B404
+  {file: 'red', color: '#FF0000'},
+  {file: 'blue', color: '#0080FF'},
+  {file: 'purple', color: '#8000FF'},
+  {file: 'yellow', color: '#FFFF00'},
+  {file: 'green', color: '#04B404'},
+  {file: 'brown', color: '#784600'},
+  {file: 'pink', color: '#ffb8c2'},
+  {file: 'dark-red', color: '#b31e3e'},
+  {file: 'shiny-yellow', color: '#e5ff00'},
+  {file: 'light-green', color: '#b4eeb4'},
 ];
+
+const WHITE_COLOR = {file: 'white', color: 'white'};
 
 export default class Trip {
   constructor(tripData) {
     this.reset();
-    if(tripData) {
+    if (tripData) {
       this.data = tripData;
     }
   }
   getNextId() {
-    let current = this.data.nextId;
+    const current = this.data.nextId;
     this.data.nextId += 1;
     return current;
   }
@@ -52,27 +59,27 @@ export default class Trip {
   }
   addActivePlaceToTrip() {
     if (!this.activePlace) {
-      return;
+      return null;
     }
-    let location = {
+    const location = {
       id: this.getNextId(),
       name: this.activePlace.name,
       type: this.activePlace.types[0],
-      googleData: this.activePlace
+      googleData: this.activePlace,
     };
     this.data.locations.push(location);
     this.activePlace = null;
     return location;
   }
   editLocation(locationId, newData) {
-    let location = this.getLocationById(locationId);
+    const location = this.getLocationById(locationId);
     location.name = newData.name;
     location.comments = newData.comments;
   }
   deleteLocation(locationId) {
     _.remove(this.data.locations, location => location.id === locationId);
-    this.data.groups.forEach(group => _.remove(group.locations,  (groupLocation) => groupLocation === locationId ));
-    this.data.regions.forEach(region => _.remove(region.scrapeLocations, (regionLocation) => regionLocation === locationId ));
+    this.data.groups.forEach(group => _.remove(group.locations, (groupLocation) => groupLocation === locationId));
+    this.data.regions.forEach(region => _.remove(region.scrapeLocations, (regionLocation) => regionLocation === locationId));
   }
   getLocationById(locationId) {
     return _.find(this.data.locations, {id: locationId});
@@ -81,7 +88,7 @@ export default class Trip {
     return this.data.locations;
   }
   getUnassignedLocations() {
-    return _.filter(this.data.locations, location => !location.groupId )
+    return _.filter(this.data.locations, location => !location.groupId);
   }
 
   // groups
@@ -89,7 +96,7 @@ export default class Trip {
     return this.data.groups;
   }
   getGroupsInRegion(regionId) {
-    return _.filter(this.data.groups, group => group.regionId === regionId )
+    return _.filter(this.data.groups, group => group.regionId === regionId);
   }
   getGroupById(groupId) {
     return _.find(this.data.groups, {id: groupId});
@@ -98,14 +105,14 @@ export default class Trip {
     return this.activeGroup;
   }
   addGroup(regionId, groupName) {
-    let group = {
+    const group = {
       id: this.getNextId(),
       name: groupName,
       regionId: regionId,
-      locations: []
+      locations: [],
     };
     this.data.groups.push(group);
-    let region = this.getRegionById(regionId);
+    const region = this.getRegionById(regionId);
     region.groups.push(group.id);
     return group;
   }
@@ -133,7 +140,6 @@ export default class Trip {
   addLocationToGroup(groupId, locationId) {
     let location = this.getLocationById(locationId);
     let group = this.getGroupById(groupId);
-    let region = this.getRegionById(group.regionId)
     if (location.groupId === groupId) {
       return;
     }
@@ -142,6 +148,7 @@ export default class Trip {
     }
     location.groupId = groupId;
     group.locations = _.union(group.locations, [locationId]);
+    let region = this.getRegionById(group.regionId)
     this.removeLocationFromRegion(region, location);
   }
   removeLocationFromGroup(groupId, locationId) {
@@ -149,6 +156,16 @@ export default class Trip {
     let group = this.getGroupById(groupId);
     location.groupId = null;
     group.locations = _.without(group.locations, locationId);
+  }
+  unassignLocation(locationId, regionId) {
+    let location = this.getLocationById(locationId);
+    if (!location.groupId) {
+      return;
+    }
+    if (location.groupId) {
+      this.removeLocationFromGroup(location.groupId, locationId);
+    }
+    this.addLocationToRegion(regionId, locationId);
   }
   moveLocationUp(locationId) {
     let location = this.getLocationById(locationId);
@@ -203,7 +220,7 @@ export default class Trip {
       name: this.activePlace.name,
       groups: [],
       scrapeLocations: [],
-      googleData: this.activePlace
+      googleData: this.activePlace,
     };
     this.data.regions.push(region);
     return region;
@@ -218,7 +235,7 @@ export default class Trip {
   }
   removeLocationFromRegion(regionId, locationId) {
     let region = _.isNumber(regionId) ? this.getRegionById(regionId) : regionId;
-    let location = _.isNumber(locationId) ? this.getLocationById(regionId) : locationId;
+    let location = _.isNumber(locationId) ? this.getLocationById(locationId) : locationId;
     region.scrapeLocations = _.without(region.scrapeLocations, location.id);
   }
   getRegionScrapLocations(regionId) {
@@ -230,7 +247,12 @@ export default class Trip {
     let groupsInRegion = _.indexBy(this.getGroupsInRegion(regionId), 'id');
     let scrapeLocationIds = _.object(region.scrapeLocations, _.identity);
 
-    return _.filter(this.data.locations, location => groupsInRegion[location.groupId] || _.has(scrapeLocationIds, location.id) );
+    let locations = [];
+    for (let key in groupsInRegion) {
+      locations = locations.concat(this.getGroupMembers(groupsInRegion[key].id));
+    }
+    locations = locations.concat(this.getRegionScrapLocations(regionId));
+    return locations;
   }
   getPrevRegion() {
     if (this.data.regions.length <= 1) {
@@ -265,6 +287,6 @@ export default class Trip {
     if (groupId) {
       return this.colorByGroup[groupId];
     }
-    return 'white';
+    return WHITE_COLOR;
   }
 }

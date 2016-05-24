@@ -1,8 +1,0 @@
-HTTP/1.1 401 Unauthorized
-Access-Control-Allow-Credentials: true
-Access-Control-Allow-Origin: http://www.plot-my-trip.local.com:8080
-Content-Type: text/plain; charset=utf-8
-Vary: Origin
-Date: Thu, 20 Aug 2015 00:00:48 GMT
-Content-Length: 28
-
