@@ -77,13 +77,13 @@ class SideBar extends React.Component {
       <div id="side-bar">
         <div className="top clearfix">
           { this.state.prevRegionName ?
-            <Link to="edit" params={{tripId: this.state.activeTripId, regionName: this.state.prevRegionName}} className="prev-region">Prev City</Link>
+            <Link to={`/trip/${this.state.activeTripId}/${this.state.prevRegionName}`} className="prev-region">Prev City</Link>
             :
             <div className="prev-link-placeholder"></div>
           }
           {this.state.activeRegion && activeRegionElement}
           { this.state.nextRegionName &&
-            <Link to="edit" params={{tripId: this.state.activeTripId, regionName: this.state.nextRegionName}} className="next-region">Next City</Link>
+            <Link to={`/trip/${this.state.activeTripId}/${this.state.nextRegionName}`} className="next-region">Next City</Link>
           }
         </div>
         {regionElement}
