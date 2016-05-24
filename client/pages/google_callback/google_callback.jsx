@@ -3,7 +3,7 @@ import {Link} from 'react-router'
 
 import userActions from '../../actions/user_actions'
 
-export default class Logout extends React.Component {
+export default class GoogleCallback extends React.Component {
   componentDidMount() {
     let {state, code} = this.props.query;
 
@@ -20,6 +20,6 @@ export default class Logout extends React.Component {
   }
 }
 
-Logout.contextTypes = {
+GoogleCallback.contextTypes = {
   router: React.PropTypes.func.isRequired
 }
