@@ -220,7 +220,7 @@ export default class Trip {
       name: this.activePlace.name,
       groups: [],
       scrapeLocations: [],
-      googleData: this.activePlace
+      googleData: this.activePlace,
     };
     this.data.regions.push(region);
     return region;
@@ -247,7 +247,12 @@ export default class Trip {
     let groupsInRegion = _.indexBy(this.getGroupsInRegion(regionId), 'id');
     let scrapeLocationIds = _.object(region.scrapeLocations, _.identity);
 
-    return _.filter(this.data.locations, location => groupsInRegion[location.groupId] || _.has(scrapeLocationIds, location.id) );
+    let locations = [];
+    for (let key in groupsInRegion) {
+      locations = locations.concat(this.getGroupMembers(groupsInRegion[key].id));
+    }
+    locations = locations.concat(this.getRegionScrapLocations(regionId));
+    return locations;
   }
   getPrevRegion() {
     if (this.data.regions.length <= 1) {

@@ -75,6 +75,9 @@ export default class MapArea extends React.Component {
       if (location.id === focusLocationId) {
         location.focused = true;
       }
+      if (!location.group) {
+        location.group = 'none';
+      }
       indexByGroup[location.group] = indexByGroup[location.group] || 0;
       indexByGroup[location.group] = location.index = indexByGroup[location.group] + 1;
       location.key = locationKey(location);
