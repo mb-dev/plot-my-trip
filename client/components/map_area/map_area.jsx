@@ -95,6 +95,7 @@ export default class MapArea extends React.Component {
 
     googleMapsService.setState({
       activeRegion: activeRegion,
+      activeLocation: activeLocation,
     });
 
     this.setState({

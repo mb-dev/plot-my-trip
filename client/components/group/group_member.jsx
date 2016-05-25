@@ -114,12 +114,16 @@ export default class GroupMember extends React.Component {
   }
   render() {
     const {isDragging, connectDragSource, connectDropTarget} = this.props;
+    const googleData = this.props.location.googleData;
     const component = (
       <li className="group-member" style={{opacity: isDragging ? 0.5 : 1}} onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave}>
         <div>
           <span>{this.props.location.name}</span>
           {this.props.editable &&
             <span className="controls">
+              <a target="_blank" href={`https://www.google.com/maps/place/${googleData.name}, ${googleData.city}/${googleData.position.lat},${googleData.position.lng}`}>
+                <i className="fa fa-crosshairs" />
+              </a>
               <a onClick={this.onEditLocation}><i className="fa fa-pencil"></i></a>
               <a onClick={this.moveLocationUp}><i className="fa fa-caret-up"></i></a>
               <a onClick={this.moveLocationDown}><i className="fa fa-caret-down"></i></a>
