@@ -1,7 +1,7 @@
 import React from 'react';
 import actions from '../../actions/actions';
 
-export default class Logout extends React.Component {
+export default class GoogleCallback extends React.Component {
   componentDidMount() {
     const {state, code} = this.props.location.query;
 
@@ -16,4 +16,8 @@ export default class Logout extends React.Component {
       </div>
     );
   }
+}
+
+GoogleCallback.contextTypes = {
+  router: React.PropTypes.func.isRequired
 }
