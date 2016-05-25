@@ -16,68 +16,19 @@ const groupSource = {
 };
 
 const groupTarget = {
-  hover(props, monitor, component) {
+  drop(props, monitor) {
     const dragIndex = monitor.getItem().index;
     const dragGroup = monitor.getItem().groupId;
     const hoverIndex = props.index;
 
-    // Don't replace items with themselves
-    if (dragIndex === hoverIndex) {
-      return;
-    }
-
-    if (dragGroup !== props.location.groupId) {
-      return;
-    }
-
-    if (!props.location.groupId || props.location.groupId == 'none') {
-      return;
-    }
-
-    // Determine rectangle on screen
-    const hoverBoundingRect = ReactDOM.findDOMNode(component).getBoundingClientRect();
-
-    // Get vertical middle
-    const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-
-    // Determine mouse position
-    const clientOffset = monitor.getClientOffset();
-
-    // Get pixels to the top
-    const hoverClientY = clientOffset.y - hoverBoundingRect.top;
-
-    // Only perform the move when the mouse has crossed half of the items height
-    // When dragging downwards, only move when the cursor is below 50%
-    // When dragging upwards, only move when the cursor is above 50%
-
-    // Dragging downwards
-    if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
-      return;
-    }
-
-    // Dragging upwards
-    if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
-      return;
-    }
-
-    // Time to actually perform the action
-    component.moveLocationTo(dragIndex, hoverIndex);
-
-    // Note: we're mutating the monitor item here!
-    // Generally it's better to avoid mutations,
-    // but it's good here for the sake of performance
-    // to avoid expensive index searches.
-    monitor.getItem().index = hoverIndex;
-  },
-  drop(props, monitor) {
-    const dragGroup = monitor.getItem().groupId;
-
     if (dragGroup !== props.location.groupId) {
       if (props.location.groupId && props.location.groupId !== 'none') {
-        actions.addPlaceToGroup(props.location.groupId, monitor.getItem().id, props.index);
+        actions.addPlaceToGroup(props.location.groupId, monitor.getItem().id, hoverIndex);
       } else {
         actions.unassignLocation(props.group.regionId, monitor.getItem().id);
       }
+    } else {
+      actions.moveLocationTo(props.location.id, dragIndex, hoverIndex);
     }
   },
 };
@@ -128,9 +79,6 @@ export default class GroupMember extends React.Component {
   }
   moveLocationDown() {
     actions.moveLocationDown(this.props.location.id);
-  }
-  moveLocationTo(index, toIndex) {
-    actions.moveLocationTo(this.props.location.id, index, toIndex);
   }
   render() {
     const {isDragging, connectDragSource, connectDropTarget} = this.props;

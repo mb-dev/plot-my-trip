@@ -21,6 +21,11 @@ export default class Trip {
     this.reset();
     if (tripData) {
       this.data = tripData;
+      for (let location of this.data.locations) {
+        if (!location.groupId) {
+          location.groupId = null;
+        }
+      }
     }
   }
   getNextId() {
@@ -88,7 +93,10 @@ export default class Trip {
     return this.data.locations;
   }
   getUnassignedLocations() {
-    return _.filter(this.data.locations, location => !location.groupId);
+    const region = this.getActiveRegion();
+    const locations = _.filter(this.data.locations, (location) => !location.groupId || location.groupId === 'none');
+    const locationsById = _.indexBy(locations, 'id');
+    return region.scrapeLocations.map(id => locationsById[id]);
   }
 
   // groups
@@ -175,30 +183,51 @@ export default class Trip {
   }
   moveLocationUp(locationId) {
     const location = this.getLocationById(locationId);
-    const group = this.getGroupById(location.groupId);
-    const currentIndex = group.locations.indexOf(locationId);
-    if (currentIndex < 0) {
-      return;
+    if (location.groupId && location.groupId !== 'none') {
+      const group = this.getGroupById(location.groupId);
+      const currentIndex = group.locations.indexOf(locationId);
+      if (currentIndex < 0) {
+        return;
+      }
+      group.locations.splice(currentIndex, 1);
+      group.locations.splice(currentIndex - 1, 0, locationId);
+    } else {
+      const region = this.getActiveRegion();
+      const currentIndex = region.scrapeLocations.indexOf(locationId);
+      region.scrapeLocations.splice(currentIndex, 1);
+      region.scrapeLocations.splice(currentIndex - 1, 0, locationId);
     }
-    group.locations.splice(currentIndex, 1);
-    group.locations.splice(currentIndex - 1, 0, locationId);
   }
   moveLocationDown(locationId) {
     const location = this.getLocationById(locationId);
-    const group = this.getGroupById(location.groupId);
-    const currentIndex = group.locations.indexOf(locationId);
-    if (currentIndex < 0) {
-      return;
+    if (location.groupId && location.groupId !== 'none') {
+      const group = this.getGroupById(location.groupId);
+      const currentIndex = group.locations.indexOf(locationId);
+      if (currentIndex < 0) {
+        return;
+      }
+      group.locations.splice(currentIndex, 1);
+      group.locations.splice(currentIndex + 1, 0, locationId);
+    } else {
+      const region = this.getActiveRegion();
+      const currentIndex = region.scrapeLocations.indexOf(locationId);
+      region.scrapeLocations.splice(currentIndex, 1);
+      region.scrapeLocations.splice(currentIndex + 1, 0, locationId);
     }
-    group.locations.splice(currentIndex, 1);
-    group.locations.splice(currentIndex + 1, 0, locationId);
   }
   moveLocationTo(locationId, fromIndex, toIndex) {
     const location = this.getLocationById(locationId);
-    const group = this.getGroupById(location.groupId);
-    const originLocationId = group.locations[fromIndex];
-    group.locations.splice(fromIndex, 1);
-    group.locations.splice(toIndex, 0, originLocationId);
+    if (location.groupId && location.groupId !== 'none') {
+      const group = this.getGroupById(location.groupId);
+      const originLocationId = group.locations[fromIndex];
+      group.locations.splice(fromIndex, 1);
+      group.locations.splice(toIndex, 0, originLocationId);
+    } else {
+      const region = this.getActiveRegion();
+      const originLocationId = region.scrapeLocations[fromIndex];
+      region.scrapeLocations.splice(fromIndex, 1);
+      region.scrapeLocations.splice(toIndex, 0, originLocationId);
+    }
   }
   selectGroup(groupId) {
     this.activeGroup = this.getGroupById(groupId);
