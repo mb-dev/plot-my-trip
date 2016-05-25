@@ -147,9 +147,10 @@ describe('Trip', function() {
         let region = trip.addActivePlaceAsRegion();
         trip.addLocationToRegion(region.id, this.location.id);
         let group = trip.addGroup(region.id, 'Day 1');
+        trip.addLocationToGroup(group.id, this.location.id);
         trip.setActivePlace(pocketBar);
         let location2 = trip.addActivePlaceToTrip();
-        trip.addLocationToGroup(group.id, location2.id);
+        trip.addLocationToRegion(region.id, location2.id);
         let locations = trip.getLocationsInRegion(region.id);
         expect(locations.length).to.equal(2);
         expect(locations[0].id).to.equal(this.location.id);

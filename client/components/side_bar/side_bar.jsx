@@ -76,23 +76,24 @@ class SideBar extends React.Component {
     );
 
     const activeRegionName = this.state.activeRegion ? this.state.activeRegion.name : '';
+    const linkSuffix = this.props.editable ? '' : '?view=1';
 
     return (
       <div id="side-bar">
         <div className="top clearfix">
-          { this.state.prevRegionName ?
-            <Link to={`/trip/${this.state.activeTripId}/${this.state.prevRegionName}`} className="prev-region">Prev City</Link>
+          {this.state.prevRegionName ?
+            <Link to={`/trip/${this.state.activeTripId}/${this.state.prevRegionName}${linkSuffix}`} className="prev-region">Prev City</Link>
             :
             <div className="prev-link-placeholder"></div>
           }
-          { this.state.activeRegion &&
+          {this.state.activeRegion &&
             <div onClick={this.onSelectRegion} className="active-region-name">{activeRegionName}</div>
           }
-          { this.state.nextRegionName &&
-            <Link to={`/trip/${this.state.activeTripId}/${this.state.nextRegionName}`} className="next-region">Next City</Link>
+          {this.state.nextRegionName &&
+            <Link to={`/trip/${this.state.activeTripId}/${this.state.nextRegionName}${linkSuffix}`} className="next-region">Next City</Link>
           }
         </div>
-        { this.state.activeRegion ? regionRender : noRegion }
+        {this.state.activeRegion ? regionRender : noRegion}
       </div>
     );
   }

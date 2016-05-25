@@ -15,7 +15,8 @@ export default class EditLocationModal extends React.Component {
     e.preventDefault();
     const name = this.refs.locationNameInput.value;
     const comments = this.refs.locationCommentsInput.value;
-    actions.editLocationOk(this.props.location.id, {name: name, comments: comments});
+    const privateLocation = this.refs.locationPrivateInput.checked;
+    actions.editLocationOk(this.props.location.id, {name: name, comments: comments, private: privateLocation});
   }
   onEditLocationClosed() {
     actions.editLocationClosed();
@@ -33,6 +34,10 @@ export default class EditLocationModal extends React.Component {
           <div className="form-group">
             <label>Comments:</label>
             <textarea className="form-control" defaultValue={this.props.location.comments} ref="locationCommentsInput" />
+          </div>
+          <div className="form-group">
+            <label>Private:</label>
+            <input type="checkbox" defaultChecked={this.props.location.private} ref="locationPrivateInput" />
           </div>
         </form>
       </Modal>

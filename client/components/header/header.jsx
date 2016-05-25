@@ -14,6 +14,7 @@ export default class Header extends React.Component {
     this.onUsersStoreChange = this.onUsersStoreChange.bind(this);
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
     this.onSaveTrip = this.onSaveTrip.bind(this);
+    this.onShareTrip = this.onShareTrip.bind(this);
   }
   handleLogin() {
     // get Google Auth URL
@@ -29,6 +30,9 @@ export default class Header extends React.Component {
   }
   onTripsStoreChange() {
     this.setState({saveSuccessfully: store.saveSuccessfully});
+  }
+  onShareTrip() {
+    
   }
   componentDidMount() {
     userStore.addChangeListener(this.onUsersStoreChange);
@@ -92,6 +96,7 @@ export default class Header extends React.Component {
                 {userSection}
               </li>
               { this.state.currentUser &&
+                <li><button type="button" onClick={this.onShareTrip} className="btn navbar-btn">Share</button></li>
                 <li><button type="button" onClick={this.onSaveTrip} className={saveButtonClass}>Save</button></li>
               }
             </ul>

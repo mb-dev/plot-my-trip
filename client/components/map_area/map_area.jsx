@@ -5,6 +5,8 @@ import dispatcher from '../../dispatcher/dispatcher';
 import ActionType from '../../stores/action_types';
 import store from '../../stores/store';
 import converter  from '../../stores/converter';
+import Location from './location';
+import Locations from './locations';
 
 require('./map_area.less');
 
@@ -17,6 +19,10 @@ function locationToMapLocation(location) {
     group: location.groupId,
     color: store.currentTrip.getColorOfGroup(location.groupId),
   };
+}
+
+function locationKey(location) {
+  return `${location.id}-${location.color.file}-${location.index}-${location.focused}`;
 }
 
 export default class MapArea extends React.Component {
@@ -58,47 +64,43 @@ export default class MapArea extends React.Component {
   onSubmit(e) {
     e.preventDefault();
   }
-  updateState(props) {
+  updateState() {
     if (!store.currentTrip) {
       return;
     }
+    const activeRegion = store.currentTrip.getActiveRegion();
+    const activeLocation = store.currentTrip.getActiveLocation();
     const activeGroup = store.currentTrip.getActiveGroup();
     const focusLocationId = store.currentTrip.getFocusLocation();
-    const locations = [];
-    const mapState = {
-      activeRegion: store.currentTrip.getActiveRegion(),
-      activeLocation: store.currentTrip.getActiveLocation(),
-    };
+    const locations = store.currentTrip.getLocationsInRegion(activeRegion.id).map(locationToMapLocation);
+    const indexByGroup = {};
+    locations.forEach((location) => {
+      if (location.id === focusLocationId) {
+        location.focused = true;
+      }
+      if (!location.group) {
+        location.group = 'none';
+      }
+      indexByGroup[location.group] = indexByGroup[location.group] || 0;
+      indexByGroup[location.group] = location.index = indexByGroup[location.group] + 1;
+      location.key = locationKey(location);
+    });
 
-    if (!mapState.activeLocation) {
+    if (!activeLocation) {
       const groupNameNode = this.refs.autoComplete;
       if (groupNameNode) {
         groupNameNode.value = '';
       }
     }
 
-    if (mapState.activeRegion) {
-      if (activeGroup) {
-        mapState.locations = store.currentTrip.getGroupMembers(mapState.activeGroup.id).map(locationToMapLocation);
-        mapState.displayStyle = 'directions';
-      } else {
-        mapState.locations = store.currentTrip.getLocationsInRegion(mapState.activeRegion.id).map(locationToMapLocation);
-        mapState.displayStyle = 'locations';
-      }
-
-      mapState.locations.forEach((location) => {
-        if (location.id === focusLocationId) {
-          location.focused = true;
-        }
-      });
-    }
-
-    googleMapsService.setState(mapState);
+    googleMapsService.setState({
+      activeRegion: activeRegion,
+    });
 
     this.setState({
       locations: locations,
-      activeLocation: mapState.activeLocation,
-      activeRegion: mapState.activeRegion,
+      activeLocation: activeLocation,
+      activeRegion: activeRegion,
       activeGroup: activeGroup,
       focusLocationId: focusLocationId,
     });
@@ -121,6 +123,19 @@ export default class MapArea extends React.Component {
           {this.props.editable && this.state.activeLocation && addToScrapeBook}
         </form>
         <div id="map-canvas" ref="mapCanvas"></div>
+        <Locations >
+          {this.state.locations.map((location) => (
+            <Location
+              key={location.id}
+              position={location.position}
+              index={location.index}
+              mapsService={googleMapsService}
+              color={location.color}
+              focused={location.focused}
+              locationKey={location.key}
+            />
+          ))}
+        </Locations>
       </div>
     );
   }
