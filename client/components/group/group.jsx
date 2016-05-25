@@ -2,10 +2,9 @@ import React from 'react';
 import classNames from 'classnames';
 import {DropTarget} from 'react-dnd';
 
-import dispatcher from '../../dispatcher/dispatcher';
-import ActionType from '../../stores/action_types';
 import store from '../../stores/store';
 import GroupMember from './group_member';
+import actions from '../../actions/actions';
 
 require('./group.less');
 
@@ -16,18 +15,10 @@ const locationTarget = {
     return monitor.getItem().groupId !== props.group.id;
   },
   drop(props, monitor) {
-    if (props.group.id) {
-      dispatcher.dispatch({
-        actionType: ActionType.GROUPS.ADD_PLACE_TO_GROUP,
-        groupId: props.group.id,
-        locationId: monitor.getItem().id,
-      });
+    if (props.group.id && props.group.id !== 'none') {
+      actions.addPlaceToGroup(props.group.id, monitor.getItem().id);
     } else {
-      dispatcher.dispatch({
-        actionType: ActionType.LOCATIONS.UNASSIGN_LOCATION,
-        regionId: props.region.id,
-        locationId: monitor.getItem().id,
-      });
+      actions.unassignLocation(props.region.id, monitor.getItem().id);
     }
   },
 };
@@ -49,6 +40,7 @@ export default class Group extends React.Component {
     super(props);
     this.state = {groupMembers: [], selectedGroup: null, groupColor: null};
     this.onTripsStoreChange = this.onTripsStoreChange.bind(this);
+    this.onClickGroup = this.onClickGroup.bind(this);
   }
   componentDidMount() {
     store.addChangeListener(this.onTripsStoreChange);
@@ -63,18 +55,30 @@ export default class Group extends React.Component {
       return;
     }
     let members = [];
-    if (this.props.group.id) {
+    if (this.props.group.id !== 'none') {
       members = store.currentTrip.getGroupMembers(this.props.group.id);
     } else {
       members = store.currentTrip.getUnassignedLocations();
     }
     const activeGroup = store.currentTrip.getActiveGroup();
     const groupColor = store.currentTrip.getColorOfGroup(this.props.group.id);
+    let groupVisible = true;
+    if (store.state.viewTrip.visibleGroups.length > 0) {
+      groupVisible = store.state.viewTrip.visibleGroups.indexOf(this.props.group.id) >= 0;
+    }
+
     this.setState({
       groupMembers: members,
       activeGroup: activeGroup,
-      groupColor: groupColor.color,
+      groupColor: groupVisible ? groupColor.color : 'gray',
     });
+  }
+  onClickGroup() {
+    if (store.state.viewTrip.visibleGroups.length > 0) {
+      actions.showAllGroups();
+    } else {
+      actions.showOnlyGroup(this.props.group.id);
+    }
   }
   render() {
     const {canDrop, isOver, connectDropTarget} = this.props;
@@ -82,7 +86,7 @@ export default class Group extends React.Component {
       group: true,
       'drag-item-is-over': canDrop && isOver,
       active: this.state.activeGroup && this.state.activeGroup.id === this.props.group.id,
-      scrape: !this.props.group.id,
+      scrape: !this.props.group.id || this.props.group.id === 'none',
     });
 
     let groupColorStyle = {backgroundColor: this.state.groupColor};
@@ -94,7 +98,7 @@ export default class Group extends React.Component {
             <a>Delete Day</a>
           </div>
         }
-        <div>
+        <div onClick={this.onClickGroup}>
           <div className="group-color" style={groupColorStyle} />
           <h4>{this.props.group.name}</h4>
         </div>
@@ -103,7 +107,7 @@ export default class Group extends React.Component {
         }
         <ol className="group-members">
           {this.state.groupMembers.map((location, index) => (
-            <GroupMember key={location.id} location={location} index={index} editable={this.props.editable} />
+            <GroupMember group={this.props.group} key={location.id} location={location} index={index} editable={this.props.editable} />
           ))}
         </ol>
       </div>

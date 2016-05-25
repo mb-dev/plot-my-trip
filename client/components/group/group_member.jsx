@@ -18,10 +18,19 @@ const groupSource = {
 const groupTarget = {
   hover(props, monitor, component) {
     const dragIndex = monitor.getItem().index;
+    const dragGroup = monitor.getItem().groupId;
     const hoverIndex = props.index;
 
     // Don't replace items with themselves
     if (dragIndex === hoverIndex) {
+      return;
+    }
+
+    if (dragGroup !== props.location.groupId) {
+      return;
+    }
+
+    if (!props.location.groupId || props.location.groupId == 'none') {
       return;
     }
 
@@ -53,13 +62,23 @@ const groupTarget = {
 
     // Time to actually perform the action
     component.moveLocationTo(dragIndex, hoverIndex);
-    console.log('moving', dragIndex, hoverIndex);
 
     // Note: we're mutating the monitor item here!
     // Generally it's better to avoid mutations,
     // but it's good here for the sake of performance
     // to avoid expensive index searches.
     monitor.getItem().index = hoverIndex;
+  },
+  drop(props, monitor) {
+    const dragGroup = monitor.getItem().groupId;
+
+    if (dragGroup !== props.location.groupId) {
+      if (props.location.groupId && props.location.groupId !== 'none') {
+        actions.addPlaceToGroup(props.location.groupId, monitor.getItem().id, props.index);
+      } else {
+        actions.unassignLocation(props.group.regionId, monitor.getItem().id);
+      }
+    }
   },
 };
 
@@ -81,6 +100,7 @@ export default class GroupMember extends React.Component {
     connectDropTarget: React.PropTypes.func.isRequired,
     editable: React.PropTypes.bool,
     index: React.PropTypes.number.isRequired,
+    group: React.PropTypes.object,
   }
   constructor(props) {
     super(props);

@@ -140,17 +140,20 @@ export default class Trip {
     const group = this.getGroupById(groupId);
     return group.locations.map(id => locationsById[id]);
   }
-  addLocationToGroup(groupId, locationId) {
+  addLocationToGroup(groupId, locationId, toIndex) {
     const location = this.getLocationById(locationId);
     const group = this.getGroupById(groupId);
     if (location.groupId === groupId) {
       return;
     }
-    if (location.groupId) {
+    if (location.groupId && location.groupId !== 'none') {
       this.removeLocationFromGroup(location.groupId, locationId);
     }
     location.groupId = groupId;
-    group.locations = _.union(group.locations, [locationId]);
+    if (!_.isNumber(toIndex)) {
+      toIndex = group.locations.length;
+    }
+    group.locations.splice(toIndex, 0, locationId);
     const region = this.getRegionById(group.regionId);
     this.removeLocationFromRegion(region, location);
   }
@@ -292,7 +295,7 @@ export default class Trip {
     }
   }
   getColorOfGroup(groupId) {
-    if (groupId) {
+    if (groupId && groupId !== 'none') {
       return this.colorByGroup[groupId];
     }
     return WHITE_COLOR;

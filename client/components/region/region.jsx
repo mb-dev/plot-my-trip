@@ -47,10 +47,10 @@ export default class Region extends React.Component {
     let groupNodes = this.state.groups.map((group) => (
       <Group key={group.id} group={group} region={this.props.region} editable={this.props.editable} />
     ));
-    const scrapeGroup = {id: null, name: 'Scrape Book'};
+    const scrapeGroup = {id: 'none', name: 'Scrape Book', regionId: this.props.region.id};
     return (
       <div id="region">
-        { this.props.editable &&
+        {this.props.editable &&
           <a href="#" onClick={this.onAddDay}><i className="fa fa-plus"></i> Add Day</a>
         }
         <div className="group-nodes">

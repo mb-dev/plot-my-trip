@@ -1,13 +1,13 @@
-import {EventEmitter} from 'events'
+import {EventEmitter} from 'events';
 
-import dispatcher from '../dispatcher/dispatcher'
-import ActionType from './action_types'
-import apiClient from '../libraries/api_client/api_client'
-import Trip from './trip'
+import dispatcher from '../dispatcher/dispatcher';
+import ActionType from './action_types';
+import apiClient from '../libraries/api_client/api_client';
+import Trip from './trip';
 
-var CHANGE_EVENT = 'change';
+const CHANGE_EVENT = 'change';
 
-class TripsStore extends EventEmitter{
+class TripsStore extends EventEmitter {
   constructor() {
     super();
     this.currentTrip = null;
@@ -21,6 +21,7 @@ class TripsStore extends EventEmitter{
       editingLocation: null,
       viewTrip: {
         editable: false,
+        visibleGroups: [],
       },
     };
   }
@@ -31,8 +32,7 @@ class TripsStore extends EventEmitter{
     apiClient.getTrips((data) => {
       if (data.length > 0) {
         data.forEach((tripData) => {
-          let trip = new Trip(tripData);
-          let tripId = trip.getTripId();
+          const trip = new Trip(tripData);
           this.addTrip(trip);
           trip.assignColorByGroup();
         });
@@ -46,7 +46,7 @@ class TripsStore extends EventEmitter{
     apiClient.updateTrips(this.currentTrip.data, (data) => {
       this.saveSuccessfully = true;
       if (this.currentTrip.data._id === null && data.tripId) {
-        let tripId = this.currentTrip.data._id = data.tripId;
+        const tripId = this.currentTrip.data._id = data.tripId;
         delete this.tripById['new'];
         this.tripById[tripId] = this.currentTrip;
         this.activeTripId = tripId;
@@ -60,13 +60,11 @@ class TripsStore extends EventEmitter{
     });
   }
   getTripsSummary() {
-    return this.trips.map((trip) => {
-      return {
-        id: trip.getTripId(),
-        name: trip.getTripName(),
-        regionsCount: trip.getRegionCount(),
-      };
-    });
+    return this.trips.map((trip) => ({
+      id: trip.getTripId(),
+      name: trip.getTripName(),
+      regionsCount: trip.getRegionCount(),
+    }));
   }
   getTripById(id) {
     if (!id) {
@@ -92,7 +90,7 @@ class TripsStore extends EventEmitter{
     }
   }
   setActiveTrip(id, regionId, regionName) {
-      }
+  }
   addChangeListener(callback) {
     this.on(CHANGE_EVENT, callback);
   }
@@ -188,11 +186,15 @@ class TripsStore extends EventEmitter{
         this.emitChange();
         break;
       case ActionType.GROUPS.ADD_PLACE_TO_GROUP:
-        this.currentTrip.addLocationToGroup(payload.groupId, payload.locationId);
+        this.currentTrip.addLocationToGroup(payload.groupId, payload.locationId, payload.toIndex);
         this.emitChange();
         break;
       case ActionType.GROUPS.SELECT_GROUP:
         this.currentTrip.selectGroup(payload.groupId);
+        this.emitChange();
+        break;
+      case ActionType.GROUPS.CHANGE_VISIBLE_GROUPS:
+        this.state.viewTrip.visibleGroups = payload.visibleGroups;
         this.emitChange();
         break;
       case ActionType.REGIONS.SELECT_REGION:

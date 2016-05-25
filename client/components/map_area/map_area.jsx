@@ -72,8 +72,10 @@ export default class MapArea extends React.Component {
     const activeLocation = store.currentTrip.getActiveLocation();
     const activeGroup = store.currentTrip.getActiveGroup();
     const focusLocationId = store.currentTrip.getFocusLocation();
-    const locations = store.currentTrip.getLocationsInRegion(activeRegion.id).map(locationToMapLocation);
     const indexByGroup = {};
+    const visibleGroups = store.state.viewTrip.visibleGroups;
+    let locations = store.currentTrip.getLocationsInRegion(activeRegion.id).map(locationToMapLocation);
+
     locations.forEach((location) => {
       if (location.id === focusLocationId) {
         location.focused = true;
@@ -85,7 +87,9 @@ export default class MapArea extends React.Component {
       indexByGroup[location.group] = location.index = indexByGroup[location.group] + 1;
       location.key = locationKey(location);
     });
-
+    if (visibleGroups.length > 0) {
+      locations = locations.filter(location => visibleGroups.indexOf(location.group) >= 0);
+    }
     if (!activeLocation) {
       const groupNameNode = this.refs.autoComplete;
       if (groupNameNode) {

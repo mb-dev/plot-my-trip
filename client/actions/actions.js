@@ -64,6 +64,36 @@ class Actions {
   moveLocationTo(locationId, fromIndex, toIndex) {
     dispatcher.dispatch({actionType: ActionType.LOCATIONS.MOVE_LOCATION_TO, locationId: locationId, fromIndex: fromIndex, toIndex: toIndex});
   }
+  addPlaceToGroup(groupId, locationId, toIndex) {
+    dispatcher.dispatch({
+      actionType: ActionType.GROUPS.ADD_PLACE_TO_GROUP,
+      groupId: groupId,
+      locationId: locationId,
+      toIndex: toIndex,
+    });
+  }
+  unassignLocation(regionId, locationId) {
+    dispatcher.dispatch({
+      actionType: ActionType.LOCATIONS.UNASSIGN_LOCATION,
+      regionId: regionId,
+      locationId: locationId,
+    });
+  }
+  showOnlyGroup(groupId) {
+    if (!groupId) {
+      groupId = 'none';
+    }
+    dispatcher.dispatch({
+      actionType: ActionType.GROUPS.CHANGE_VISIBLE_GROUPS,
+      visibleGroups: [groupId],
+    });
+  }
+  showAllGroups() {
+    dispatcher.dispatch({
+      actionType: ActionType.GROUPS.CHANGE_VISIBLE_GROUPS,
+      visibleGroups: [],
+    });
+  }
 }
 
 const actions = new Actions();
