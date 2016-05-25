@@ -32,7 +32,6 @@ export default class Header extends React.Component {
     this.setState({saveSuccessfully: store.saveSuccessfully});
   }
   onShareTrip() {
-    
   }
   componentDidMount() {
     userStore.addChangeListener(this.onUsersStoreChange);
@@ -85,7 +84,7 @@ export default class Header extends React.Component {
           </div>
           <div className="collapse navbar-collapse">
             <ul className="nav navbar-nav">
-              { links.map((link) => (
+              {links.map((link) => (
                 <li className={link.className} key={link.name}>
                   <Link to={link.link}>{link.name}</Link>
                 </li>
@@ -95,10 +94,10 @@ export default class Header extends React.Component {
               <li>
                 {userSection}
               </li>
-              { this.state.currentUser &&
-                <li><button type="button" onClick={this.onShareTrip} className="btn navbar-btn">Share</button></li>
-                <li><button type="button" onClick={this.onSaveTrip} className={saveButtonClass}>Save</button></li>
-              }
+              {this.state.currentUser && [
+                <li key="share-trip"><button type="button" onClick={this.onShareTrip} className="btn navbar-btn">Share</button></li>,
+                <li key="save-trip"><button type="button" onClick={this.onSaveTrip} className={saveButtonClass}>Save</button></li>,
+              ]}
             </ul>
           </div>
         </div>

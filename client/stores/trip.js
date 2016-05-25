@@ -190,6 +190,13 @@ export default class Trip {
     group.locations.splice(currentIndex, 1);
     group.locations.splice(currentIndex + 1, 0, locationId);
   }
+  moveLocationTo(locationId, fromIndex, toIndex) {
+    const location = this.getLocationById(locationId);
+    const group = this.getGroupById(location.groupId);
+    const originLocationId = group.locations[fromIndex];
+    group.locations.splice(fromIndex, 1);
+    group.locations.splice(toIndex, 0, originLocationId);
+  }
   selectGroup(groupId) {
     this.activeGroup = this.getGroupById(groupId);
   }

@@ -61,6 +61,9 @@ class Actions {
   moveLocationDown(locationId) {
     dispatcher.dispatch({actionType: ActionType.LOCATIONS.MOVE_LOCATION_DOWN, locationId: locationId});
   }
+  moveLocationTo(locationId, fromIndex, toIndex) {
+    dispatcher.dispatch({actionType: ActionType.LOCATIONS.MOVE_LOCATION_TO, locationId: locationId, fromIndex: fromIndex, toIndex: toIndex});
+  }
 }
 
 const actions = new Actions();

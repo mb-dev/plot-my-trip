@@ -85,15 +85,11 @@ export default class Group extends React.Component {
       scrape: !this.props.group.id,
     });
 
-    let groupMembers = this.state.groupMembers.map((location) => (
-      <GroupMember key={location.id} location={location} editable={this.props.editable} />
-    ));
-
     let groupColorStyle = {backgroundColor: this.state.groupColor};
 
     return connectDropTarget(
       <div className={groupClassName}>
-        { this.props.editable && this.props.group.id &&
+        {this.props.editable && this.props.group.id &&
           <div className="group-controls">
             <a>Delete Day</a>
           </div>
@@ -102,11 +98,13 @@ export default class Group extends React.Component {
           <div className="group-color" style={groupColorStyle} />
           <h4>{this.props.group.name}</h4>
         </div>
-        { this.state.groupMembers.length === 0 &&
+        {this.state.groupMembers.length === 0 &&
           <div className="no-group-members text-muted">Day has no locations</div>
         }
         <ol className="group-members">
-          {groupMembers}
+          {this.state.groupMembers.map((location, index) => (
+            <GroupMember key={location.id} location={location} index={index} editable={this.props.editable} />
+          ))}
         </ol>
       </div>
     );

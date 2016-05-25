@@ -164,6 +164,10 @@ class TripsStore extends EventEmitter{
         this.currentTrip.moveLocationUp(payload.locationId);
         this.emitChange();
         break;
+      case ActionType.LOCATIONS.MOVE_LOCATION_TO:
+        this.currentTrip.moveLocationTo(payload.locationId, payload.fromIndex, payload.toIndex);
+        this.emitChange();
+        break;
       case ActionType.LOCATIONS.MOVE_LOCATION_DOWN:
         this.currentTrip.moveLocationDown(payload.locationId);
         this.emitChange();

@@ -9,7 +9,7 @@ export default class Location extends React.Component {
     locationKey: React.PropTypes.string,
     mapsService: React.PropTypes.object,
     color: React.PropTypes.object,
-    index: React.PropTypes.string,
+    index: React.PropTypes.number,
     position: React.PropTypes.object,
   }
   constructor() {
@@ -30,9 +30,6 @@ export default class Location extends React.Component {
   }
   componentWillUnmount() {
     this.state.marker.setMap(null);
-  }
-  updateState(props) {
-
   }
   render() {
     this.state.marker.setLabel(this.props.index && this.props.index.toString());
